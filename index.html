@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b3a2a">
+<title>后里騎跡 – 台中后里單車之旅</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+canvas{display:block;position:fixed;left:0;top:0;width:100%;height:100%}
+.ov{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:rgba(10,25,20,.78);z-index:5;padding:20px;box-sizing:border-box}
+.ov.on{display:flex}
+.ov h1{font-size:40px;margin:0 0 6px;letter-spacing:4px;text-shadow:0 3px 0 #b5402f}
+.ov p{margin:6px 0;line-height:1.6;font-size:15px;max-width:420px}
+.btn{margin:10px;padding:14px 34px;font-size:20px;border:0;border-radius:30px;background:#f3a73b;color:#3a1d00;font-weight:bold;box-shadow:0 4px 0 #a5641a;font-family:inherit}
+.btn.s{background:#ddd;box-shadow:0 4px 0 #888;font-size:16px;padding:10px 24px}
+#hud{position:fixed;top:0;left:0;right:0;z-index:3;pointer-events:none;color:#fff;font-size:14px;text-shadow:0 1px 2px #000}
+.tb{position:fixed;z-index:4;width:40px;height:40px;border-radius:20px;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:20px;top:calc(8px + env(safe-area-inset-top))}
+#toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:4;background:rgba(120,40,20,.9);color:#fff;padding:10px 22px;border-radius:8px;border:3px solid #f3d38b;font-size:20px;font-weight:bold;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;text-align:center}
+#toast small{display:block;font-size:13px;font-weight:normal}
+</style></head><body>
+<canvas id="c"></canvas>
+<button class="tb" id="pauseB" style="right:10px">❚❚</button>
+<button class="tb" id="muteB" style="right:56px">🔊</button>
+<div id="toast"></div>
+<div class="ov on" id="title">
+ <h1>后里騎跡</h1><p style="font-size:17px">台中后里・單車漫遊挑戰</p>
+ <p>從后豐鐵馬道出發，穿越九號隧道、花梁鋼橋，<br>經后里車站、馬場、月眉糖廠、中社花海、<br>花博森林園區，終點：泰安舊火車站 🌸</p>
+ <p style="font-size:13px;opacity:.85">👈👉 左右轉向｜右下「踩踏」加速｜左下「煞車」<br>鍵盤：←→ 轉向、↑/空白 踩踏、↓ 煞車、P 暫停<br>體力歸零會騎不動！吃冰棒🍡、喝水補體力，避開路人、坑洞、鴨子和狗。</p>
+ <button class="btn" id="startB">出發！</button><p id="bestT"></p>
+</div>
+<div class="ov" id="pause"><h1>暫停</h1><button class="btn" id="resB">繼續</button><button class="btn s" id="quitB">回標題</button></div>
+<div class="ov" id="result"><h1>抵達泰安！</h1><p id="resTxt"></p><button class="btn" id="againB">再騎一次</button><button class="btn s" id="homeB">回標題</button></div>
+<script>
+"use strict";
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const Q=new URLSearchParams(location.search),TS=+Q.get('ts')||1;
+let W,H,DPR;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',resize);resize();
+// ---------- ROUTE / ZONES ----------
+// map coords: approximate Houli layout (x east, y south) 0..100
+const ZONES=[
+ {id:'trail',name:'后豐鐵馬道',sub:'舊山線鐵道改建的自行車道',len:2*120,sky:['#7ec8f0','#d8f0ff'],grass:['#5fa845','#58a040'],road:'#8b7d6b',rumble:['#c9b18d','#7d6a50'],map:[50,96]},
+ {id:'tunnel',name:'九號隧道',sub:'全長約 500 公尺的舊鐵道隧道',len:2*70,sky:['#111','#222'],grass:['#2a2520','#25201b'],road:'#4a443d',rumble:['#6b5f50','#3c342c'],map:[52,88],dark:1},
+ {id:'bridge',name:'花梁鋼橋',sub:'橫跨大甲溪的鋼桁架鐵橋',len:2*90,sky:['#8fd0f5','#e6f6ff'],grass:['#6d8fa8','#6489a3'],road:'#7a5a3a',rumble:['#b03a2e','#7d2219'],map:[53,78],bridge:1},
+ {id:'junction',name:'東豐綠廊交會點',sub:'后豐鐵馬道 × 東豐自行車綠廊',len:2*70,sky:['#7ec8f0','#d8f0ff'],grass:['#4f9a3a','#4a9236'],road:'#8b7d6b',rumble:['#e0e0e0','#3a8a3a'],map:[55,68]},
+ {id:'town',name:'后里市區・后里車站',sub:'熱鬧的后里街區',len:2*90,sky:['#88c4ec','#e3f2ff'],grass:['#9a9a92','#93938b'],road:'#555',rumble:['#fff','#c33'],map:[50,55]},
+ {id:'horse',name:'后里馬場',sub:'看看馬兒在草原上奔跑',len:2*90,sky:['#7ec8f0','#e8f7ff'],grass:['#7cbf4a','#74b744'],road:'#8d6e4c',rumble:['#fff','#8d6e4c'],map:[40,45]},
+ {id:'sugar',name:'月眉糖廠',sub:'冰棒補給站！🍡 還有糖廠小火車',len:2*90,sky:['#f3c98b','#fff0d8'],grass:['#8fae4c','#87a646'],road:'#6b5b4b',rumble:['#e9d8b0','#a33'],map:[25,40]},
+ {id:'flower',name:'中社花市・花海',sub:'繽紛花田一望無際',len:2*100,sky:['#9fd8ff','#fdf0ff'],grass:['#6fb24a','#68aa44'],road:'#8b7d6b',rumble:['#ff7fb0','#ffe14d'],map:[22,25]},
+ {id:'forest',name:'后里花博森林園區',sub:'2018 台中花博森林園區',len:2*100,sky:['#6fb8e0','#cfeedd'],grass:['#3e8a3a','#398236'],road:'#7a6a55',rumble:['#d8c8a0','#5a4a30'],map:[42,28]},
+ {id:'taian',name:'泰安舊火車站',sub:'日式木造車站與櫻花道 🌸 終點！',len:2*110,sky:['#ffc8dc','#fff2f6'],grass:['#7fb85a','#78b054'],road:'#8a7a6a',rumble:['#ffb7cf','#fff'],map:[78,22]}
+];
+const SEG=200,RW=1600,LANES=3,DRAW=180,CAMH=1000,FOV=100,CD=1/Math.tan(FOV/2*Math.PI/180);
+let segs=[],trackLen=0,zoneStart=[];
+function ease(a,b,p){return a+(b-a)*((-Math.cos(p*Math.PI)/2)+.5)}
+function buildTrack(){
+ segs=[];let y=0,rnd=mulberry(20261105);
+ ZONES.forEach((z,zi)=>{zoneStart[zi]=segs.length;
+  // split zone into 3 sub-pieces with random curve & hill
+  let n=z.len,parts=3,pl=Math.floor(n/parts);
+  for(let p=0;p<parts;p++){
+   let curve=(z.tunnel||z.bridge)?(rnd()-.5)*1.2:(rnd()-.5)*6, hill=(z.bridge||z.dark)?0:(rnd()-.5)*(zi==8?60:40);
+   if(z.id=='bridge')hill=p==1?0:(p==0?10:-10);
+   let y0=y,len=pl+(p==parts-1?n-pl*parts:0);
+   for(let i=0;i<len;i++){let t=i/len,c=curve*Math.sin(t*Math.PI);
+    y=y0+hill*SEG/10*((-Math.cos(t*Math.PI)/2)+.5);
+    segs.push({i:segs.length,z:zi,curve:c,y,sp:[],cars:[],items:[]});}
+  }});
+ // smooth y as p1/p2
+ segs.forEach((s,i)=>{s.p1y=i?segs[i-1].y:0;s.p2y=s.y});
+ trackLen=segs.length*SEG;
+ decorate(rnd);
+}
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function addSp(i,type,x){if(segs[i])segs[i].sp.push({t:type,x})}
+function decorate(r){
+ segs.forEach((s,i)=>{const z=ZONES[s.z].id,side=()=>r()<.5?-1:1;
+  if(z=='tunnel'){if(i%6==0){addSp(i,'lamp',-1.15);addSp(i,'lamp',1.15)} s.tunnel=1;return}
+  if(z=='bridge'){s.bridge=1; if(i%4==0){addSp(i,'truss',-1.2);addSp(i,'truss',1.2)}return}
+  if(i%8==0)addSp(i,'sign',side()*1.3);
+  if(z=='trail'||z=='junction'){if(i%3==0)addSp(i,r()<.6?'tree':'bush',side()*(1.4+r()*2));}
+  if(z=='junction'&&i==zoneStart[3]+20){addSp(i,'jsign',-1.4)}
+  if(z=='town'){if(i%4==0)addSp(i,'house',side()*(1.6+r()));if(i%7==0)addSp(i,'scooter',side()*1.25);if(i==zoneStart[4]+45)addSp(i,'station',1.9)}
+  if(z=='horse'){if(i%2==0){addSp(i,'fence',-1.2);addSp(i,'fence',1.2)}if(i%9==0)addSp(i,'horse',side()*(1.8+r()*2))}
+  if(z=='sugar'){if(i%5==0)addSp(i,'palm',side()*(1.5+r()));if(i==zoneStart[6]+30)addSp(i,'factory',-2.3);if(i==zoneStart[6]+55)addSp(i,'train',2.0);if(i%11==0)addSp(i,'iceshop',1.5)}
+  if(z=='flower'){for(let k=0;k<2;k++)addSp(i,'flowers',side()*(1.3+r()*3));}
+  if(z=='forest'){if(i%2==0)addSp(i,'pine',side()*(1.4+r()*2.5));if(i%13==0)addSp(i,'bush',side()*1.3)}
+  if(z=='taian'){if(i%3==0)addSp(i,'sakura',side()*(1.4+r()*1.8));if(i==segs.length-40)addSp(i,'tstation',-2.0);if(i>segs.length-12&&i<segs.length-9)addSp(i,'goal',0)}
+ });
+ // items & obstacles
+ for(let i=40;i<segs.length-30;i+=14+Math.floor(r()*10)){
+  const z=ZONES[segs[i].z].id;let x=(r()*1.4-.7);
+  if(z=='sugar')segs[i].items.push({t:'ice',x});else if(r()<.45)segs[i].items.push({t:r()<.5?'water':'ice',x});
+  let j=i+7;if(!segs[j])continue;let ox=(r()*1.4-.7),ot;
+  if(z=='tunnel'||z=='bridge')ot='hole';else if(z=='horse'||z=='flower')ot=r()<.5?'duck':'hole';else if(z=='town')ot=r()<.5?'dog':'hole';else ot=['hole','duck','dog'][Math.floor(r()*3)];
+  segs[j].items.push({t:ot,x:ox,obs:1});
+ }
+ cyclists=[];for(let k=0;k<22;k++){cyclists.push({z:(0.05+k/22*0.92)*trackLen,x:r()*1.2-.6,sp:1800+r()*1500,col:['#e33','#27f','#fc2','#2b5','#f7a'][k%5]})}
+}
+let cyclists=[];
+// ---------- STATE ----------
+const MAXS=SEG*24;let st={};
+function reset(){st={pos:0,x:0,speed:0,stam:100,time:0,zone:-1,run:false,hit:0,cool:0,lean:0,pedal:0,auto:!!Q.get('auto'),done:false,col:0,ice:0};buildTrack();}
+// ---------- INPUT ----------
+const key={};addEventListener('keydown',e=>{key[e.code]=1;if(e.code=='KeyP')togglePause();if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault();audio.init()});
+addEventListener('keyup',e=>key[e.code]=0);
+const touch={l:0,r:0,g:0,b:0};
+function btnRects(){const s=Math.min(W,H)*.2,m=14,bot=H-m-s-(H>W?20:0);return{l:[m,bot,s,s],r:[m+s+10,bot,s,s],b:[W-m-s*2-10,bot,s,s],g:[W-m-s,bot-s*.3,s,s*1.3]}}
+function updTouch(e){touch.l=touch.r=touch.g=touch.b=0;const R=btnRects();for(const t of e.touches){for(const k in R){const[a,b,w,h]=R[k];if(t.clientX>=a-8&&t.clientX<=a+w+8&&t.clientY>=b-8&&t.clientY<=b+h+8)touch[k]=1}}}
+['touchstart','touchmove','touchend','touchcancel'].forEach(n=>cv.addEventListener(n,e=>{e.preventDefault();audio.init();updTouch(e)},{passive:false}));
+// mouse fallback for desktop clicking buttons
+cv.addEventListener('mousedown',e=>{audio.init();updTouch({touches:[e]})});addEventListener('mouseup',()=>{touch.l=touch.r=touch.g=touch.b=0});
+// ---------- AUDIO ----------
+const audio={ctx:null,mute:false,amb:null,init(){if(this.ctx)return;try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();this.master=this.ctx.createGain();this.master.connect(this.ctx.destination);this.master.gain.value=this.mute?0:.5;
+ const b=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3}
+ const s=this.ctx.createBufferSource();s.buffer=b;s.loop=true;const f=this.ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=600;this.amb=this.ctx.createGain();this.amb.gain.value=0;s.connect(f);f.connect(this.amb);this.amb.connect(this.master);s.start()}catch(e){}},
+ tone(f,d,type='sine',v=.2,f2){if(!this.ctx)return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+d)},
+ bell(){this.tone(2100,.6,'sine',.25);setTimeout(()=>this.tone(2100,.5,'sine',.2),120)},pedal(){this.tone(180,.05,'triangle',.06)},
+ hit(){this.tone(200,.25,'sawtooth',.2,60)},get(){this.tone(880,.1,'square',.1);setTimeout(()=>this.tone(1320,.15,'square',.1),90)},
+ setMute(m){this.mute=m;if(this.master)this.master.gain.value=m?0:.5}};
+// ---------- UI ----------
+const $=id=>document.getElementById(id);let paused=false,toastT=0;
+function toast(h){const t=$('toast');t.innerHTML=h;t.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity=0,2600)}
+function fmt(t){const m=Math.floor(t/60),s=t%60;return m+':'+(s<10?'0':'')+s.toFixed(2)}
+function showBest(){const b=+localStorage.getItem('houliBest');$('bestT').textContent=b?('最佳紀錄：'+fmt(b)):''}
+function start(){audio.init();reset();st.run=true;paused=false;['title','result','pause'].forEach(i=>$(i).classList.remove('on'));audio.bell()}
+function togglePause(){if(!st.run)return;paused=!paused;$('pause').classList.toggle('on',paused)}
+$('startB').onclick=start;$('againB').onclick=start;$('resB').onclick=togglePause;
+$('quitB').onclick=$('homeB').onclick=()=>{st.run=false;paused=false;$('pause').classList.remove('on');$('result').classList.remove('on');$('title').classList.add('on');showBest()};
+$('pauseB').onclick=togglePause;$('muteB').onclick=()=>{audio.init();audio.setMute(!audio.mute);$('muteB').textContent=audio.mute?'🔇':'🔊'};
+function finish(){st.run=false;st.done=true;const b=+localStorage.getItem('houliBest');let nb=!b||st.time<b;if(nb)localStorage.setItem('houliBest',st.time.toFixed(2));
+ $('resTxt').innerHTML='完成時間：<b style="font-size:26px">'+fmt(st.time)+'</b><br>'+(nb?'🏆 新紀錄！':'最佳紀錄：'+fmt(b))+'<br>收集補給：'+st.col+' 個｜碰撞：'+st.hit+' 次<br>櫻花盛開的泰安舊站到了，辛苦了！';
+ $('result').classList.add('on');audio.bell()}
+// ---------- UPDATE ----------
+function segAt(z){return segs[Math.floor(z/SEG)%segs.length]}
+function update(dt){
+ if(!st.run||paused)return;st.time+=dt;
+ let up=key.ArrowUp||key.Space||key.KeyW||touch.g,dn=key.ArrowDown||key.KeyS||touch.b,L=key.ArrowLeft||key.KeyA||touch.l,R=key.ArrowRight||key.KeyD||touch.r;
+ if(st.auto){up=1;L=R=0;// simple autopilot: avoid obstacles ahead, aim at items
+  let target=0;const base=Math.floor(st.pos/SEG);for(let k=1;k<14;k++){const s=segs[base+k];if(!s)break;for(const it of s.items){if(it.obs&&Math.abs(it.x-st.x)<.45)target=it.x>0?it.x-.8:it.x+.8;}}
+  for(const c of cyclists){const d=c.z-st.pos;if(d>0&&d<SEG*12&&Math.abs(c.x-st.x)<.5)target=c.x>0?c.x-.9:c.x+.9}
+  target=Math.max(-.85,Math.min(.85,target));if(target<st.x-.05)L=1;else if(target>st.x+.05)R=1;}
+ const seg=segAt(st.pos),ratio=st.speed/MAXS,tired=st.stam<=0;
+ const topS=MAXS*(tired?.35:1)*(st.cool>0?.5:1);
+ if(up&&!tired||up&&st.speed<topS){st.speed+=MAXS*.45*dt;st.stam-=dt*2.2*(seg.y>seg.p1y?1.6:1);st.pedal+=dt*(2+ratio*8);if(Math.floor(st.pedal*2)!=Math.floor((st.pedal-dt*(2+ratio*8))*2))audio.pedal()}
+ else st.speed-=MAXS*.12*dt;
+ if(dn)st.speed-=MAXS*1.1*dt;
+ st.speed-=(seg.y-seg.p1y)*.25*dt*60; // hills
+ st.speed=Math.max(0,Math.min(st.speed,topS));st.stam=Math.max(0,Math.min(100,st.stam+(!up?dt*1.5:0)));
+ const dx=dt*2.2*Math.min(1,ratio*1.5+.2);if(L)st.x-=dx;if(R)st.x+=dx;st.lean+=((R?1:0)-(L?1:0)-st.lean)*Math.min(1,dt*8);
+ st.x-=dx*ratio*seg.curve*.12; // centrifugal
+ const lim=seg.bridge||seg.tunnel?.95:1.6;if(Math.abs(st.x)>1){st.speed-=MAXS*.6*dt*(st.speed>MAXS*.3?1:0)}st.x=Math.max(-lim,Math.min(lim,st.x));
+ st.cool=Math.max(0,st.cool-dt);
+ st.pos+=st.speed*dt;
+ // collisions
+ const ps=segAt(st.pos);for(const s of [ps,segs[ps.i+1]]){if(!s)continue;for(const it of s.items){if(it.gone)continue;if(Math.abs(it.x-st.x)<.32){
+  if(it.obs){if(st.cool<=0){st.cool=1.2;st.speed*=.4;st.stam-=8;st.hit++;audio.hit();toast(({hole:'哎呀！坑洞！',duck:'嘎嘎！小心鴨子！',dog:'汪汪！有狗！'})[it.t])}}
+  else{it.gone=1;st.col++;st.stam=Math.min(100,st.stam+(it.t=='ice'?30:15));audio.get();if(it.t=='ice')st.ice++}}}}
+ for(const c of cyclists){c.z+=c.sp*dt;if(c.z>trackLen-SEG*20)c.z=trackLen-SEG*20;const d=c.z-st.pos;if(Math.abs(d)<SEG*.8&&Math.abs(c.x-st.x)<.35&&st.cool<=0){st.cool=1.2;st.speed*=.5;st.stam-=5;st.hit++;audio.hit();audio.bell();toast('叮叮！撞到其他騎士了')}}
+ // zones
+ const zi=ps.z;if(zi!=st.zone){st.zone=zi;const z=ZONES[zi];toast('📍 '+z.name+'<small>'+z.sub+'</small>');if(zi>0){st.stam=Math.min(100,st.stam+10);audio.bell()}}
+ if(audio.amb)audio.amb.gain.value=.05+ratio*.25;
+ if(st.pos>=trackLen-SEG*10)finish();
+}
+// ---------- RENDER ----------
+function project(p,cx,cy,cz,cd){p.cx=(p.wx||0)-cx;p.cy=(p.wy||0)-cy;p.cz=p.wz-cz;p.s=cd/p.cz;p.X=Math.round(W/2+p.s*p.cx*W/2);p.Y=Math.round(H/2-p.s*p.cy*H/2);p.Wd=Math.round(p.s*RW*W/2)}
+function poly(x1,y1,x2,y2,x3,y3,x4,y4,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.lineTo(x4,y4);ctx.closePath();ctx.fill()}
+let tm=0;
+function render(){
+ tm+=1/60;const base=Math.floor(st.pos/SEG),bs=segs[base%segs.length],z=ZONES[bs.z];
+ const pp=(st.pos%SEG)/SEG,camY=CAMH+ (bs.p1y+(bs.y-bs.p1y)*pp),cd=CD*(H>W?1.35:1);
+ // sky
+ const g=ctx.createLinearGradient(0,0,0,H*.6);g.addColorStop(0,z.sky[0]);g.addColorStop(1,z.sky[1]);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ if(!z.dark)drawBackdrop(z,bs);
+ let x=0,dx=-(bs.curve*pp),maxy=H;const list=[];
+ for(let n=0;n<DRAW;n++){const s=segs[base+n];if(!s)break;
+  const p1={wx:-x,wy:s.p1y,wz:(base+n)*SEG},p2={wx:-x-dx,wy:s.p2y,wz:(base+n+1)*SEG};
+  p1.wx=0;p2.wx=0;
+  project(p1,st.x*RW-x,camY,st.pos-(n==0?0:0),cd);project(p2,st.x*RW-x-dx,camY,st.pos,cd);
+  x+=dx;dx+=s.curve;s.clip=maxy;s.P1=p1;s.P2=p2;list.push(s);
+  if(p1.cz<=1||p2.Y>=maxy)continue;
+  drawSeg(s,p1,p2);maxy=p2.Y;}
+ // sprites back to front
+ for(let n=list.length-1;n>0;n--){const s=list[n];const p=s.P1;if(p.cz<=1)continue;
+  for(const sp of s.sp)drawSprite(sp.t,p.X+p.s*sp.x*RW*W/2,p.Y,p.s*W/2,s.clip,s);
+  for(const it of s.items)if(!it.gone)drawSprite(it.t,p.X+p.s*it.x*RW*W/2,p.Y,p.s*W/2,s.clip,s);
+  for(const c of cyclists){const ci=Math.floor(c.z/SEG);if(ci==s.i)drawRider(p.X+p.s*c.x*RW*W/2,p.Y,p.s*W/2*1.0,c.col,s.clip,c.z)}
+ }
+ if(z.dark){const gr=ctx.createRadialGradient(W/2,H*.72,H*.05,W/2,H*.6,H*.75);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.85)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H)}
+ // player
+ drawPlayer();
+ if(st.cool>0&&Math.floor(st.cool*10)%2){ctx.fillStyle='rgba(255,0,0,.15)';ctx.fillRect(0,0,W,H)}
+ drawHUD(z);
+}
+function drawSeg(s,p1,p2){const z=ZONES[s.z],alt=Math.floor(s.i/3)%2;
+ if(s.bridge){poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,alt?'#4a8fc0':'#4d93c6');
+  // white water streaks
+  if(s.i%7==0){ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(p1.X-p1.Wd*4,p1.Y-1,p1.Wd*1.2,Math.max(1,p1.Y-p2.Y));ctx.fillRect(p1.X+p1.Wd*2.5,p1.Y-1,p1.Wd,Math.max(1,p1.Y-p2.Y))}}
+ else if(s.tunnel){poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,alt?'#1d1a17':'#221e1a');}
+ else poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,z.grass[alt]);
+ const r1=p1.Wd*.12,r2=p2.Wd*.12;
+ poly(p1.X-p1.Wd-r1,p1.Y,p1.X-p1.Wd,p1.Y,p2.X-p2.Wd,p2.Y,p2.X-p2.Wd-r2,p2.Y,z.rumble[alt]);
+ poly(p1.X+p1.Wd+r1,p1.Y,p1.X+p1.Wd,p1.Y,p2.X+p2.Wd,p2.Y,p2.X+p2.Wd+r2,p2.Y,z.rumble[alt]);
+ poly(p1.X-p1.Wd,p1.Y,p1.X+p1.Wd,p1.Y,p2.X+p2.Wd,p2.Y,p2.X-p2.Wd,p2.Y,s.bridge?(alt?'#7a5a3a':'#6e5034'):z.road);
+ if(!alt){const l1=p1.Wd*.03,l2=p2.Wd*.03;poly(p1.X-l1,p1.Y,p1.X+l1,p1.Y,p2.X+l2,p2.Y,p2.X-l2,p2.Y,s.tunnel?'#bba':'#f4f0e0')}
+ if(s.tunnel){// walls & ceiling arch
+  const h1=p1.Wd*1.1,h2=p2.Wd*1.1;ctx.fillStyle=alt?'#3b342d':'#433b33';
+  poly(p1.X-p1.Wd*1.25,p1.Y,p2.X-p2.Wd*1.25,p2.Y,p2.X-p2.Wd*1.25,p2.Y-h2,p1.X-p1.Wd*1.25,p1.Y-h1,ctx.fillStyle);
+  poly(p1.X+p1.Wd*1.25,p1.Y,p2.X+p2.Wd*1.25,p2.Y,p2.X+p2.Wd*1.25,p2.Y-h2,p1.X+p1.Wd*1.25,p1.Y-h1,ctx.fillStyle);
+  poly(p1.X-p1.Wd*1.25,p1.Y-h1,p2.X-p2.Wd*1.25,p2.Y-h2,p2.X+p2.Wd*1.25,p2.Y-h2,p1.X+p1.Wd*1.25,p1.Y-h1,alt?'#2a241f':'#2f2822');
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,Math.max(0,p1.Y-h1));ctx.fillRect(0,0,Math.max(0,p1.X-p1.Wd*1.25),p1.Y);ctx.fillRect(p1.X+p1.Wd*1.25,0,W,p1.Y)}
+}
+function drawBackdrop(z,bs){const hy=H*.5,off=(st.x*30+segs.slice(0,Math.floor(st.pos/SEG)).length*0)%W;
+ // mountains (火炎山 / 鐵砧山 silhouette)
+ ctx.fillStyle=z.id=='taian'?'#b89aa8':'#6f9a8a';ctx.beginPath();ctx.moveTo(0,hy);
+ for(let i=0;i<=12;i++){const xx=i/12*W;ctx.lineTo(xx,hy-30-Math.abs(Math.sin(i*1.7+bs.z))*H*.09)}ctx.lineTo(W,hy);ctx.fill();
+ ctx.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<4;i++){const cx=((i*W/3+tm*8)%(W+120))-60,cy=H*(.08+.06*(i%2));ctx.beginPath();ctx.ellipse(cx,cy,40,14,0,0,7);ctx.ellipse(cx+25,cy-6,28,12,0,0,7);ctx.fill()}
+ ctx.fillStyle=z.grass[0];ctx.fillRect(0,hy,W,H-hy);}
+function clipR(clip){ctx.save();ctx.beginPath();ctx.rect(0,0,W,clip);ctx.clip()}
+function drawSprite(t,x,y,sc,clip,s){const u=sc*RW/1000;// u ≈ pixels per "meter-ish" unit (road half width 1600 => ~ 1.6 units)
+ if(u<.02||u>8)return;clipR(clip);ctx.translate(x,y);ctx.scale(u,u);const T=ctx;
+ const R=(c,a,b,w,h)=>{T.fillStyle=c;T.fillRect(a,b,w,h)},C=(c,a,b,r)=>{T.fillStyle=c;T.beginPath();T.arc(a,b,r,0,7);T.fill()};
+ switch(t){
+ case 'tree':R('#6b4423',-20,-260,40,260);C('#2f8a3a',0,-300,130);C('#3aa046',-50,-260,90);break;
+ case 'bush':C('#3a8f3a',0,-50,70);C('#4aa64a',40,-40,50);break;
+ case 'pine':R('#5a3a1a',-15,-120,30,120);for(let k=0;k<3;k++){T.fillStyle=k%2?'#1f6a2e':'#27803a';T.beginPath();T.moveTo(-140+k*25,-100-k*120);T.lineTo(0,-330-k*120);T.lineTo(140-k*25,-100-k*120);T.fill()}break;
+ case 'palm':R('#8a6a3a',-12,-380,24,380);T.fillStyle='#3a9a3a';for(let k=0;k<6;k++){T.save();T.translate(0,-380);T.rotate(k*1.05);T.fillRect(0,-12,170,24);T.restore()}break;
+ case 'sakura':R('#5a3a2a',-18,-240,36,240);C('#ffb7cf',0,-300,140);C('#ffc9da',-70,-250,90);C('#ff9fbf',70,-260,90);
+  T.fillStyle='#ffd0e0';for(let k=0;k<5;k++){T.fillRect(((k*97+tm*40)%300)-150,(-200+(k*53+tm*60)%240),10,10)}break;
+ case 'lamp':R('#555',-8,-700,16,40);C('#ffe9a0',0,-660,26);T.fillStyle='rgba(255,230,150,.15)';T.beginPath();T.arc(0,-600,140,0,7);T.fill();break;
+ case 'truss':T.strokeStyle='#b03a2e';T.lineWidth=26;T.beginPath();T.moveTo(0,0);T.lineTo(0,-620);T.moveTo(0,-620);T.lineTo(400*(x<W/2?1:-1)*0+0,-620);T.stroke();
+  T.lineWidth=16;T.beginPath();T.moveTo(-200,0);T.lineTo(0,-620);T.lineTo(200,0);T.stroke();R('#7d2219',-260,-640,520,30);break;
+ case 'sign':R('#5a4a3a',-8,-220,16,220);R('#2a6a3a',-90,-300,180,90);T.fillStyle='#fff';T.font='bold 44px sans-serif';T.textAlign='center';T.fillText(ZONES[s.z].name.slice(0,4),0,-240);break;
+ case 'jsign':R('#555',-10,-380,20,380);R('#1f5fa8',-230,-470,460,140);T.fillStyle='#fff';T.font='bold 52px sans-serif';T.textAlign='center';T.fillText('← 東豐綠廊',0,-420);T.fillText('后里 →',0,-360);break;
+ case 'house':{const c=['#e8d8c0','#d0c4b0','#f0e0d0','#c8b8a8'][s.i%4];R(c,-200,-420,400,420);R('#a33',-220,-450,440,40);for(let a=0;a<2;a++)for(let b=0;b<3;b++)R('#5a7a9a',-150+a*190,-380+b*120,110,70);R(['#c22','#27a','#e90'][s.i%3],-200,-200,400,40);break}
+ case 'scooter':C('#222',-60,-30,30);C('#222',60,-30,30);R(['#e33','#3ae','#fff'][s.i%3],-70,-110,140,60);R('#333',-20,-170,20,60);break;
+ case 'station':R('#e8e0d0',-450,-420,900,420);R('#4a6a8a',-480,-470,960,60);T.fillStyle='#fff';T.font='bold 80px sans-serif';T.textAlign='center';T.fillText('后里車站',0,-490);R('#6a8aaa',-300,-300,600,180);break;
+ case 'fence':R('#fff',-90,-110,180,16);R('#fff',-90,-60,180,16);R('#eee',-10,-130,20,130);break;
+ case 'horse':{const f=Math.sin(tm*8+s.i)*20;T.fillStyle=s.i%2?'#7a4a2a':'#3a2a1a';T.beginPath();T.ellipse(0,-170,120,55,0,0,7);T.fill();T.fillRect(80,-280,40,110);T.beginPath();T.ellipse(125,-285,50,25,-.4,0,7);T.fill();
+  for(const lx of[-90,-60,60,90])T.fillRect(lx-8,-130,16,130+(lx>0?f:-f)*.3);T.fillRect(-130,-190,30,80);break}
+ case 'factory':R('#a8432f',-80,-1100,140,1100);R('#802f20',-80,-1100,140,60);R('#c8b8a0',-500,-450,900,450);R('#7a5a4a',-520,-500,940,60);T.fillStyle='#3a2a1a';T.font='bold 70px sans-serif';T.textAlign='center';T.fillText('月眉糖廠',-50,-330);
+  T.fillStyle='rgba(220,220,220,.6)';for(let k=0;k<4;k++){C('rgba(230,230,230,.5)',-10+k*40+Math.sin(tm+k)*20,-1180-k*90-(tm*30%60),50+k*10)}break;
+ case 'train':{const o=((tm*60)%400)-200;T.translate(o,0);R('#333',-400,-20,800,20);R('#2a6a3a',-380,-230,220,200);R('#222',-360,-300,40,70);R('#c33',-140,-200,240,170);R('#d8a',120,-200,240,170);for(const k of[-330,-210,-80,40,160,300])C('#111',k,-20,24);break}
+ case 'iceshop':R('#fff',-150,-300,300,300);R('#3a8ad8',-170,-340,340,60);T.fillStyle='#fff';T.font='bold 50px sans-serif';T.textAlign='center';T.fillText('冰品',0,-295);R('#f8c',-40,-200,80,120);break;
+ case 'flowers':{const cols=['#ff4f8f','#ffd23f','#ff8f3f','#b05fff','#fff'];for(let k=0;k<14;k++){C(cols[(k+s.i)%5],(k%7)*60-180,-20-Math.floor(k/7)*40-((k*37)%20),22)}break}
+ case 'tstation':R('#7a5a3a',-500,-380,1000,380);R('#e8dcc0',-460,-340,920,300);T.fillStyle='#3a3a4a';T.beginPath();T.moveTo(-600,-370);T.lineTo(0,-620);T.lineTo(600,-370);T.fill();
+  R('#fff',-220,-300,440,80);T.fillStyle='#222';T.font='bold 62px sans-serif';T.textAlign='center';T.fillText('泰安驛',0,-240);break;
+ case 'goal':R('#333',-1750,-700,40,700);R('#333',1710,-700,40,700);R('#c33',-1750,-760,3500,120);T.fillStyle='#fff';T.font='bold 100px sans-serif';T.textAlign='center';T.fillText('🌸 終點 泰安舊火車站 🌸',0,-665);break;
+ case 'ice':T.translate(0,-140+Math.sin(tm*5)*15);R('#d8b070',-8,0,16,70);R('#ff7faa',-40,-120,80,130);R('#fff',-40,-120,80,25);break;
+ case 'water':T.translate(0,-140+Math.sin(tm*5)*15);R('#7fd0ff',-35,-110,70,130);R('#2a7ad8',-20,-140,40,30);R('#fff',-35,-60,70,20);break;
+ case 'hole':T.fillStyle='#2a2420';T.beginPath();T.ellipse(0,-10,130,40,0,0,7);T.fill();T.fillStyle='#1a1410';T.beginPath();T.ellipse(0,-6,90,24,0,0,7);T.fill();break;
+ case 'duck':{const b=Math.sin(tm*10+x)*6;T.fillStyle='#fff';T.beginPath();T.ellipse(0,-50+b,60,40,0,0,7);T.fill();C('#fff',40,-110+b,30);R('#f90',60,-115+b,30,14);C('#000',48,-118+b,5);R('#f90',-20,-15,12,15);R('#f90',10,-15,12,15);break}
+ case 'dog':{const b=Math.sin(tm*14)*8;T.fillStyle='#b8864a';T.beginPath();T.ellipse(0,-90,90,40,0,0,7);T.fill();C('#b8864a',80,-140,38);R('#7a5a2a',90,-185,18,30);for(const lx of[-60,-30,40,70])R('#b8864a',lx-7,-60,14,60+(lx%20?b:-b)*.4);R('#b8864a',-110,-120,40,12);break}
+ }ctx.restore()}
+function drawRider(x,y,sc,col,clip,zz){const u=sc*RW/1000;if(u<.02||u>8)return;clipR(clip);ctx.translate(x,y);ctx.scale(u,u);bikeBack(col,Math.sin(zz/120),0);ctx.restore()}
+function bikeBack(col,ph,lean){const T=ctx;T.rotate(lean*.12);
+ T.fillStyle='#111';T.fillRect(-12,-170,24,170);// rear wheel from behind
+ T.fillStyle='#666';T.fillRect(-4,-180,8,40);
+ // legs
+ const l1=Math.sin(ph*6)*30;T.fillStyle='#223';T.fillRect(-45,-260+l1*.5,30,110-l1*.5);T.fillRect(15,-260-l1*.5,30,110+l1*.5);
+ T.fillStyle='#fff';T.fillRect(-48,-160+l1,34,18);T.fillRect(14,-160-l1,34,18);
+ T.fillStyle='#333';T.fillRect(-60,-290,120,40);// saddle/shorts
+ T.fillStyle=col;T.beginPath();T.moveTo(-70,-280);T.lineTo(70,-280);T.lineTo(60,-430);T.lineTo(-60,-430);T.fill();// jersey
+ T.fillRect(-95,-420,30,90);T.fillRect(65,-420,30,90);// arms
+ T.fillStyle='#f2c79a';T.fillRect(-92,-335,24,20);T.fillRect(68,-335,24,20);
+ T.fillStyle='#f2c79a';T.fillRect(-15,-460,30,30);T.fillStyle='#222';T.beginPath();T.arc(0,-480,48,0,7);T.fill();// head
+ T.fillStyle=col;T.beginPath();T.ellipse(0,-500,56,34,0,Math.PI,0);T.fill();// helmet
+ T.fillStyle='#ccc';T.fillRect(-110,-345,220,10);// handlebar
+ T.fillStyle='#e33';T.fillRect(-10,-150,20,12);// reflector
+}
+function drawPlayer(){const y=btnRects().l[1]-8,u=Math.min(W,H)/1000*.62;ctx.save();ctx.translate(W/2,y);ctx.scale(u,u);
+ ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(0,0,120,24,0,0,7);ctx.fill();
+ bikeBack('#f3a73b',st.pedal,st.lean);ctx.fillStyle='#fff';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.restore()}
+function drawHUD(z){
+ if(!st.run&&!st.done)return;
+ const sp=st.speed/MAXS*30;ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,8,170,74);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';
+ ctx.fillText('⏱ '+fmt(st.time),16,28);ctx.fillText('🚲 '+sp.toFixed(0)+' km/h',16,48);
+ ctx.fillText('體力',16,70);ctx.fillStyle='#333';ctx.fillRect(54,60,116,12);ctx.fillStyle=st.stam>30?'#4cd964':'#ff3b30';ctx.fillRect(54,60,116*st.stam/100,12);
+ if(st.stam<=0){ctx.fillStyle='#ff3b30';ctx.fillText('騎不動了…快放開踩踏休息或吃冰棒！',12,100)}
+ // progress & zone
+ ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,H*0+86+(st.stam<=0?20:0),170,22);ctx.fillStyle='#ffe';ctx.font='13px sans-serif';ctx.fillText('📍'+z.name,14,102+(st.stam<=0?20:0));
+ drawMinimap();
+ // touch buttons
+ const R=btnRects();const lab={l:'◀',r:'▶',b:'煞車',g:'踩踏'};for(const k in R){const[a,b,w,h]=R[k];ctx.fillStyle=touch[k]?'rgba(255,200,80,.55)':'rgba(255,255,255,.2)';ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect?ctx.roundRect(a,b,w,h,16):ctx.rect(a,b,w,h);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.26)+'px sans-serif';ctx.textAlign='center';ctx.fillText(lab[k],a+w/2,b+h/2+w*.09)}
+}
+function drawMinimap(){const s=Math.min(130,W*.32),x0=W-s-10,y0=56;ctx.save();ctx.fillStyle='rgba(240,236,220,.85)';ctx.fillRect(x0,y0,s,s);ctx.strokeStyle='#654';ctx.strokeRect(x0,y0,s,s);
+ const M=p=>[x0+p[0]/100*s,y0+p[1]/100*s];
+ // 大甲溪
+ ctx.strokeStyle='#5aa0d8';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x0,y0+s*.8);ctx.bezierCurveTo(x0+s*.3,y0+s*.72,x0+s*.6,y0+s*.84,x0+s,y0+s*.7);ctx.stroke();
+ ctx.fillStyle='#2a6ab0';ctx.font='9px sans-serif';ctx.textAlign='left';ctx.fillText('大甲溪',x0+4,y0+s*.76);
+ ctx.fillStyle='#543';ctx.font='bold 11px sans-serif';ctx.fillText('后里區',x0+4,y0+13);
+ ctx.strokeStyle='#d33';ctx.lineWidth=2.5;ctx.beginPath();ZONES.forEach((z,i)=>{const[a,b]=M(z.map);i?ctx.lineTo(a,b):ctx.moveTo(a,b)});ctx.stroke();
+ ZONES.forEach((z,i)=>{const[a,b]=M(z.map);ctx.fillStyle=i<=st.zone?'#d33':'#fff';ctx.strokeStyle='#d33';ctx.lineWidth=1;ctx.beginPath();ctx.arc(a,b,3,0,7);ctx.fill();ctx.stroke()});
+ // player pos interpolate
+ const si=Math.floor(st.pos/SEG),zi=Math.min(ZONES.length-1,segs[Math.min(si,segs.length-1)].z),f=(si-zoneStart[zi])/ZONES[zi].len,A=ZONES[zi].map,B=(ZONES[zi+1]||ZONES[zi]).map;
+ const[px,py]=M([A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f]);ctx.fillStyle='#f3a73b';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,5+Math.sin(tm*8),0,7);ctx.fill();ctx.stroke();ctx.restore()}
+// ---------- LOOP ----------
+let last=performance.now(),acc=0;
+function loop(now){const dt=Math.min(.1,(now-last)/1000)*TS;last=now;acc+=dt;let n=0;while(acc>=1/60&&n<20){update(1/60);acc-=1/60;n++}render();requestAnimationFrame(loop)}
+reset();showBest();requestAnimationFrame(loop);
+window.__hr={get st(){return st},ZONES,get zoneStart(){return zoneStart},get trackLen(){return trackLen},jump(zi){st.pos=zoneStart[zi]*SEG+SEG*15}};
+</script></body></html>
