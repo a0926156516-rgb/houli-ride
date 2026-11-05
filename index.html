@@ -2,301 +2,460 @@
 <html lang="zh-Hant"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b3a2a">
-<title>后里騎跡 – 台中后里單車之旅</title>
+<title>后里騎跡 2 – 后里開放世界</title>
 <style>
-html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-touch-callout:none}
 canvas{display:block;position:fixed;left:0;top:0;width:100%;height:100%}
-.ov{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:rgba(10,25,20,.78);z-index:5;padding:20px;box-sizing:border-box}
+.ov{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;color:#fff;text-align:center;background:linear-gradient(#123a2acc,#0a1f18ee);z-index:20;padding:16px 14px;box-sizing:border-box;overflow-y:auto;touch-action:pan-y}
 .ov.on{display:flex}
-.ov h1{font-size:40px;margin:0 0 6px;letter-spacing:4px;text-shadow:0 3px 0 #b5402f}
-.ov p{margin:6px 0;line-height:1.6;font-size:15px;max-width:420px}
-.btn{margin:10px;padding:14px 34px;font-size:20px;border:0;border-radius:30px;background:#f3a73b;color:#3a1d00;font-weight:bold;box-shadow:0 4px 0 #a5641a;font-family:inherit}
-.btn.s{background:#ddd;box-shadow:0 4px 0 #888;font-size:16px;padding:10px 24px}
-#hud{position:fixed;top:0;left:0;right:0;z-index:3;pointer-events:none;color:#fff;font-size:14px;text-shadow:0 1px 2px #000}
-.tb{position:fixed;z-index:4;width:40px;height:40px;border-radius:20px;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:20px;top:calc(8px + env(safe-area-inset-top))}
-#toast{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:4;background:rgba(120,40,20,.9);color:#fff;padding:10px 22px;border-radius:8px;border:3px solid #f3d38b;font-size:20px;font-weight:bold;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;text-align:center}
+.ov h1{font-size:36px;margin:8px 0 2px;letter-spacing:4px;text-shadow:0 3px 0 #b5402f}
+.ov p{margin:4px 0;line-height:1.5;font-size:14px;max-width:440px}
+.btn{margin:8px;padding:12px 34px;font-size:20px;border:0;border-radius:30px;background:#f3a73b;color:#3a1d00;font-weight:bold;box-shadow:0 4px 0 #a5641a;font-family:inherit}
+.btn.s{background:#ddd;box-shadow:0 4px 0 #888;font-size:16px;padding:9px 22px}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:5px 0}
+.opt{border:2px solid #fff6;border-radius:12px;background:#ffffff18;color:#fff;padding:7px 12px;font-size:15px;font-family:inherit;min-width:64px}
+.opt.sel{border-color:#ffd24a;background:#ffd24a40;box-shadow:0 0 0 2px #ffd24a80}
+.sw{width:38px;height:38px;border-radius:19px;min-width:0;padding:0}
+.lab{font-size:13px;opacity:.8;margin-top:6px}
+#nick{font-size:17px;padding:8px 12px;border-radius:10px;border:2px solid #fff8;background:#0006;color:#fff;width:180px;text-align:center;font-family:inherit}
+#net{font-size:13px;margin:4px 0;padding:3px 10px;border-radius:10px;background:#0005}
+#prev{width:120px;height:120px}
+.ctl{position:fixed;z-index:6;border:2px solid #fff9;background:rgba(255,255,255,.18);color:#fff;font-weight:bold;border-radius:18px;font-family:inherit;display:none;touch-action:none;text-shadow:0 1px 2px #000}
+.ctl.on{background:rgba(255,200,80,.55)}
+body.play .ctl{display:block}
+.tb{position:fixed;z-index:7;width:40px;height:40px;border-radius:20px;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:19px;top:calc(8px + env(safe-area-inset-top));display:none}
+body.play .tb{display:block}
+#emo{position:fixed;z-index:7;left:8px;display:none;flex-direction:column;gap:6px;top:calc(150px + env(safe-area-inset-top))}
+body.play #emo{display:flex}
+#emo button{width:40px;height:40px;border-radius:20px;border:0;background:rgba(0,0,0,.4);font-size:20px;padding:0}
+#toast{position:fixed;left:50%;top:24%;transform:translateX(-50%);z-index:8;background:rgba(120,40,20,.9);color:#fff;padding:9px 20px;border-radius:8px;border:3px solid #f3d38b;font-size:19px;font-weight:bold;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;text-align:center}
 #toast small{display:block;font-size:13px;font-weight:normal}
+#mlist{font-size:13px;text-align:left;line-height:1.7}
 </style></head><body>
 <canvas id="c"></canvas>
 <button class="tb" id="pauseB" style="right:10px">❚❚</button>
 <button class="tb" id="muteB" style="right:56px">🔊</button>
+<div id="emo"><button data-e="bell">🔔</button><button data-e="👋">👋</button><button data-e="👍">👍</button><button data-e="😄">😄</button><button data-e="🌸">🌸</button></div>
+<button class="ctl" id="bL">◀</button><button class="ctl" id="bR">▶</button>
+<button class="ctl" id="bB">煞車</button><button class="ctl" id="bG">踩踏</button><button class="ctl" id="bU">↩︎迴轉</button>
 <div id="toast"></div>
 <div class="ov on" id="title">
- <h1>后里騎跡</h1><p style="font-size:17px">台中后里・單車漫遊挑戰</p>
- <p>從后豐鐵馬道出發，穿越九號隧道、花梁鋼橋，<br>經后里車站、馬場、月眉糖廠、中社花海、<br>花博森林園區，終點：泰安舊火車站 🌸</p>
- <p style="font-size:13px;opacity:.85">👈👉 左右轉向｜右下「踩踏」加速｜左下「煞車」<br>鍵盤：←→ 轉向、↑/空白 踩踏、↓ 煞車、P 暫停<br>體力歸零會騎不動！吃冰棒🍡、喝水補體力，避開路人、坑洞、鴨子和狗。</p>
+ <h1>后里騎跡 2</h1><p style="font-size:15px">台中后里・開放世界單車／機車／汽車漫遊</p>
+ <div id="net">🌐 連線中…</div>
+ <canvas id="prev" width="240" height="240"></canvas>
+ <div class="lab">暱稱</div><input id="nick" maxlength="10" placeholder="輸入暱稱">
+ <div class="lab">角色</div><div class="row" id="chR"><button class="opt" data-v="m">阿岩</button><button class="opt" data-v="f">小攀</button></div>
+ <div class="lab">顏色</div><div class="row" id="coR"><button class="opt sw" data-v="0" style="background:#e8483b"></button><button class="opt sw" data-v="1" style="background:#2f8fe0"></button><button class="opt sw" data-v="2" style="background:#3fb85a"></button><button class="opt sw" data-v="3" style="background:#f2b630"></button></div>
+ <div class="lab">載具</div><div class="row" id="vR"><button class="opt" data-v="bike">🚲 腳踏車</button><button class="opt" data-v="scooter">🛵 機車</button><button class="opt" data-v="car">🚗 汽車</button></div>
+ <p id="vInfo" style="font-size:12px;opacity:.85"></p>
+ <div class="lab">模式</div><div class="row" id="mR"><button class="opt" data-v="mission">🏁 景點任務</button><button class="opt" data-v="free">🌿 自由騎</button></div>
  <button class="btn" id="startB">出發！</button><p id="bestT"></p>
+ <p style="font-size:12px;opacity:.75">◀▶ 轉向｜踩踏/油門 加速｜煞車（停住後按住可倒車）｜↩︎ 迴轉<br>鍵盤：←→ 轉向、↑/空白 加速、↓ 煞車、U 迴轉、M 地圖北向、P 暫停、H 喇叭<br>鐵馬道／綠廊／隧道／鋼橋僅限腳踏車；大甲溪只能走花梁鋼橋過。<br>所有玩家都在同一張后里地圖上，可以互相看見、按鈴打招呼！</p>
 </div>
-<div class="ov" id="pause"><h1>暫停</h1><button class="btn" id="resB">繼續</button><button class="btn s" id="quitB">回標題</button></div>
-<div class="ov" id="result"><h1>抵達泰安！</h1><p id="resTxt"></p><button class="btn" id="againB">再騎一次</button><button class="btn s" id="homeB">回標題</button></div>
+<div class="ov" id="pause"><h1>暫停</h1><div id="mlist"></div><button class="btn" id="resB">繼續</button><button class="btn s" id="quitB">回標題</button></div>
+<div class="ov" id="result"><h1>任務完成！</h1><p id="resTxt"></p><button class="btn" id="againB">再玩一次</button><button class="btn s" id="freeB">繼續自由騎</button><button class="btn s" id="homeB">回標題</button></div>
 <script>
 "use strict";
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const cv=document.getElementById('c');let ctx=cv.getContext('2d');
 const Q=new URLSearchParams(location.search),TS=+Q.get('ts')||1;
 let W,H,DPR;
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}
-addEventListener('resize',resize);resize();
-// ---------- ROUTE / ZONES ----------
-// map coords: approximate Houli layout (x east, y south) 0..100
-const ZONES=[
- {id:'trail',name:'后豐鐵馬道',sub:'舊山線鐵道改建的自行車道',len:2*120,sky:['#7ec8f0','#d8f0ff'],grass:['#5fa845','#58a040'],road:'#8b7d6b',rumble:['#c9b18d','#7d6a50'],map:[50,96]},
- {id:'tunnel',name:'九號隧道',sub:'全長約 500 公尺的舊鐵道隧道',len:2*70,sky:['#111','#222'],grass:['#2a2520','#25201b'],road:'#4a443d',rumble:['#6b5f50','#3c342c'],map:[52,88],dark:1},
- {id:'bridge',name:'花梁鋼橋',sub:'橫跨大甲溪的鋼桁架鐵橋',len:2*90,sky:['#8fd0f5','#e6f6ff'],grass:['#6d8fa8','#6489a3'],road:'#7a5a3a',rumble:['#b03a2e','#7d2219'],map:[53,78],bridge:1},
- {id:'junction',name:'東豐綠廊交會點',sub:'后豐鐵馬道 × 東豐自行車綠廊',len:2*70,sky:['#7ec8f0','#d8f0ff'],grass:['#4f9a3a','#4a9236'],road:'#8b7d6b',rumble:['#e0e0e0','#3a8a3a'],map:[55,68]},
- {id:'town',name:'后里市區・后里車站',sub:'熱鬧的后里街區',len:2*90,sky:['#88c4ec','#e3f2ff'],grass:['#9a9a92','#93938b'],road:'#555',rumble:['#fff','#c33'],map:[50,55]},
- {id:'horse',name:'后里馬場',sub:'看看馬兒在草原上奔跑',len:2*90,sky:['#7ec8f0','#e8f7ff'],grass:['#7cbf4a','#74b744'],road:'#8d6e4c',rumble:['#fff','#8d6e4c'],map:[40,45]},
- {id:'sugar',name:'月眉糖廠',sub:'冰棒補給站！🍡 還有糖廠小火車',len:2*90,sky:['#f3c98b','#fff0d8'],grass:['#8fae4c','#87a646'],road:'#6b5b4b',rumble:['#e9d8b0','#a33'],map:[25,40]},
- {id:'flower',name:'中社花市・花海',sub:'繽紛花田一望無際',len:2*100,sky:['#9fd8ff','#fdf0ff'],grass:['#6fb24a','#68aa44'],road:'#8b7d6b',rumble:['#ff7fb0','#ffe14d'],map:[22,25]},
- {id:'forest',name:'后里花博森林園區',sub:'2018 台中花博森林園區',len:2*100,sky:['#6fb8e0','#cfeedd'],grass:['#3e8a3a','#398236'],road:'#7a6a55',rumble:['#d8c8a0','#5a4a30'],map:[42,28]},
- {id:'taian',name:'泰安舊火車站',sub:'日式木造車站與櫻花道 🌸 終點！',len:2*110,sky:['#ffc8dc','#fff2f6'],grass:['#7fb85a','#78b054'],road:'#8a7a6a',rumble:['#ffb7cf','#fff'],map:[78,22]}
-];
-const SEG=200,RW=1600,LANES=3,DRAW=180,CAMH=1000,FOV=100,CD=1/Math.tan(FOV/2*Math.PI/180);
-let segs=[],trackLen=0,zoneStart=[];
-function ease(a,b,p){return a+(b-a)*((-Math.cos(p*Math.PI)/2)+.5)}
-function buildTrack(){
- segs=[];let y=0,rnd=mulberry(20261105);
- ZONES.forEach((z,zi)=>{zoneStart[zi]=segs.length;
-  // split zone into 3 sub-pieces with random curve & hill
-  let n=z.len,parts=3,pl=Math.floor(n/parts);
-  for(let p=0;p<parts;p++){
-   let curve=(z.tunnel||z.bridge)?(rnd()-.5)*1.2:(rnd()-.5)*6, hill=(z.bridge||z.dark)?0:(rnd()-.5)*(zi==8?60:40);
-   if(z.id=='bridge')hill=p==1?0:(p==0?10:-10);
-   let y0=y,len=pl+(p==parts-1?n-pl*parts:0);
-   for(let i=0;i<len;i++){let t=i/len,c=curve*Math.sin(t*Math.PI);
-    y=y0+hill*SEG/10*((-Math.cos(t*Math.PI)/2)+.5);
-    segs.push({i:segs.length,z:zi,curve:c,y,sp:[],cars:[],items:[]});}
-  }});
- // smooth y as p1/p2
- segs.forEach((s,i)=>{s.p1y=i?segs[i-1].y:0;s.p2y=s.y});
- trackLen=segs.length*SEG;
- decorate(rnd);
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);layoutCtl()}
+const $=id=>document.getElementById(id);
+const COLORS=['#e8483b','#2f8fe0','#3fb85a','#f2b630'],CNAME=['red','blue','green','yellow'];
+const VEH={bike:{name:'腳踏車',max:13,acc:3.6,brk:9,turn:1.9,camD:6.5,camZ:2.4,w:2.0},scooter:{name:'機車',max:24,acc:6.5,brk:12,turn:1.55,camD:7.5,camZ:2.6,w:2.0},car:{name:'汽車',max:31,acc:7.5,brk:14,turn:1.15,camD:10,camZ:3.6,w:2.3}};
+// ================= WORLD (meters; x east, y north; 后里車站 = origin) =================
+const N={ // nodes
+ station:[0,0],jiahou:[-400,240],sugar:[-760,520],sanfeng:[-800,120],zhongshe:[-860,-300],west:[-420,-170],
+ sishan:[200,-210],horse:[320,-420],trail:[150,-620],brN:[150,-830],brS:[150,-1090],tuN:[150,-1200],tuS:[150,-1470],junc:[150,-1650],green:[1000,-1660],
+ forest:[460,80],fuxing:[520,460],taian:[1100,900]};
+const EDGES=[ // a,b,type(road|bike|bridge|tunnel),name,bend
+ ['station','jiahou','road','甲后路',20],['jiahou','sugar','road','甲后路',-25],['sugar','sanfeng','road','三豐路',30],['sanfeng','zhongshe','road','三豐路',-20],
+ ['jiahou','sanfeng','road','三豐路連絡道',10],['station','west','road','公安路',-15],['west','zhongshe','road','三豐路五段',25],
+ ['station','sishan','road','寺山路',10],['sishan','horse','road','寺山路',-10],['horse','trail','bike','后豐鐵馬道',15],['trail','brN','bike','后豐鐵馬道',0],
+ ['brN','brS','bridge','花梁鋼橋',0],['brS','tuN','bike','后豐鐵馬道',0],['tuN','tuS','tunnel','九號隧道',0],['tuS','junc','bike','后豐鐵馬道',8],['junc','green','bike','東豐自行車綠廊',-60],
+ ['station','forest','road','大山路',-15],['forest','fuxing','road','福興路',20],['station','fuxing','road','甲后路一段',-30],['fuxing','taian','road','福興路',-40],['sishan','forest','road','寺山路',20]];
+const LM=[ // landmarks: key,name,sub,node/pos,bikeOnly
+ {k:'trail',n:'后豐鐵馬道',s:'舊山線鐵道改建的自行車道',p:N.trail,b:1},{k:'bridge',n:'花梁鋼橋',s:'橫跨大甲溪的鋼桁架鐵橋',p:[150,-960],b:1},
+ {k:'tunnel',n:'九號隧道',s:'舊鐵道隧道，裡面很暗喔',p:[150,-1335],b:1},{k:'junc',n:'東豐綠廊交會點',s:'后豐鐵馬道 × 東豐自行車綠廊',p:N.junc,b:1},
+ {k:'station',n:'后里車站',s:'后里的門戶・台鐵山線',p:[0,25]},{k:'horse',n:'后里馬場',s:'日治時期至今的馬場',p:N.horse},
+ {k:'sugar',n:'月眉糖廠',s:'冰棒補給站！還有糖廠小火車',p:N.sugar},{k:'zhongshe',n:'中社觀光花市',s:'四季花海・鬱金香',p:N.zhongshe},
+ {k:'forest',n:'花博后里森林園區',s:'1500 多棵老樹的森林綠洲',p:N.forest},{k:'taian',n:'泰安舊火車站',s:'日式木造車站與櫻花',p:N.taian}];
+const RIVER=[[-1400,-900],[-700,-930],[0,-950],[150,-960],[600,-985],[1500,-1010]],RIVW=110;
+let segs=[],adj={};
+function buildGraph(){
+ segs=[];adj={};for(const k in N)adj[k]=[];
+ EDGES.forEach((e,ei)=>{const A=N[e[0]],B=N[e[1]],dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;
+  const C=[(A[0]+B[0])/2+nx*e[4],(A[1]+B[1])/2+ny*e[4]];const n=Math.max(2,Math.ceil(L/22)),pts=[];
+  for(let i=0;i<=n;i++){const t=i/n,u=1-t;pts.push([u*u*A[0]+2*u*t*C[0]+t*t*B[0],u*u*A[1]+2*u*t*C[1]+t*t*B[1]])}
+  let len=0;const cum=[0];for(let i=1;i<pts.length;i++){len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);cum.push(len)}
+  const E={i:ei,a:e[0],b:e[1],type:e[2],name:e[3],pts,cum,len,hw:e[2]=='road'?5.5:3};EDGES[ei].E=E;
+  adj[e[0]].push({e:E,to:e[1],rev:false});adj[e[1]].push({e:E,to:e[0],rev:true});
+  for(let i=0;i<pts.length-1;i++)segs.push({E,a:pts[i],b:pts[i+1],k:i});});
 }
-function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function addSp(i,type,x){if(segs[i])segs[i].sp.push({t:type,x})}
-function decorate(r){
- segs.forEach((s,i)=>{const z=ZONES[s.z].id,side=()=>r()<.5?-1:1;
-  if(z=='tunnel'){if(i%6==0){addSp(i,'lamp',-1.15);addSp(i,'lamp',1.15)} s.tunnel=1;return}
-  if(z=='bridge'){s.bridge=1; if(i%4==0){addSp(i,'truss',-1.2);addSp(i,'truss',1.2)}return}
-  if(i%8==0)addSp(i,'sign',side()*1.3);
-  if(z=='trail'||z=='junction'){if(i%3==0)addSp(i,r()<.6?'tree':'bush',side()*(1.4+r()*2));}
-  if(z=='junction'&&i==zoneStart[3]+20){addSp(i,'jsign',-1.4)}
-  if(z=='town'){if(i%4==0)addSp(i,'house',side()*(1.6+r()));if(i%7==0)addSp(i,'scooter',side()*1.25);if(i==zoneStart[4]+45)addSp(i,'station',1.9)}
-  if(z=='horse'){if(i%2==0){addSp(i,'fence',-1.2);addSp(i,'fence',1.2)}if(i%9==0)addSp(i,'horse',side()*(1.8+r()*2))}
-  if(z=='sugar'){if(i%5==0)addSp(i,'palm',side()*(1.5+r()));if(i==zoneStart[6]+30)addSp(i,'factory',-2.3);if(i==zoneStart[6]+55)addSp(i,'train',2.0);if(i%11==0)addSp(i,'iceshop',1.5)}
-  if(z=='flower'){for(let k=0;k<2;k++)addSp(i,'flowers',side()*(1.3+r()*3));}
-  if(z=='forest'){if(i%2==0)addSp(i,'pine',side()*(1.4+r()*2.5));if(i%13==0)addSp(i,'bush',side()*1.3)}
-  if(z=='taian'){if(i%3==0)addSp(i,'sakura',side()*(1.4+r()*1.8));if(i==segs.length-40)addSp(i,'tstation',-2.0);if(i>segs.length-12&&i<segs.length-9)addSp(i,'goal',0)}
- });
- // items & obstacles
- for(let i=40;i<segs.length-30;i+=14+Math.floor(r()*10)){
-  const z=ZONES[segs[i].z].id;let x=(r()*1.4-.7);
-  if(z=='sugar')segs[i].items.push({t:'ice',x});else if(r()<.45)segs[i].items.push({t:r()<.5?'water':'ice',x});
-  let j=i+7;if(!segs[j])continue;let ox=(r()*1.4-.7),ot;
-  if(z=='tunnel'||z=='bridge')ot='hole';else if(z=='horse'||z=='flower')ot=r()<.5?'duck':'hole';else if(z=='town')ot=r()<.5?'dog':'hole';else ot=['hole','duck','dog'][Math.floor(r()*3)];
-  segs[j].items.push({t:ot,x:ox,obs:1});
- }
- cyclists=[];for(let k=0;k<22;k++){cyclists.push({z:(0.05+k/22*0.92)*trackLen,x:r()*1.2-.6,sp:1800+r()*1500,col:['#e33','#27f','#fc2','#2b5','#f7a'][k%5]})}
+function edgePoint(E,d){d=Math.max(0,Math.min(E.len,d));let i=1;while(i<E.cum.length-1&&E.cum[i]<d)i++;const t=(d-E.cum[i-1])/(E.cum[i]-E.cum[i-1]||1),a=E.pts[i-1],b=E.pts[i];return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,Math.atan2(b[1]-a[1],b[0]-a[0])]}
+function nearest(x,y,filter){let best=null,bd=1e9;for(const s of segs){if(filter&&!filter(s.E))continue;const ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,l2=bx*bx+by*by;let t=((x-ax)*bx+(y-ay)*by)/l2;t=Math.max(0,Math.min(1,t));const d=Math.hypot(x-ax-bx*t,y-ay-by*t);if(d<bd){bd=d;best=s}}return{s:best,d:bd}}
+function riverY(x){for(let i=1;i<RIVER.length;i++)if(x<=RIVER[i][0]){const a=RIVER[i-1],b=RIVER[i],t=(x-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*t}return RIVER[RIVER.length-1][1]}
+// ---------- world objects ----------
+let OBJ=[],FIELDS=[],ITEMS=[],NPC=[];
+function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function clearOf(x,y,m){const r=nearest(x,y);if(r.d<r.s.E.hw+m)return false;if(Math.abs(y-riverY(x))<RIVW/2+6)return false;return true}
+function box(x,y,w,d,h,c,roof,a){OBJ.push({t:'box',x,y,w,d,h,c,roof:roof||shade(c,.8),a:a||0})}
+function bb(t,x,y,s){OBJ.push({t,x,y,s:s||1})}
+function buildWorld(){
+ OBJ=[];FIELDS=[];ITEMS=[];const r=mul(1105);
+ // fields
+ for(let i=0;i<260;i++){const x=-1300+r()*2700,y=-1800+r()*2900;if(Math.abs(y-riverY(x))<RIVW/2+20)continue;if(Math.hypot(x,y)<260)continue;
+  const fl=Math.hypot(x-N.zhongshe[0],y-N.zhongshe[1])<260;const col=fl?['#ff5f9a','#ffd23f','#ff8f3f','#b56cff','#fff3f3'][i%5]:['#6fae44','#88b84c','#5d9c3c','#a6b84a','#7aa84a','#c9b25a'][i%6];
+  FIELDS.push({x,y,w:40+r()*80,d:30+r()*70,a:r()*3,c:col,fl})}
+ for(let i=0;i<14;i++){const x=N.zhongshe[0]-120+(i%7)*40,y=N.zhongshe[1]+30+Math.floor(i/7)*70;FIELDS.push({x,y,w:30,d:60,a:0,c:['#ff4f8f','#ffd23f','#ff8f3f','#b05fff','#ff7fb0','#fff','#ff3b3b'][i%7],fl:1})}
+ // town houses
+ for(let i=0;i<220;i++){const a=r()*6.28,rr=40+r()*320,x=Math.cos(a)*rr*1.2,y=Math.sin(a)*rr;if(!clearOf(x,y,7))continue;
+  const h=6+r()*12;box(x,y,10+r()*8,10+r()*8,h,['#e8dcc8','#d6cbb8','#efe2d2','#c8bcae','#dfe6e8','#e9d0b0'][i%6],['#a33','#556','#777','#6a4a3a'][i%4],r()*.3)}
+ // roadside trees & bushes
+ for(const s of segs){const E=s.E;if(s.k%1)continue;const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang);
+  for(const sd of[-1,1]){if(r()<(E.type=='road'?.35:.8)){const o=E.hw+4+r()*14,x=s.a[0]+nx*o*sd,y=s.a[1]+ny*o*sd;if(clearOf(x,y,3)&&Math.hypot(x,y)>200)bb(Math.hypot(x-N.taian[0],y-N.taian[1])<300?'sakura':E.type=='road'&&r()<.3?'palm':'tree',x,y,.8+r()*.5)}}}
+ // forest park
+ for(let i=0;i<120;i++){const x=N.forest[0]+(r()-.5)*260,y=N.forest[1]+40+(r()-.2)*220;if(clearOf(x,y,4))bb(r()<.5?'pine':'tree',x,y,1+r()*.6)}
+ for(let i=0;i<8;i++)box(N.forest[0]-60+i*16,N.forest[1]+70,14,3,6,'#8a6a4a','#c9a46a');
+ bb('sign',N.forest[0]+12,N.forest[1]+14,1);
+ // station
+ box(0,40,46,16,11,'#efe8da','#4a6a8a');box(0,40,14,10,16,'#e0d8ca','#3a5a7a');bb('stnsign',0,30,1);
+ for(let y=-900;y<1100;y+=40)box(-45,y,3,40,.4,'#6b5b4b','#7a6a5a');// rail line
+ // horse farm
+ for(let i=0;i<36;i++){const a=i/36*6.283,x=N.horse[0]+60+Math.cos(a)*45,y=N.horse[1]-20+Math.sin(a)*30;box(x,y,8,.5,1.3,'#fff','#fff',a+1.57)}
+ for(let i=0;i<7;i++)bb('horse',N.horse[0]+40+r()*45,N.horse[1]-40+r()*40,1);box(N.horse[0]-40,N.horse[1]-40,30,12,7,'#c86a3a','#5a3a2a');bb('sign',N.horse[0]+14,N.horse[1]+12,1);
+ // sugar factory
+ const S=N.sugar;box(S[0]-40,S[1]+40,50,30,14,'#c8b8a0','#7a5a4a');box(S[0]+20,S[1]+50,30,20,10,'#b8a890','#6a4a3a');box(S[0]-20,S[1]+70,5,5,46,'#a8432f','#802f20');
+ bb('smoke',S[0]-20,S[1]+70,1);bb('icesign',S[0]+14,S[1]-10,1);bb('train',S[0]-10,S[1]+18,1);for(let x=-80;x<80;x+=20)box(S[0]+x,S[1]+18,20,1.4,.3,'#555','#666');
+ for(let i=0;i<10;i++)bb('palm',S[0]-70+i*16,S[1]-14,1);
+ // zhongshe
+ for(let i=0;i<4;i++)box(N.zhongshe[0]-100+i*28,N.zhongshe[1]-60,22,40,5,'#dff2ff','#cfeaff');bb('windmill',N.zhongshe[0]+40,N.zhongshe[1]+60,1.4);bb('sign',N.zhongshe[0]+14,N.zhongshe[1]+10,1);
+ // taian
+ const T=N.taian;box(T[0]+10,T[1]+40,34,12,7,'#7a5a3a','#3a3a4a');box(T[0]+10,T[1]+40,38,15,9,'#5a4030','#2f2f3a');bb('taisign',T[0]+10,T[1]+31,1);
+ for(let i=0;i<40;i++){const x=T[0]+(r()-.5)*240,y=T[1]+(r()-.5)*240;if(clearOf(x,y,4))bb('sakura',x,y,1+r()*.5)}
+ for(let y=T[1]-200;y<T[1]+300;y+=40)box(T[0]+40,y,3,40,.4,'#6b5b4b','#7a6a5a');
+ // bridge truss (red), tunnel walls/portals
+ const bE=EDGES[11].E;for(let d=0;d<bE.len;d+=10){const[x,y]=edgePoint(bE,d);for(const sd of[-1,1]){box(x+sd*3.6,y,.6,.6,7,'#b03a2e','#7d2219');box(x+sd*3.6,y-5,.5,10,.5,'#b03a2e','#c04a3e')}box(x,y,8,.5,.5,'#a03028','#c04a3e')}
+ for(let d=0;d<bE.len;d+=40){const[x,y]=edgePoint(bE,d);box(x,y,6,4,0,'#555','#555')}
+ const tE=EDGES[13].E;for(let d=0;d<=tE.len;d+=10){const[x,y]=edgePoint(tE,d);box(x-4.5,y,2,10,6,'#3b342d','#4a5a3a');box(x+4.5,y,2,10,6,'#3b342d','#4a5a3a');if(d%30==0)bb('lamp',x-3.3,y,1)}
+ for(const y of[tE.pts[0][1]+2,tE.pts[tE.pts.length-1][1]-2]){box(150,y,4,2,8,'#8a8070','#9a9080');box(150-5,y,3,2,8,'#8a8070');box(150+5,y,3,2,8,'#8a8070');box(150,y,13,2,1.5,'#8a8070','#9a9080')}
+ for(let y=tE.pts[0][1];y>tE.pts[tE.pts.length-1][1];y-=20)for(const sd of[-1,1])box(150+sd*12,y,14,20,8,'#4f7a3a','#5a8a42');
+ bb('gate',N.trail[0],N.trail[1]-4,1);bb('jsign',N.junc[0]+10,N.junc[1]+8,1);
+ // mountains near (火炎山 north)
+ // items
+ for(const s of segs){if(r()<.12){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:r()<.5?'ice':'water',r:0})}
+  if(r()<.07&&s.k>1){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:E.type=='road'?(r()<.6?'hole':'dog'):(r()<.5?'duck':'hole'),obs:1})}}
+ for(let i=0;i<8;i++)ITEMS.push({x:S[0]-30+i*8,y:S[1]-4,t:'ice',r:0});
+ // NPC traffic
+ NPC=[];const roads=EDGES.map(e=>e.E).filter(E=>E.type=='road'),bikes=EDGES.map(e=>e.E).filter(E=>E.type!='road');
+ for(let i=0;i<36;i++){const E=roads[i%roads.length];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:7+r()*9,k:['moto','moto','sedan','van'][i%4],v:i%3,x:0,y:0,h:0})}
+ for(let i=0;i<12;i++){const E=bikes[i%bikes.length];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:4+r()*3,k:'bike',v:i%8,x:0,y:0,h:0})}
 }
-let cyclists=[];
-// ---------- STATE ----------
-const MAXS=SEG*24;let st={};
-function reset(){st={pos:0,x:0,speed:0,stam:100,time:0,zone:-1,run:false,hit:0,cool:0,lean:0,pedal:0,auto:!!Q.get('auto'),done:false,col:0,ice:0};buildTrack();}
-// ---------- INPUT ----------
-const key={};addEventListener('keydown',e=>{key[e.code]=1;if(e.code=='KeyP')togglePause();if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault();audio.init()});
+// ================= ASSETS =================
+const AS={m:null,img:{},ok:false};
+fetch('assets/manifest.json').then(r=>r.ok?r.json():null).then(m=>{if(m&&m.categories){AS.m=m;AS.ok=true;drawPrev()}}).catch(()=>{});
+function sheet(file){if(!AS.ok)return null;let o=AS.img[file];if(!o){o=AS.img[file]={im:new Image(),ok:false,bad:false};o.im.onload=()=>{o.ok=true;drawPrev()};o.im.onerror=()=>o.bad=true;o.im.src='assets/'+file}return o.ok?o.im:null}
+// returns {im,sx,fw,fh} or null
+function sprFor(veh,ch,co,frame,npcVar){if(!AS.ok)return null;const C=AS.m.categories;try{
+ if(veh=='npc'){const T=C.npc.types[ch];const im=sheet(T.file);return im&&{im,sx:npcVar*T.frameW,fw:T.frameW,fh:T.frameH}}
+ const cat=veh=='bike'?'bike':veh=='scooter'?'moto':'car',c=C[cat],key=cat=='car'?CNAME[co]:(ch=='f'?'xiaopan':'ayan')+'_'+CNAME[co];
+ const sh=c.sheets[key];if(!sh)return null;const im=sheet(sh.file);return im&&{im,sx:frame*c.frameW,fw:c.frameW,fh:c.frameH}}catch(e){return null}}
+// ================= STATE =================
+let st={},mode='mission',prof={n:localStorage.getItem('houliNick')||'',ch:localStorage.getItem('houliCh')||'m',co:+(localStorage.getItem('houliCo')||0),v:localStorage.getItem('houliV')||'bike'};
+function reset(){const v=VEH[prof.v];st={x:N.station[0]+8,y:N.station[1]-30,h:-Math.PI/2,ch:-Math.PI/2,sp:0,steer:0,stam:100,time:0,run:false,done:false,visited:{},hit:0,col:0,cool:0,uturn:0,ped:0,inTunnel:0,mapNorth:false,lastLM:null,auto:!!Q.get('auto'),autoT:null,warn:0};
+ if(prof.v!='bike'){st.x=-10;st.y=-15;st.h=Math.PI;st.ch=st.h}buildWorld();}
+function missionList(){return LM.filter(l=>prof.v=='bike'||!l.b)}
+// ================= INPUT =================
+const key={};addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;key[e.code]=1;if(e.code=='KeyP')togglePause();if(e.code=='KeyU')doUturn();if(e.code=='KeyM')st.mapNorth=!st.mapNorth;if(e.code=='KeyH')emote('bell');if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault();audio.init()});
 addEventListener('keyup',e=>key[e.code]=0);
-const touch={l:0,r:0,g:0,b:0};
-function btnRects(){const s=Math.min(W,H)*.2,m=14,bot=H-m-s-(H>W?20:0);return{l:[m,bot,s,s],r:[m+s+10,bot,s,s],b:[W-m-s*2-10,bot,s,s],g:[W-m-s,bot-s*.3,s,s*1.3]}}
-function updTouch(e){touch.l=touch.r=touch.g=touch.b=0;const R=btnRects();for(const t of e.touches){for(const k in R){const[a,b,w,h]=R[k];if(t.clientX>=a-8&&t.clientX<=a+w+8&&t.clientY>=b-8&&t.clientY<=b+h+8)touch[k]=1}}}
-['touchstart','touchmove','touchend','touchcancel'].forEach(n=>cv.addEventListener(n,e=>{e.preventDefault();audio.init();updTouch(e)},{passive:false}));
-// mouse fallback for desktop clicking buttons
-cv.addEventListener('mousedown',e=>{audio.init();updTouch({touches:[e]})});addEventListener('mouseup',()=>{touch.l=touch.r=touch.g=touch.b=0});
-// ---------- AUDIO ----------
-const audio={ctx:null,mute:false,amb:null,init(){if(this.ctx)return;try{this.ctx=new (window.AudioContext||window.webkitAudioContext)();this.master=this.ctx.createGain();this.master.connect(this.ctx.destination);this.master.gain.value=this.mute?0:.5;
- const b=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3}
- const s=this.ctx.createBufferSource();s.buffer=b;s.loop=true;const f=this.ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=600;this.amb=this.ctx.createGain();this.amb.gain.value=0;s.connect(f);f.connect(this.amb);this.amb.connect(this.master);s.start()}catch(e){}},
- tone(f,d,type='sine',v=.2,f2){if(!this.ctx)return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(this.master);o.start(t);o.stop(t+d)},
- bell(){this.tone(2100,.6,'sine',.25);setTimeout(()=>this.tone(2100,.5,'sine',.2),120)},pedal(){this.tone(180,.05,'triangle',.06)},
- hit(){this.tone(200,.25,'sawtooth',.2,60)},get(){this.tone(880,.1,'square',.1);setTimeout(()=>this.tone(1320,.15,'square',.1),90)},
- setMute(m){this.mute=m;if(this.master)this.master.gain.value=m?0:.5}};
-// ---------- UI ----------
-const $=id=>document.getElementById(id);let paused=false,toastT=0;
-function toast(h){const t=$('toast');t.innerHTML=h;t.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity=0,2600)}
-function fmt(t){const m=Math.floor(t/60),s=t%60;return m+':'+(s<10?'0':'')+s.toFixed(2)}
-function showBest(){const b=+localStorage.getItem('houliBest');$('bestT').textContent=b?('最佳紀錄：'+fmt(b)):''}
-function start(){audio.init();reset();st.run=true;paused=false;['title','result','pause'].forEach(i=>$(i).classList.remove('on'));audio.bell()}
-function togglePause(){if(!st.run)return;paused=!paused;$('pause').classList.toggle('on',paused)}
-$('startB').onclick=start;$('againB').onclick=start;$('resB').onclick=togglePause;
-$('quitB').onclick=$('homeB').onclick=()=>{st.run=false;paused=false;$('pause').classList.remove('on');$('result').classList.remove('on');$('title').classList.add('on');showBest()};
-$('pauseB').onclick=togglePause;$('muteB').onclick=()=>{audio.init();audio.setMute(!audio.mute);$('muteB').textContent=audio.mute?'🔇':'🔊'};
-function finish(){st.run=false;st.done=true;const b=+localStorage.getItem('houliBest');let nb=!b||st.time<b;if(nb)localStorage.setItem('houliBest',st.time.toFixed(2));
- $('resTxt').innerHTML='完成時間：<b style="font-size:26px">'+fmt(st.time)+'</b><br>'+(nb?'🏆 新紀錄！':'最佳紀錄：'+fmt(b))+'<br>收集補給：'+st.col+' 個｜碰撞：'+st.hit+' 次<br>櫻花盛開的泰安舊站到了，辛苦了！';
- $('result').classList.add('on');audio.bell()}
-// ---------- UPDATE ----------
-function segAt(z){return segs[Math.floor(z/SEG)%segs.length]}
-function update(dt){
- if(!st.run||paused)return;st.time+=dt;
- let up=key.ArrowUp||key.Space||key.KeyW||touch.g,dn=key.ArrowDown||key.KeyS||touch.b,L=key.ArrowLeft||key.KeyA||touch.l,R=key.ArrowRight||key.KeyD||touch.r;
- if(st.auto){up=1;L=R=0;// simple autopilot: avoid obstacles ahead, aim at items
-  let target=0;const base=Math.floor(st.pos/SEG);for(let k=1;k<14;k++){const s=segs[base+k];if(!s)break;for(const it of s.items){if(it.obs&&Math.abs(it.x-st.x)<.45)target=it.x>0?it.x-.8:it.x+.8;}}
-  for(const c of cyclists){const d=c.z-st.pos;if(d>0&&d<SEG*12&&Math.abs(c.x-st.x)<.5)target=c.x>0?c.x-.9:c.x+.9}
-  target=Math.max(-.85,Math.min(.85,target));if(target<st.x-.05)L=1;else if(target>st.x+.05)R=1;}
- const seg=segAt(st.pos),ratio=st.speed/MAXS,tired=st.stam<=0;
- const topS=MAXS*(tired?.35:1)*(st.cool>0?.5:1);
- if(up&&!tired||up&&st.speed<topS){st.speed+=MAXS*.45*dt;st.stam-=dt*2.2*(seg.y>seg.p1y?1.6:1);st.pedal+=dt*(2+ratio*8);if(Math.floor(st.pedal*2)!=Math.floor((st.pedal-dt*(2+ratio*8))*2))audio.pedal()}
- else st.speed-=MAXS*.12*dt;
- if(dn)st.speed-=MAXS*1.1*dt;
- st.speed-=(seg.y-seg.p1y)*.25*dt*60; // hills
- st.speed=Math.max(0,Math.min(st.speed,topS));st.stam=Math.max(0,Math.min(100,st.stam+(!up?dt*1.5:0)));
- const dx=dt*2.2*Math.min(1,ratio*1.5+.2);if(L)st.x-=dx;if(R)st.x+=dx;st.lean+=((R?1:0)-(L?1:0)-st.lean)*Math.min(1,dt*8);
- st.x-=dx*ratio*seg.curve*.12; // centrifugal
- const lim=seg.bridge||seg.tunnel?.95:1.6;if(Math.abs(st.x)>1){st.speed-=MAXS*.6*dt*(st.speed>MAXS*.3?1:0)}st.x=Math.max(-lim,Math.min(lim,st.x));
- st.cool=Math.max(0,st.cool-dt);
- st.pos+=st.speed*dt;
- // collisions
- const ps=segAt(st.pos);for(const s of [ps,segs[ps.i+1]]){if(!s)continue;for(const it of s.items){if(it.gone)continue;if(Math.abs(it.x-st.x)<.32){
-  if(it.obs){if(st.cool<=0){st.cool=1.2;st.speed*=.4;st.stam-=8;st.hit++;audio.hit();toast(({hole:'哎呀！坑洞！',duck:'嘎嘎！小心鴨子！',dog:'汪汪！有狗！'})[it.t])}}
-  else{it.gone=1;st.col++;st.stam=Math.min(100,st.stam+(it.t=='ice'?30:15));audio.get();if(it.t=='ice')st.ice++}}}}
- for(const c of cyclists){c.z+=c.sp*dt;if(c.z>trackLen-SEG*20)c.z=trackLen-SEG*20;const d=c.z-st.pos;if(Math.abs(d)<SEG*.8&&Math.abs(c.x-st.x)<.35&&st.cool<=0){st.cool=1.2;st.speed*=.5;st.stam-=5;st.hit++;audio.hit();audio.bell();toast('叮叮！撞到其他騎士了')}}
- // zones
- const zi=ps.z;if(zi!=st.zone){st.zone=zi;const z=ZONES[zi];toast('📍 '+z.name+'<small>'+z.sub+'</small>');if(zi>0){st.stam=Math.min(100,st.stam+10);audio.bell()}}
- if(audio.amb)audio.amb.gain.value=.05+ratio*.25;
- if(st.pos>=trackLen-SEG*10)finish();
+const tc={L:0,R:0,B:0,G:0};
+for(const[id,k]of[['bL','L'],['bR','R'],['bB','B'],['bG','G']]){const b=$(id);
+ const on=e=>{e.preventDefault();audio.init();tc[k]=1;b.classList.add('on');try{b.setPointerCapture(e.pointerId)}catch(_){}} ,off=e=>{tc[k]=0;b.classList.remove('on')};
+ b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);b.addEventListener('contextmenu',e=>e.preventDefault())}
+$('bU').addEventListener('pointerdown',e=>{e.preventDefault();doUturn()});
+document.querySelectorAll('#emo button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();emote(b.dataset.e)}));
+cv.addEventListener('pointerdown',e=>{const m=mmRect();if(Math.hypot(e.clientX-m.cx,e.clientY-m.cy)<m.r)st.mapNorth=!st.mapNorth});
+function layoutCtl(){const s=Math.max(64,Math.min(W,H)*.2),m=12,sb=18,bot=H-s-m-sb;const P=(id,x,y,w,h,f)=>{const b=$(id);Object.assign(b.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px',fontSize:f+'px'})};
+ P('bL',m,bot,s,s,s*.35);P('bR',m+s+10,bot,s,s,s*.35);P('bB',W-m-s*2-10,bot+s*.2,s,s*.8,s*.24);P('bG',W-m-s,bot-s*.3,s,s*1.3,s*.26);P('bU',W-m-s*1.1,bot-s*.3-s*.62,s*1.1,s*.5,s*.2)}
+function doUturn(){if(st.run&&!st.uturn&&st.sp<VEH[prof.v].max*.7){st.uturn=1;st.uturnLeft=Math.PI}}
+// ================= AUDIO =================
+const audio={c:null,mute:localStorage.getItem('houliMute')=='1',init(){if(this.c)return;try{const C=this.c=new(window.AudioContext||window.webkitAudioContext)();this.m=C.createGain();this.m.gain.value=this.mute?0:.5;this.m.connect(C.destination);
+ const b=C.createBuffer(1,C.sampleRate*2,C.sampleRate),d=b.getChannelData(0);let l=0;for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3}
+ const s=C.createBufferSource();s.buffer=b;s.loop=true;const f=C.createBiquadFilter();f.type='lowpass';f.frequency.value=700;this.amb=C.createGain();this.amb.gain.value=0;s.connect(f);f.connect(this.amb);this.amb.connect(this.m);s.start();
+ this.eo=C.createOscillator();this.eo.type='sawtooth';this.eo2=C.createOscillator();this.eo2.type='square';this.ef=C.createBiquadFilter();this.ef.type='lowpass';this.ef.frequency.value=500;this.eg=C.createGain();this.eg.gain.value=0;
+ this.eo.connect(this.ef);this.eo2.connect(this.ef);this.ef.connect(this.eg);this.eg.connect(this.m);this.eo.start();this.eo2.start()}catch(e){}},
+ tone(f,d,type='sine',v=.2,f2){if(!this.c)return;const t=this.c.currentTime,o=this.c.createOscillator(),g=this.c.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(this.m);o.start(t);o.stop(t+d+.02)},
+ bell(){this.tone(2100,.6,'sine',.22);setTimeout(()=>this.tone(2100,.5,'sine',.18),120)},horn(car){const f=car?330:520;this.tone(f,.35,'square',.08);this.tone(f*1.26,.35,'square',.06)},
+ pedal(){this.tone(170,.05,'triangle',.06)},hit(){this.tone(200,.25,'sawtooth',.2,60)},get(){this.tone(880,.1,'square',.08);setTimeout(()=>this.tone(1320,.15,'square',.08),90)},
+ engine(on,rpm,car){if(!this.eg)return;const t=this.c.currentTime,base=car?42:70;this.eo.frequency.setTargetAtTime(base+rpm*(car?110:170),t,.05);this.eo2.frequency.setTargetAtTime((base+rpm*(car?110:170))/2,t,.05);this.ef.frequency.setTargetAtTime(300+rpm*900,t,.1);this.eg.gain.setTargetAtTime(on?(.05+rpm*.06):0,t,.1)},
+ setMute(m){this.mute=m;localStorage.setItem('houliMute',m?'1':'0');if(this.m)this.m.gain.value=m?0:.5}};
+// ================= NETWORK =================
+const NET={ws:null,state:'off',id:null,others:new Map(),n:0,tot:0,shard:0,retry:2000,lastSend:0,url:Q.get('server')||'wss://panjian-peak2d.onrender.com/houli'};
+function netStatus(){const e=$('net');e.textContent=NET.state=='on'?('🟢 線上 '+NET.tot+' 人'+(NET.shard>1?'（第 '+NET.shard+' 分流）':'')+'・大家都在同一張后里地圖'):NET.state=='connecting'?'🟡 連線中…（伺服器喚醒可能需 30~60 秒，可先單人遊玩）':'⚪ 離線・單人模式（會自動重試）'}
+function netConnect(){if(Q.get('offline'))return netStatus();NET.state='connecting';netStatus();let ws;try{ws=new WebSocket(NET.url)}catch(e){return netRetry()}NET.ws=ws;
+ const to=setTimeout(()=>{if(ws.readyState!==1)try{ws.close()}catch(e){}},70000);
+ ws.onopen=()=>{clearTimeout(to);NET.retry=2000;ws.send(JSON.stringify({t:'hello',n:prof.n||'騎士',ch:prof.ch,co:prof.co,v:prof.v}))};
+ ws.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}
+  if(m.t=='welcome'){NET.id=m.id;NET.shard=m.shard;NET.state='on';netStatus()}
+  else if(m.t=='w'){NET.tot=m.tot;NET.n=m.n;NET.shard=m.sh;const now=performance.now(),seen=new Set();
+   for(const p of m.p){if(p[0]==NET.id)continue;seen.add(p[0]);let o=NET.others.get(p[0]);if(!o){o={id:p[0],buf:[],emo:null,emoT:0};NET.others.set(p[0],o)}
+    o.n=p[5];o.ch=p[6];o.co=p[7];o.v=p[8];o.buf.push({t:now,x:p[1],y:p[2],h:p[3],s:p[4]});if(o.buf.length>8)o.buf.shift()}
+   for(const k of NET.others.keys())if(!seen.has(k))NET.others.delete(k);if(!st.run)netStatus()}
+  else if(m.t=='e'){const o=NET.others.get(m.id);if(o){o.emo=m.k;o.emoT=3;if(m.k=='bell'){const d=Math.hypot(o.x-st.x,o.y-st.y);if(d<150)(o.v=='bike'?audio.bell():audio.horn(o.v=='car'))}}}
+  else if(m.t=='bye')NET.others.delete(m.id);else if(m.t=='ping')ws.send('{"t":"pong"}')};
+ ws.onclose=()=>{clearTimeout(to);NET.ws=null;NET.state='off';NET.others.clear();netStatus();netRetry()};ws.onerror=()=>{}}
+function netRetry(){setTimeout(netConnect,NET.retry);NET.retry=Math.min(30000,NET.retry*1.6)}
+function netSend(o){if(NET.ws&&NET.ws.readyState==1&&NET.state=='on')NET.ws.send(JSON.stringify(o))}
+function interp(o){const b=o.buf;if(!b.length)return null;const rt=performance.now()-150;let i=b.length-1;while(i>0&&b[i-1].t>rt)i--;
+ if(i==0||b[i].t<=rt){const p=b[b.length-1];const ex=Math.min(.3,(rt-p.t)/1000);return{x:p.x+Math.cos(p.h)*p.s*ex,y:p.y+Math.sin(p.h)*p.s*ex,h:p.h,s:p.s}}
+ const a=b[i-1],c=b[i],t=(rt-a.t)/(c.t-a.t||1);let dh=c.h-a.h;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;return{x:a.x+(c.x-a.x)*t,y:a.y+(c.y-a.y)*t,h:a.h+dh*t,s:a.s+(c.s-a.s)*t}}
+function emote(k){if(!st.run)return;audio.init();if(k=='bell')prof.v=='bike'?audio.bell():audio.horn(prof.v=='car');st.myEmo=k;st.myEmoT=3;netSend({t:'e',k})}
+// ================= UI =================
+let paused=false,toastT=0;
+function toast(h,ms){const t=$('toast');t.innerHTML=h;t.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>t.style.opacity=0,ms||2600)}
+function fmt(t){const m=Math.floor(t/60),s=t%60;return m+':'+(s<10?'0':'')+s.toFixed(1)}
+function bestKey(){return 'houli2Best_'+prof.v}
+function showBest(){const b=+localStorage.getItem(bestKey());$('bestT').textContent=b?('🏆 '+VEH[prof.v].name+'任務最佳：'+fmt(b)):'';
+ const v=VEH[prof.v];$('vInfo').textContent=prof.v=='bike'?'極速慢・轉向靈活・有體力值・可走鐵馬道／隧道／鋼橋（10 個景點）':prof.v=='scooter'?'速度中等・加速快・只能走一般道路（6 個景點）':'極速最快・轉向較重・只能走一般道路（6 個景點）'}
+function bindOpt(id,keyn,cb){const el=$(id);const upd=()=>el.querySelectorAll('.opt').forEach(b=>b.classList.toggle('sel',String(keyn=='mode'?mode:prof[keyn])==b.dataset.v));
+ el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(keyn=='mode')mode=b.dataset.v;else prof[keyn]=keyn=='co'?+b.dataset.v:b.dataset.v;upd();showBest();drawPrev();cb&&cb()});upd()}
+bindOpt('chR','ch');bindOpt('coR','co');bindOpt('vR','v');bindOpt('mR','mode');$('nick').value=prof.n;
+function start(m){audio.init();if(m)mode=m;prof.n=($('nick').value.trim()||'騎士').slice(0,10);for(const k of['n','ch','co','v'])localStorage.setItem('houli'+{n:'Nick',ch:'Ch',co:'Co',v:'V'}[k],prof[k]);
+ const keep=m=='free'&&st.done;const sx=st.x,sy=st.y,sh=st.h;reset();if(keep){st.x=sx;st.y=sy;st.h=st.ch=sh}st.run=true;paused=false;document.body.classList.add('play');['title','result','pause'].forEach(i=>$(i).classList.remove('on'));
+ netSend({t:'p',n:prof.n,ch:prof.ch,co:prof.co,v:prof.v});prof.v=='bike'?audio.bell():audio.horn(prof.v=='car');
+ toast(mode=='mission'?'🏁 景點任務：到訪 '+missionList().length+' 個景點<small>任意順序・指南針指向最近的未到訪景點</small>':'🌿 自由騎：盡情探索后里！',3500)}
+function togglePause(){if(!st.run)return;paused=!paused;$('pause').classList.toggle('on',paused);if(paused)$('mlist').innerHTML=missionList().map(l=>(st.visited[l.k]?'✅ ':'⬜ ')+l.n).join('<br>')}
+$('startB').onclick=()=>start();$('againB').onclick=()=>start('mission');$('freeB').onclick=()=>start('free');$('resB').onclick=togglePause;
+$('quitB').onclick=$('homeB').onclick=()=>{st.run=false;paused=false;document.body.classList.remove('play');$('pause').classList.remove('on');$('result').classList.remove('on');$('title').classList.add('on');showBest();netStatus();audio.engine(0,0)};
+$('pauseB').onclick=togglePause;$('muteB').onclick=()=>{audio.init();audio.setMute(!audio.mute);$('muteB').textContent=audio.mute?'🔇':'🔊'};$('muteB').textContent=audio.mute?'🔇':'🔊';
+function finish(){st.done=true;st.run=false;document.body.classList.remove('play');const k=bestKey(),b=+localStorage.getItem(k),nb=!b||st.time<b;if(nb)localStorage.setItem(k,st.time.toFixed(1));
+ $('resTxt').innerHTML=VEH[prof.v].name+'・完成時間：<b style="font-size:26px">'+fmt(st.time)+'</b><br>'+(nb?'🏆 新紀錄！':'最佳紀錄：'+fmt(b))+'<br>收集補給：'+st.col+' 個｜碰撞：'+st.hit+' 次<br>后里的景點都去過了，辛苦了！';$('result').classList.add('on');audio.bell();audio.engine(0,0)}
+// ================= AUTOPILOT / NAV (test hook) =================
+function allowed(E){return prof.v=='bike'||E.type=='road'}
+function nearestNode(x,y){let b=null,bd=1e9;for(const k in N){const d=Math.hypot(N[k][0]-x,N[k][1]-y);if(d<bd&&adj[k].some(a=>allowed(a.e))){bd=d;b=k}}return b}
+function route(from,toPos){const tgt=nearestNode(toPos[0],toPos[1]),dist={},prev={},Qs=new Set(Object.keys(N));for(const k in N)dist[k]=1e9;dist[from]=0;
+ while(Qs.size){let u=null;for(const k of Qs)if(u==null||dist[k]<dist[u])u=k;Qs.delete(u);if(u==tgt)break;for(const a of adj[u]){if(!allowed(a.e))continue;const nd=dist[u]+a.e.len;if(nd<dist[a.to]){dist[a.to]=nd;prev[a.to]={u,a}}}}
+ const pts=[];let k=tgt;const chain=[];while(prev[k]){chain.unshift(prev[k].a);k=prev[k].u}for(const a of chain){const p=a.e.pts.slice();if(a.rev)p.reverse();pts.push(...p)}pts.push(toPos);return pts}
+function autoSteer(){if(!st.autoT){const left=missionList().filter(l=>!st.visited[l.k]);if(!left.length)return 0;let best=null,bd=1e9;for(const l of left){const d=Math.hypot(l.p[0]-st.x,l.p[1]-st.y);if(d<bd){bd=d;best=l}}
+  st.autoT=best;st.autoP=route(nearestNode(st.x,st.y),best.p);st.autoI=0}
+ const P=st.autoP;while(st.autoI<P.length-1&&Math.hypot(P[st.autoI][0]-st.x,P[st.autoI][1]-st.y)<10)st.autoI++;const p=P[st.autoI];let da=Math.atan2(p[1]-st.y,p[0]-st.x)-st.h;while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;st.autoDA=da;return -Math.max(-1,Math.min(1,da*2.5))}
+// ================= UPDATE =================
+let tod=.32;
+function update(dt){tod=(tod+dt/480)%1;
+ for(const n of NPC){const s=n.sp*(n.k=='bike'?1:1);n.d+=s*n.dir*dt;if(n.d<0||n.d>n.E.len){const node=n.d<0?n.E.a:n.E.b;const ok=adj[node].filter(a=>a.e!==n.E&&(n.k=='bike'?a.e.type!='road':a.e.type=='road'));
+   if(ok.length){const a=ok[Math.floor(Math.random()*ok.length)];n.E=a.e;n.dir=a.rev?-1:1;n.d=a.rev?a.e.len:0}else{n.dir*=-1;n.d=Math.max(0,Math.min(n.E.len,n.d))}}
+  const[x,y,h]=edgePoint(n.E,n.d),hh=n.dir>0?h:h+Math.PI,off=n.k=='bike'?1:2.6;n.x=x+Math.sin(hh)*off;n.y=y-Math.cos(hh)*off;n.h=hh}
+ for(const o of NET.others.values()){const p=interp(o);if(p)Object.assign(o,p);o.emoT=Math.max(0,o.emoT-dt)}
+ if(!st.run||paused)return;st.time+=dt;const V=VEH[prof.v];
+ let up=key.ArrowUp||key.Space||key.KeyW||tc.G,dn=key.ArrowDown||key.KeyS||tc.B,L=key.ArrowLeft||key.KeyA||tc.L,R=key.ArrowRight||key.KeyD||tc.R,steer=(R?1:0)-(L?1:0);
+ if(st.auto){up=1;dn=0;steer=autoSteer();if(Math.abs(st.autoDA||0)>.9&&st.sp>V.max*.35)up=0,dn=1}
+ st.steer+=(steer-st.steer)*Math.min(1,dt*10);
+ // surface
+ const nr=nearest(st.x,st.y),onRoad=nr.d<nr.s.E.hw+.8,E=nr.s.E;st.edge=E;st.inTunnel=onRoad&&E.type=='tunnel'?1:0;st.onBridge=onRoad&&E.type=='bridge';
+ let top=V.max*(onRoad?1:.4);const tired=prof.v=='bike'&&st.stam<=0;if(tired)top*=.4;if(st.cool>0)top*=.6;
+ if(st.uturn){st.sp=Math.max(0,st.sp-V.brk*dt);const dh=Math.min(st.uturnLeft,dt*3.2);st.h+=dh;st.uturnLeft-=dh;if(st.uturnLeft<=0)st.uturn=0}
+ else{if(up){st.sp+=V.acc*dt*(st.sp<top?1:0);if(prof.v=='bike'){st.stam-=dt*2.4;st.ped+=dt*(1+st.sp/3);}}
+  else st.sp-=(prof.v=='bike'?.6:1.4)*dt*Math.sign(st.sp);
+  if(dn){if(st.sp>.3)st.sp-=V.brk*dt;else st.sp=Math.max(-3,st.sp-2*dt)}
+  if(st.sp>top)st.sp-=Math.max(V.brk*.6,st.sp-top)*dt;
+  st.h-=st.steer*V.turn*dt*Math.min(1,Math.abs(st.sp)/3+.15)*(st.sp<0?-1:1)}
+ if(prof.v=='bike'){if(!up)st.stam+=dt*3;st.stam=Math.max(0,Math.min(100,st.stam));const s0=Math.floor((st.ped-dt*(1+st.sp/3))*1.5);if(Math.floor(st.ped*1.5)!=s0&&up)audio.pedal()}
+ else audio.engine(1,Math.abs(st.sp)/V.max,prof.v=='car');
+ if(audio.amb)audio.amb.gain.value=.04+Math.abs(st.sp)/V.max*.2;
+ const ox=st.x,oy=st.y;st.x+=Math.cos(st.h)*st.sp*dt;st.y+=Math.sin(st.h)*st.sp*dt;
+ // constraints: river & bike-only
+ const ry=riverY(st.x);const nb=nearest(st.x,st.y,E=>E.type=='bridge');
+ if(Math.abs(st.y-ry)<RIVW/2&&!(nb.d<3.3)){st.x=ox;st.y=oy;st.sp*=-.2;warn('🌊 大甲溪！請走花梁鋼橋過河（僅限腳踏車）')}
+ else if(prof.v!='bike'){const bk=nearest(st.x,st.y,E=>E.type!='road'),rd=nearest(st.x,st.y,E=>E.type=='road');if(bk.d<bk.s.E.hw+4&&rd.d>rd.s.E.hw+3){st.x=ox;st.y=oy;st.sp*=-.2;warn('🚳 '+bk.s.E.name+' 僅限腳踏車通行')}}
+ if(st.inTunnel){const p=nearest(st.x,st.y,E=>E.type=='tunnel');if(p.d>2.6){const s=p.s,ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,t=Math.max(0,Math.min(1,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by))),cx=ax+bx*t,cy=ay+by*t;st.x=cx+(st.x-cx)*2.6/p.d;st.y=cy+(st.y-cy)*2.6/p.d;st.sp*=.97}}
+ if(st.onBridge){const p=nearest(st.x,st.y,E=>E.type=='bridge');if(p.d>3){st.x=ox;st.y=oy;st.sp*=.5}}
+ st.x=Math.max(-1500,Math.min(1600,st.x));st.y=Math.max(-1900,Math.min(1300,st.y));
+ st.warn=Math.max(0,st.warn-dt);st.cool=Math.max(0,st.cool-dt);
+ // items
+ for(const it of ITEMS){if(it.r>0){it.r-=dt;continue}if(Math.abs(it.x-st.x)>2||Math.abs(it.y-st.y)>2)continue;
+  if(it.obs){if(st.cool<=0){st.cool=1.2;st.sp*=.35;st.hit++;if(prof.v=='bike')st.stam-=8;audio.hit();toast({hole:'哎呀！坑洞！',duck:'嘎嘎！小心鴨子！',dog:'汪汪！有狗！'}[it.t])}}
+  else{it.r=60;st.col++;if(prof.v=='bike')st.stam=Math.min(100,st.stam+(it.t=='ice'?30:15));audio.get();toast(it.t=='ice'?'🍡 冰棒！'+(prof.v=='bike'?'體力 +30':''):'💧 補水！'+(prof.v=='bike'?'體力 +15':''),1200)}}
+ for(const n of NPC){if(Math.abs(n.x-st.x)<2.2&&Math.abs(n.y-st.y)<2.2&&st.cool<=0){st.cool=1.4;st.sp*=.3;st.hit++;audio.hit();n.k=='bike'?audio.bell():audio.horn(n.k!='moto');toast(n.k=='bike'?'叮叮！撞到其他騎士':'叭叭！小心來車！');st.x+=(st.x-n.x)*.5;st.y+=(st.y-n.y)*.5}}
+ // landmarks
+ for(const l of LM){if(Math.hypot(l.p[0]-st.x,l.p[1]-st.y)<38){if(st.lastLM!==l.k){st.lastLM=l.k;const ml=missionList().includes(l);const nw=!st.visited[l.k]&&ml;if(ml)st.visited[l.k]=1;
+   toast('📍 '+l.n+(nw&&mode=='mission'?' ✅':'')+'<small>'+l.s+(nw&&mode=='mission'?'（'+Object.keys(st.visited).length+'/'+missionList().length+'）':'')+'</small>');audio.bell();if(prof.v=='bike')st.stam=Math.min(100,st.stam+15);if(st.autoT&&st.autoT.k==l.k)st.autoT=null}}
+  else if(st.lastLM===l.k&&Math.hypot(l.p[0]-st.x,l.p[1]-st.y)>60)st.lastLM=null}
+ if(st.autoT&&st.visited[st.autoT.k])st.autoT=null;
+ if(mode=='mission'&&missionList().every(l=>st.visited[l.k]))finish();
+ const now=performance.now();if(now-NET.lastSend>100){NET.lastSend=now;netSend({t:'s',x:+st.x.toFixed(1),y:+st.y.toFixed(1),h:+st.h.toFixed(2),s:+st.sp.toFixed(1)})}
 }
-// ---------- RENDER ----------
-function project(p,cx,cy,cz,cd){p.cx=(p.wx||0)-cx;p.cy=(p.wy||0)-cy;p.cz=p.wz-cz;p.s=cd/p.cz;p.X=Math.round(W/2+p.s*p.cx*W/2);p.Y=Math.round(H/2-p.s*p.cy*H/2);p.Wd=Math.round(p.s*RW*W/2)}
-function poly(x1,y1,x2,y2,x3,y3,x4,y4,c){ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.lineTo(x3,y3);ctx.lineTo(x4,y4);ctx.closePath();ctx.fill()}
-let tm=0;
-function render(){
- tm+=1/60;const base=Math.floor(st.pos/SEG),bs=segs[base%segs.length],z=ZONES[bs.z];
- const pp=(st.pos%SEG)/SEG,camY=CAMH+ (bs.p1y+(bs.y-bs.p1y)*pp),cd=CD*(H>W?1.35:1);
- // sky
- const g=ctx.createLinearGradient(0,0,0,H*.6);g.addColorStop(0,z.sky[0]);g.addColorStop(1,z.sky[1]);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- if(!z.dark)drawBackdrop(z,bs);
- let x=0,dx=-(bs.curve*pp),maxy=H;const list=[];
- for(let n=0;n<DRAW;n++){const s=segs[base+n];if(!s)break;
-  const p1={wx:-x,wy:s.p1y,wz:(base+n)*SEG},p2={wx:-x-dx,wy:s.p2y,wz:(base+n+1)*SEG};
-  p1.wx=0;p2.wx=0;
-  project(p1,st.x*RW-x,camY,st.pos-(n==0?0:0),cd);project(p2,st.x*RW-x-dx,camY,st.pos,cd);
-  x+=dx;dx+=s.curve;s.clip=maxy;s.P1=p1;s.P2=p2;list.push(s);
-  if(p1.cz<=1||p2.Y>=maxy)continue;
-  drawSeg(s,p1,p2);maxy=p2.Y;}
- // sprites back to front
- for(let n=list.length-1;n>0;n--){const s=list[n];const p=s.P1;if(p.cz<=1)continue;
-  for(const sp of s.sp)drawSprite(sp.t,p.X+p.s*sp.x*RW*W/2,p.Y,p.s*W/2,s.clip,s);
-  for(const it of s.items)if(!it.gone)drawSprite(it.t,p.X+p.s*it.x*RW*W/2,p.Y,p.s*W/2,s.clip,s);
-  for(const c of cyclists){const ci=Math.floor(c.z/SEG);if(ci==s.i)drawRider(p.X+p.s*c.x*RW*W/2,p.Y,p.s*W/2*1.0,c.col,s.clip,c.z)}
- }
- if(z.dark){const gr=ctx.createRadialGradient(W/2,H*.72,H*.05,W/2,H*.6,H*.75);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.85)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H)}
- // player
- drawPlayer();
- if(st.cool>0&&Math.floor(st.cool*10)%2){ctx.fillStyle='rgba(255,0,0,.15)';ctx.fillRect(0,0,W,H)}
- drawHUD(z);
+function warn(m){if(st.warn<=0){toast(m);st.warn=2.5;audio.hit()}}
+// ================= RENDER =================
+function hex(c){c=c.replace('#','');if(c.length==3)c=c.split('').map(x=>x+x).join('');const n=parseInt(c,16);return[n>>16&255,n>>8&255,n&255]}
+const HC={};function rgb(c){return HC[c]||(HC[c]=hex(c))}
+function mix(c,f,t){const a=rgb(c);return'rgb('+(a[0]+(f[0]-a[0])*t|0)+','+(a[1]+(f[1]-a[1])*t|0)+','+(a[2]+(f[2]-a[2])*t|0)+')'}
+function shade(c,k){const a=rgb(c);return'#'+a.map(v=>Math.max(0,Math.min(255,v*k|0)).toString(16).padStart(2,'0')).join('')}
+const SKY=[[0,'#1a2550','#3a4a7a'],[.22,'#f0a070','#ffd9a8'],[.32,'#5fb4ec','#cfeaff'],[.6,'#4aa8ea','#d8f0ff'],[.75,'#f08a50','#ffd08a'],[.82,'#3a3a70','#c07a6a'],[1,'#1a2550','#3a4a7a']];
+function skyAt(t){let i=1;while(SKY[i][0]<t)i++;const a=SKY[i-1],b=SKY[i],k=(t-a[0])/(b[0]-a[0]);const m=(x,y)=>{const A=rgb(x),B=rgb(y);return A.map((v,j)=>v+(B[j]-v)*k|0)};return[m(a[1],b[1]),m(a[2],b[2])]}
+const FAR=650;let cam={},F,HY,FOG,DARK=0;
+function prj(x,y,z){const dx=x-cam.x,dy=y-cam.y,f=dx*cam.c+dy*cam.s,r=dx*cam.s-dy*cam.c;return[W/2+r*F/f,HY+(cam.z-z)*F/f,f]}
+function camSpace(x,y){const dx=x-cam.x,dy=y-cam.y;return[dx*cam.s-dy*cam.c,dx*cam.c+dy*cam.s]}// r,f
+const NEAR=.6;
+function drawGroundPoly(pts,col,z){// pts world [x,y]; clip near
+ const cs=pts.map(p=>camSpace(p[0],p[1]));const out=[];for(let i=0;i<cs.length;i++){const a=cs[i],b=cs[(i+1)%cs.length];if(a[1]>=NEAR)out.push(a);if((a[1]>=NEAR)!=(b[1]>=NEAR)){const t=(NEAR-a[1])/(b[1]-a[1]);out.push([a[0]+(b[0]-a[0])*t,NEAR])}}
+ if(out.length<3)return;ctx.fillStyle=col;ctx.beginPath();for(let i=0;i<out.length;i++){const[r,f]=out[i];const X=W/2+r*F/f,Y=HY+(cam.z-(z||0))*F/f;i?ctx.lineTo(X,Y):ctx.moveTo(X,Y)}ctx.fill()}
+function fogT(d){return Math.min(1,Math.max(0,(d-60)/(FAR-60)))**.8*.92}
+let IMG={};
+function mkImg(k,w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);IMG[k]=c}
+function buildImgs(){
+ const C=(g,c,x,y,r)=>{g.fillStyle=c;g.beginPath();g.arc(x,y,r,0,7);g.fill()};
+ mkImg('tree',128,192,(g)=>{g.fillStyle='#6b4423';g.fillRect(56,110,16,82);C(g,'#2f7a32',64,80,52);C(g,'#3a9a40',40,96,34);C(g,'#46a84a',86,92,36);C(g,'#58b856',58,52,30)});
+ mkImg('pine',128,224,(g)=>{g.fillStyle='#5a3a1a';g.fillRect(56,170,16,54);for(let k=0;k<4;k++){g.fillStyle=k%2?'#1f6a2e':'#27803a';g.beginPath();g.moveTo(10+k*10,180-k*42);g.lineTo(64,60-k*14);g.lineTo(118-k*10,180-k*42);g.fill()}});
+ mkImg('sakura',128,176,(g)=>{g.fillStyle='#5a3a2a';g.fillRect(56,100,16,76);C(g,'#ffb7cf',64,72,50);C(g,'#ffc9da',36,90,32);C(g,'#ff9fbf',92,86,32);C(g,'#ffd6e4',60,44,26)});
+ mkImg('palm',128,224,(g)=>{g.fillStyle='#8a6a3a';g.fillRect(58,60,12,164);g.fillStyle='#3a9a3a';for(let k=0;k<7;k++){g.save();g.translate(64,60);g.rotate(k*.9+.2);g.beginPath();g.ellipse(32,0,34,8,0,0,7);g.fill();g.restore()}});
+ mkImg('horse',160,120,(g)=>{g.fillStyle='#7a4a2a';g.beginPath();g.ellipse(70,60,48,22,0,0,7);g.fill();g.fillRect(104,18,16,44);g.beginPath();g.ellipse(122,18,20,10,-.4,0,7);g.fill();for(const x of[32,46,92,104])g.fillRect(x,70,8,50);g.fillStyle='#3a2a1a';g.fillRect(16,50,10,36)});
+ const sign=(k,w,txt,bg,fg,post)=>mkImg(k,w,post?200:110,(g,W2,H2)=>{if(post){g.fillStyle='#555';g.fillRect(W2/2-6,90,12,110)}g.fillStyle=bg;g.fillRect(4,4,W2-8,96);g.strokeStyle='#fff';g.lineWidth=5;g.strokeRect(8,8,W2-16,88);g.fillStyle=fg;g.font='bold 52px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(txt,W2/2,54)});
+ sign('stnsign',360,'后里車站','#2a4a7a','#fff');sign('taisign',300,'泰安驛','#f4ecd8','#222');sign('icesign',300,'冰品部 🍡','#2a7ad8','#fff',1);sign('jsign',420,'← 東豐綠廊 ｜ 后里 ↑','#1f5fa8','#fff',1);
+ mkImg('gate',420,260,(g)=>{g.fillStyle='#8a4a2a';g.fillRect(20,60,26,200);g.fillRect(374,60,26,200);g.fillStyle='#b5653d';g.fillRect(0,20,420,80);g.fillStyle='#fff';g.font='bold 54px sans-serif';g.textAlign='center';g.fillText('后豐鐵馬道',210,80)});
+ mkImg('windmill',160,300,(g)=>{g.fillStyle='#e8d8c0';g.beginPath();g.moveTo(50,300);g.lineTo(70,110);g.lineTo(90,110);g.lineTo(110,300);g.fill();g.strokeStyle='#a33';g.lineWidth=12;g.beginPath();g.moveTo(10,40);g.lineTo(150,180);g.moveTo(150,40);g.lineTo(10,180);g.stroke()});
+ mkImg('train',360,110,(g)=>{g.fillStyle='#2a6a3a';g.fillRect(0,20,120,80);g.fillStyle='#222';g.fillRect(14,0,20,24);g.fillStyle='#c33';g.fillRect(124,30,110,70);g.fillStyle='#d8a040';g.fillRect(238,30,110,70);g.fillStyle='#111';for(const x of[20,90,150,210,265,325])C(g,'#111',x,100,10)});
+ mkImg('lamp',40,60,(g)=>{C(g,'#ffe9a0',20,20,14)});
+ mkImg('smoke',140,220,(g)=>{for(let k=0;k<5;k++)C(g,'rgba(235,235,235,.55)',70+Math.sin(k)*24,200-k*42,22+k*7)});
+ mkImg('ice',48,96,(g)=>{g.fillStyle='#d8b070';g.fillRect(20,60,8,36);g.fillStyle='#ff7faa';g.fillRect(6,4,36,60);g.fillStyle='#fff';g.fillRect(6,4,36,12)});
+ mkImg('water',48,96,(g)=>{g.fillStyle='#7fd0ff';g.fillRect(8,24,32,72);g.fillStyle='#2a7ad8';g.fillRect(16,4,16,22);g.fillStyle='#fff';g.fillRect(8,50,32,12)});
+ mkImg('hole',160,48,(g)=>{g.fillStyle='#2a2420';g.beginPath();g.ellipse(80,24,78,22,0,0,7);g.fill();g.fillStyle='#120e0a';g.beginPath();g.ellipse(80,26,54,13,0,0,7);g.fill()});
+ mkImg('duck',96,90,(g)=>{g.fillStyle='#fff';g.beginPath();g.ellipse(44,58,36,24,0,0,7);g.fill();C(g,'#fff',70,26,18);g.fillStyle='#f90';g.fillRect(82,24,14,8);g.fillRect(30,80,8,10);g.fillRect(50,80,8,10);C(g,'#000',74,22,3)});
+ mkImg('dog',140,100,(g)=>{g.fillStyle='#b8864a';g.beginPath();g.ellipse(64,50,48,22,0,0,7);g.fill();C(g,'#b8864a',112,30,20);g.fillStyle='#7a5a2a';g.fillRect(116,4,10,18);g.fillStyle='#b8864a';for(const x of[26,44,84,100])g.fillRect(x,62,9,38);g.fillRect(4,36,22,8)});
+ mkImg('sign',340,200,(g)=>{g.fillStyle='#5a4a3a';g.fillRect(160,90,20,110);g.fillStyle='#2a6a3a';g.fillRect(0,0,340,96);g.strokeStyle='#fff';g.lineWidth=4;g.strokeRect(6,6,328,84)});
 }
-function drawSeg(s,p1,p2){const z=ZONES[s.z],alt=Math.floor(s.i/3)%2;
- if(s.bridge){poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,alt?'#4a8fc0':'#4d93c6');
-  // white water streaks
-  if(s.i%7==0){ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(p1.X-p1.Wd*4,p1.Y-1,p1.Wd*1.2,Math.max(1,p1.Y-p2.Y));ctx.fillRect(p1.X+p1.Wd*2.5,p1.Y-1,p1.Wd,Math.max(1,p1.Y-p2.Y))}}
- else if(s.tunnel){poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,alt?'#1d1a17':'#221e1a');}
- else poly(0,p2.Y,W,p2.Y,W,p1.Y,0,p1.Y,z.grass[alt]);
- const r1=p1.Wd*.12,r2=p2.Wd*.12;
- poly(p1.X-p1.Wd-r1,p1.Y,p1.X-p1.Wd,p1.Y,p2.X-p2.Wd,p2.Y,p2.X-p2.Wd-r2,p2.Y,z.rumble[alt]);
- poly(p1.X+p1.Wd+r1,p1.Y,p1.X+p1.Wd,p1.Y,p2.X+p2.Wd,p2.Y,p2.X+p2.Wd+r2,p2.Y,z.rumble[alt]);
- poly(p1.X-p1.Wd,p1.Y,p1.X+p1.Wd,p1.Y,p2.X+p2.Wd,p2.Y,p2.X-p2.Wd,p2.Y,s.bridge?(alt?'#7a5a3a':'#6e5034'):z.road);
- if(!alt){const l1=p1.Wd*.03,l2=p2.Wd*.03;poly(p1.X-l1,p1.Y,p1.X+l1,p1.Y,p2.X+l2,p2.Y,p2.X-l2,p2.Y,s.tunnel?'#bba':'#f4f0e0')}
- if(s.tunnel){// walls & ceiling arch
-  const h1=p1.Wd*1.1,h2=p2.Wd*1.1;ctx.fillStyle=alt?'#3b342d':'#433b33';
-  poly(p1.X-p1.Wd*1.25,p1.Y,p2.X-p2.Wd*1.25,p2.Y,p2.X-p2.Wd*1.25,p2.Y-h2,p1.X-p1.Wd*1.25,p1.Y-h1,ctx.fillStyle);
-  poly(p1.X+p1.Wd*1.25,p1.Y,p2.X+p2.Wd*1.25,p2.Y,p2.X+p2.Wd*1.25,p2.Y-h2,p1.X+p1.Wd*1.25,p1.Y-h1,ctx.fillStyle);
-  poly(p1.X-p1.Wd*1.25,p1.Y-h1,p2.X-p2.Wd*1.25,p2.Y-h2,p2.X+p2.Wd*1.25,p2.Y-h2,p1.X+p1.Wd*1.25,p1.Y-h1,alt?'#2a241f':'#2f2822');
-  ctx.fillStyle='#000';ctx.fillRect(0,0,W,Math.max(0,p1.Y-h1));ctx.fillRect(0,0,Math.max(0,p1.X-p1.Wd*1.25),p1.Y);ctx.fillRect(p1.X+p1.Wd*1.25,0,W,p1.Y)}
-}
-function drawBackdrop(z,bs){const hy=H*.5,off=(st.x*30+segs.slice(0,Math.floor(st.pos/SEG)).length*0)%W;
- // mountains (火炎山 / 鐵砧山 silhouette)
- ctx.fillStyle=z.id=='taian'?'#b89aa8':'#6f9a8a';ctx.beginPath();ctx.moveTo(0,hy);
- for(let i=0;i<=12;i++){const xx=i/12*W;ctx.lineTo(xx,hy-30-Math.abs(Math.sin(i*1.7+bs.z))*H*.09)}ctx.lineTo(W,hy);ctx.fill();
- ctx.fillStyle='rgba(255,255,255,.8)';for(let i=0;i<4;i++){const cx=((i*W/3+tm*8)%(W+120))-60,cy=H*(.08+.06*(i%2));ctx.beginPath();ctx.ellipse(cx,cy,40,14,0,0,7);ctx.ellipse(cx+25,cy-6,28,12,0,0,7);ctx.fill()}
- ctx.fillStyle=z.grass[0];ctx.fillRect(0,hy,W,H-hy);}
-function clipR(clip){ctx.save();ctx.beginPath();ctx.rect(0,0,W,clip);ctx.clip()}
-function drawSprite(t,x,y,sc,clip,s){const u=sc*RW/1000;// u ≈ pixels per "meter-ish" unit (road half width 1600 => ~ 1.6 units)
- if(u<.02||u>8)return;clipR(clip);ctx.translate(x,y);ctx.scale(u,u);const T=ctx;
- const R=(c,a,b,w,h)=>{T.fillStyle=c;T.fillRect(a,b,w,h)},C=(c,a,b,r)=>{T.fillStyle=c;T.beginPath();T.arc(a,b,r,0,7);T.fill()};
- switch(t){
- case 'tree':R('#6b4423',-20,-260,40,260);C('#2f8a3a',0,-300,130);C('#3aa046',-50,-260,90);break;
- case 'bush':C('#3a8f3a',0,-50,70);C('#4aa64a',40,-40,50);break;
- case 'pine':R('#5a3a1a',-15,-120,30,120);for(let k=0;k<3;k++){T.fillStyle=k%2?'#1f6a2e':'#27803a';T.beginPath();T.moveTo(-140+k*25,-100-k*120);T.lineTo(0,-330-k*120);T.lineTo(140-k*25,-100-k*120);T.fill()}break;
- case 'palm':R('#8a6a3a',-12,-380,24,380);T.fillStyle='#3a9a3a';for(let k=0;k<6;k++){T.save();T.translate(0,-380);T.rotate(k*1.05);T.fillRect(0,-12,170,24);T.restore()}break;
- case 'sakura':R('#5a3a2a',-18,-240,36,240);C('#ffb7cf',0,-300,140);C('#ffc9da',-70,-250,90);C('#ff9fbf',70,-260,90);
-  T.fillStyle='#ffd0e0';for(let k=0;k<5;k++){T.fillRect(((k*97+tm*40)%300)-150,(-200+(k*53+tm*60)%240),10,10)}break;
- case 'lamp':R('#555',-8,-700,16,40);C('#ffe9a0',0,-660,26);T.fillStyle='rgba(255,230,150,.15)';T.beginPath();T.arc(0,-600,140,0,7);T.fill();break;
- case 'truss':T.strokeStyle='#b03a2e';T.lineWidth=26;T.beginPath();T.moveTo(0,0);T.lineTo(0,-620);T.moveTo(0,-620);T.lineTo(400*(x<W/2?1:-1)*0+0,-620);T.stroke();
-  T.lineWidth=16;T.beginPath();T.moveTo(-200,0);T.lineTo(0,-620);T.lineTo(200,0);T.stroke();R('#7d2219',-260,-640,520,30);break;
- case 'sign':R('#5a4a3a',-8,-220,16,220);R('#2a6a3a',-90,-300,180,90);T.fillStyle='#fff';T.font='bold 44px sans-serif';T.textAlign='center';T.fillText(ZONES[s.z].name.slice(0,4),0,-240);break;
- case 'jsign':R('#555',-10,-380,20,380);R('#1f5fa8',-230,-470,460,140);T.fillStyle='#fff';T.font='bold 52px sans-serif';T.textAlign='center';T.fillText('← 東豐綠廊',0,-420);T.fillText('后里 →',0,-360);break;
- case 'house':{const c=['#e8d8c0','#d0c4b0','#f0e0d0','#c8b8a8'][s.i%4];R(c,-200,-420,400,420);R('#a33',-220,-450,440,40);for(let a=0;a<2;a++)for(let b=0;b<3;b++)R('#5a7a9a',-150+a*190,-380+b*120,110,70);R(['#c22','#27a','#e90'][s.i%3],-200,-200,400,40);break}
- case 'scooter':C('#222',-60,-30,30);C('#222',60,-30,30);R(['#e33','#3ae','#fff'][s.i%3],-70,-110,140,60);R('#333',-20,-170,20,60);break;
- case 'station':R('#e8e0d0',-450,-420,900,420);R('#4a6a8a',-480,-470,960,60);T.fillStyle='#fff';T.font='bold 80px sans-serif';T.textAlign='center';T.fillText('后里車站',0,-490);R('#6a8aaa',-300,-300,600,180);break;
- case 'fence':R('#fff',-90,-110,180,16);R('#fff',-90,-60,180,16);R('#eee',-10,-130,20,130);break;
- case 'horse':{const f=Math.sin(tm*8+s.i)*20;T.fillStyle=s.i%2?'#7a4a2a':'#3a2a1a';T.beginPath();T.ellipse(0,-170,120,55,0,0,7);T.fill();T.fillRect(80,-280,40,110);T.beginPath();T.ellipse(125,-285,50,25,-.4,0,7);T.fill();
-  for(const lx of[-90,-60,60,90])T.fillRect(lx-8,-130,16,130+(lx>0?f:-f)*.3);T.fillRect(-130,-190,30,80);break}
- case 'factory':R('#a8432f',-80,-1100,140,1100);R('#802f20',-80,-1100,140,60);R('#c8b8a0',-500,-450,900,450);R('#7a5a4a',-520,-500,940,60);T.fillStyle='#3a2a1a';T.font='bold 70px sans-serif';T.textAlign='center';T.fillText('月眉糖廠',-50,-330);
-  T.fillStyle='rgba(220,220,220,.6)';for(let k=0;k<4;k++){C('rgba(230,230,230,.5)',-10+k*40+Math.sin(tm+k)*20,-1180-k*90-(tm*30%60),50+k*10)}break;
- case 'train':{const o=((tm*60)%400)-200;T.translate(o,0);R('#333',-400,-20,800,20);R('#2a6a3a',-380,-230,220,200);R('#222',-360,-300,40,70);R('#c33',-140,-200,240,170);R('#d8a',120,-200,240,170);for(const k of[-330,-210,-80,40,160,300])C('#111',k,-20,24);break}
- case 'iceshop':R('#fff',-150,-300,300,300);R('#3a8ad8',-170,-340,340,60);T.fillStyle='#fff';T.font='bold 50px sans-serif';T.textAlign='center';T.fillText('冰品',0,-295);R('#f8c',-40,-200,80,120);break;
- case 'flowers':{const cols=['#ff4f8f','#ffd23f','#ff8f3f','#b05fff','#fff'];for(let k=0;k<14;k++){C(cols[(k+s.i)%5],(k%7)*60-180,-20-Math.floor(k/7)*40-((k*37)%20),22)}break}
- case 'tstation':R('#7a5a3a',-500,-380,1000,380);R('#e8dcc0',-460,-340,920,300);T.fillStyle='#3a3a4a';T.beginPath();T.moveTo(-600,-370);T.lineTo(0,-620);T.lineTo(600,-370);T.fill();
-  R('#fff',-220,-300,440,80);T.fillStyle='#222';T.font='bold 62px sans-serif';T.textAlign='center';T.fillText('泰安驛',0,-240);break;
- case 'goal':R('#333',-1750,-700,40,700);R('#333',1710,-700,40,700);R('#c33',-1750,-760,3500,120);T.fillStyle='#fff';T.font='bold 100px sans-serif';T.textAlign='center';T.fillText('🌸 終點 泰安舊火車站 🌸',0,-665);break;
- case 'ice':T.translate(0,-140+Math.sin(tm*5)*15);R('#d8b070',-8,0,16,70);R('#ff7faa',-40,-120,80,130);R('#fff',-40,-120,80,25);break;
- case 'water':T.translate(0,-140+Math.sin(tm*5)*15);R('#7fd0ff',-35,-110,70,130);R('#2a7ad8',-20,-140,40,30);R('#fff',-35,-60,70,20);break;
- case 'hole':T.fillStyle='#2a2420';T.beginPath();T.ellipse(0,-10,130,40,0,0,7);T.fill();T.fillStyle='#1a1410';T.beginPath();T.ellipse(0,-6,90,24,0,0,7);T.fill();break;
- case 'duck':{const b=Math.sin(tm*10+x)*6;T.fillStyle='#fff';T.beginPath();T.ellipse(0,-50+b,60,40,0,0,7);T.fill();C('#fff',40,-110+b,30);R('#f90',60,-115+b,30,14);C('#000',48,-118+b,5);R('#f90',-20,-15,12,15);R('#f90',10,-15,12,15);break}
- case 'dog':{const b=Math.sin(tm*14)*8;T.fillStyle='#b8864a';T.beginPath();T.ellipse(0,-90,90,40,0,0,7);T.fill();C('#b8864a',80,-140,38);R('#7a5a2a',90,-185,18,30);for(const lx of[-60,-30,40,70])R('#b8864a',lx-7,-60,14,60+(lx%20?b:-b)*.4);R('#b8864a',-110,-120,40,12);break}
- }ctx.restore()}
-function drawRider(x,y,sc,col,clip,zz){const u=sc*RW/1000;if(u<.02||u>8)return;clipR(clip);ctx.translate(x,y);ctx.scale(u,u);bikeBack(col,Math.sin(zz/120),0);ctx.restore()}
-function bikeBack(col,ph,lean){const T=ctx;T.rotate(lean*.12);
- T.fillStyle='#111';T.fillRect(-12,-170,24,170);// rear wheel from behind
- T.fillStyle='#666';T.fillRect(-4,-180,8,40);
- // legs
- const l1=Math.sin(ph*6)*30;T.fillStyle='#223';T.fillRect(-45,-260+l1*.5,30,110-l1*.5);T.fillRect(15,-260-l1*.5,30,110+l1*.5);
- T.fillStyle='#fff';T.fillRect(-48,-160+l1,34,18);T.fillRect(14,-160-l1,34,18);
- T.fillStyle='#333';T.fillRect(-60,-290,120,40);// saddle/shorts
- T.fillStyle=col;T.beginPath();T.moveTo(-70,-280);T.lineTo(70,-280);T.lineTo(60,-430);T.lineTo(-60,-430);T.fill();// jersey
- T.fillRect(-95,-420,30,90);T.fillRect(65,-420,30,90);// arms
- T.fillStyle='#f2c79a';T.fillRect(-92,-335,24,20);T.fillRect(68,-335,24,20);
- T.fillStyle='#f2c79a';T.fillRect(-15,-460,30,30);T.fillStyle='#222';T.beginPath();T.arc(0,-480,48,0,7);T.fill();// head
- T.fillStyle=col;T.beginPath();T.ellipse(0,-500,56,34,0,Math.PI,0);T.fill();// helmet
- T.fillStyle='#ccc';T.fillRect(-110,-345,220,10);// handlebar
- T.fillStyle='#e33';T.fillRect(-10,-150,20,12);// reflector
-}
-function drawPlayer(){const y=btnRects().l[1]-8,u=Math.min(W,H)/1000*.62;ctx.save();ctx.translate(W/2,y);ctx.scale(u,u);
- ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(0,0,120,24,0,0,7);ctx.fill();
- bikeBack('#f3a73b',st.pedal,st.lean);ctx.fillStyle='#fff';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.restore()}
-function drawHUD(z){
- if(!st.run&&!st.done)return;
- const sp=st.speed/MAXS*30;ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,8,170,74);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.textAlign='left';
- ctx.fillText('⏱ '+fmt(st.time),16,28);ctx.fillText('🚲 '+sp.toFixed(0)+' km/h',16,48);
- ctx.fillText('體力',16,70);ctx.fillStyle='#333';ctx.fillRect(54,60,116,12);ctx.fillStyle=st.stam>30?'#4cd964':'#ff3b30';ctx.fillRect(54,60,116*st.stam/100,12);
- if(st.stam<=0){ctx.fillStyle='#ff3b30';ctx.fillText('騎不動了…快放開踩踏休息或吃冰棒！',12,100)}
- // progress & zone
- ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,H*0+86+(st.stam<=0?20:0),170,22);ctx.fillStyle='#ffe';ctx.font='13px sans-serif';ctx.fillText('📍'+z.name,14,102+(st.stam<=0?20:0));
- drawMinimap();
- // touch buttons
- const R=btnRects();const lab={l:'◀',r:'▶',b:'煞車',g:'踩踏'};for(const k in R){const[a,b,w,h]=R[k];ctx.fillStyle=touch[k]?'rgba(255,200,80,.55)':'rgba(255,255,255,.2)';ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect?ctx.roundRect(a,b,w,h,16):ctx.rect(a,b,w,h);ctx.fill();ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold '+Math.round(w*.26)+'px sans-serif';ctx.textAlign='center';ctx.fillText(lab[k],a+w/2,b+h/2+w*.09)}
-}
-function drawMinimap(){const s=Math.min(130,W*.32),x0=W-s-10,y0=56;ctx.save();ctx.fillStyle='rgba(240,236,220,.85)';ctx.fillRect(x0,y0,s,s);ctx.strokeStyle='#654';ctx.strokeRect(x0,y0,s,s);
- const M=p=>[x0+p[0]/100*s,y0+p[1]/100*s];
- // 大甲溪
- ctx.strokeStyle='#5aa0d8';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x0,y0+s*.8);ctx.bezierCurveTo(x0+s*.3,y0+s*.72,x0+s*.6,y0+s*.84,x0+s,y0+s*.7);ctx.stroke();
- ctx.fillStyle='#2a6ab0';ctx.font='9px sans-serif';ctx.textAlign='left';ctx.fillText('大甲溪',x0+4,y0+s*.76);
- ctx.fillStyle='#543';ctx.font='bold 11px sans-serif';ctx.fillText('后里區',x0+4,y0+13);
- ctx.strokeStyle='#d33';ctx.lineWidth=2.5;ctx.beginPath();ZONES.forEach((z,i)=>{const[a,b]=M(z.map);i?ctx.lineTo(a,b):ctx.moveTo(a,b)});ctx.stroke();
- ZONES.forEach((z,i)=>{const[a,b]=M(z.map);ctx.fillStyle=i<=st.zone?'#d33':'#fff';ctx.strokeStyle='#d33';ctx.lineWidth=1;ctx.beginPath();ctx.arc(a,b,3,0,7);ctx.fill();ctx.stroke()});
- // player pos interpolate
- const si=Math.floor(st.pos/SEG),zi=Math.min(ZONES.length-1,segs[Math.min(si,segs.length-1)].z),f=(si-zoneStart[zi])/ZONES[zi].len,A=ZONES[zi].map,B=(ZONES[zi+1]||ZONES[zi]).map;
- const[px,py]=M([A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f]);ctx.fillStyle='#f3a73b';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,5+Math.sin(tm*8),0,7);ctx.fill();ctx.stroke();ctx.restore()}
-// ---------- LOOP ----------
+const BBW={tree:7,pine:7,sakura:7,palm:6,horse:2.6,stnsign:12,taisign:9,icesign:6,jsign:8,gate:9,windmill:7,train:16,lamp:.6,smoke:14,ice:.7,water:.7,hole:2.2,duck:.9,dog:1.3,sign:7};
+const BBZ={stnsign:11.5,taisign:8.5,lamp:4.2,smoke:46};
+function lmAt(x,y){let b=LM[0],bd=1e9;for(const l of LM){const d=Math.hypot(l.p[0]-x,l.p[1]-y);if(d<bd){bd=d;b=l}}return b}
+let frameMs=0,frameN=0;
+function render(){const t0=performance.now();const V=VEH[prof.v];
+ // camera
+ let dh=st.h-st.ch;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;st.ch+=dh*Math.min(1,1/60*5);
+ const cd=V.camD,ca=st.ch;cam={x:st.x-Math.cos(ca)*cd,y:st.y-Math.sin(ca)*cd,z:st.inTunnel?1.9:V.camZ,c:Math.cos(ca),s:Math.sin(ca),h:ca};
+ F=Math.max(W,H*.75)*.85;HY=H*.42;
+ const[s0,s1]=skyAt(tod);FOG=s1.map((v,i)=>v*.75+[180,200,190][i]*.25|0);const night=tod<.2||tod>.8?1:tod<.26?(.26-tod)/.06:tod>.76?(tod-.76)/.04:0;DARK=Math.min(.55,night*.55);
+ const g=ctx.createLinearGradient(0,0,0,HY);g.addColorStop(0,'rgb('+s0+')');g.addColorStop(1,'rgb('+s1+')');ctx.fillStyle=g;ctx.fillRect(0,0,W,HY+1);
+ // sun
+ const sunAz=Math.PI*(1-tod*2)+Math.PI/2,sx=W/2+Math.tan(angd(cam.h,sunAz))*F;if(Math.abs(angd(cam.h,sunAz))<1.2){ctx.fillStyle=night>.5?'#f6f2d8':'#fff6c0';ctx.beginPath();ctx.arc(sx,HY*(.25+Math.abs(tod-.5)*1.2),22,0,7);ctx.fill()}
+ // clouds
+ for(let i=0;i<9;i++){const az=i*.7+tod*3,d=angd(cam.h,az);if(Math.abs(d)>1.2)continue;const x=W/2+Math.tan(d)*F,y=HY*(.15+(i%3)*.12);ctx.fillStyle='rgba(255,255,255,'+(.75-night*.4)+')';ctx.beginPath();ctx.ellipse(x,y,50+i%3*14,13,0,0,7);ctx.ellipse(x+28,y-8,30,12,0,0,7);ctx.ellipse(x-30,y-2,26,10,0,0,7);ctx.fill()}
+ // mountains (火炎山 N, 鐵砧山 W, 中央山脈 E)
+ mtn(1,'#8aa8b8',.45);mtn(0,'#6a8f80',.28);
+ // ground
+ const gg=ctx.createLinearGradient(0,HY,0,H);gg.addColorStop(0,'rgb('+FOG+')');gg.addColorStop(.12,mix('#6aa84a',FOG,.5));gg.addColorStop(1,'#5f9e40');ctx.fillStyle=gg;ctx.fillRect(0,HY,W,H-HY);
+ // fields
+ for(const f of FIELDS){const[r,fd]=camSpace(f.x,f.y);if(fd<-80||fd>FAR||Math.abs(r)>fd*1.3+120)continue;const c=Math.cos(f.a),s=Math.sin(f.a),w=f.w/2,d=f.d/2;
+  drawGroundPoly([[f.x-c*w+s*d,f.y-s*w-c*d],[f.x+c*w+s*d,f.y+s*w-c*d],[f.x+c*w-s*d,f.y+s*w+c*d],[f.x-c*w-s*d,f.y-s*w+c*d]],mix(f.c,FOG,fogT(Math.max(0,fd))))}
+ // river
+ for(let x=-1400;x<1500;x+=40){const[r,fd]=camSpace(x+20,riverY(x+20));if(fd<-60||fd>FAR+60||Math.abs(r)>fd*1.3+80)continue;const y1=riverY(x),y2=riverY(x+40);
+  drawGroundPoly([[x,y1-RIVW/2-8],[x+41,y2-RIVW/2-8],[x+41,y2+RIVW/2+8],[x,y1+RIVW/2+8]],mix('#c9c0a8',FOG,fogT(Math.max(0,fd))));
+  drawGroundPoly([[x,y1-RIVW/2+10],[x+41,y2-RIVW/2+10],[x+41,y2+RIVW/2-14],[x,y1+RIVW/2-14]],mix(((x/40|0)%2)?'#4a8fc0':'#4d95c8',FOG,fogT(Math.max(0,fd))),-1)}
+ // roads
+ for(const s of segs){const mx=(s.a[0]+s.b[0])/2,my=(s.a[1]+s.b[1])/2,[r,fd]=camSpace(mx,my);if(fd<-30||fd>FAR||Math.abs(r)>fd*1.3+40)continue;const E=s.E,hw=E.hw;
+  const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang)*hw,ny=Math.cos(ang)*hw,ex=Math.cos(ang)*.6,ey=Math.sin(ang)*.6;const ft=fogT(Math.max(0,fd));
+  const col=E.type=='road'?'#5a5a5e':E.type=='bridge'?'#7a5a3a':E.type=='tunnel'?'#3a342e':'#b5653d';
+  if(E.type!='bridge')drawGroundPoly([[s.a[0]+nx*1.25-ex,s.a[1]+ny*1.25-ey],[s.b[0]+nx*1.25+ex,s.b[1]+ny*1.25+ey],[s.b[0]-nx*1.25+ex,s.b[1]-ny*1.25+ey],[s.a[0]-nx*1.25-ex,s.a[1]-ny*1.25-ey]],mix(E.type=='road'?'#d8d0c0':'#e8e0c8',FOG,ft));
+  drawGroundPoly([[s.a[0]+nx-ex,s.a[1]+ny-ey],[s.b[0]+nx+ex,s.b[1]+ny+ey],[s.b[0]-nx+ex,s.b[1]-ny+ey],[s.a[0]-nx-ex,s.a[1]-ny-ey]],mix(col,FOG,ft),E.type=='bridge'?.05:0);
+  if(fd<250){const k=.12,L=.5;const dash=(t0,t1,o,c)=>{const ax=s.a[0]+(s.b[0]-s.a[0])*t0,ay=s.a[1]+(s.b[1]-s.a[1])*t0,bx=s.a[0]+(s.b[0]-s.a[0])*t1,by=s.a[1]+(s.b[1]-s.a[1])*t1,px=-Math.sin(ang)*k,py=Math.cos(ang)*k,ox2=-Math.sin(ang)*o,oy2=Math.cos(ang)*o;
+    drawGroundPoly([[ax+px+ox2,ay+py+oy2],[bx+px+ox2,by+py+oy2],[bx-px+ox2,by-py+oy2],[ax-px+ox2,ay-py+oy2]],mix(c,FOG,ft),.02)};
+   if(E.type=='road'){dash(0,.4,0,'#f2d23a');dash(.5,.9,0,'#f2d23a');dash(0,1,hw-.4,'#eee');dash(0,1,-hw+.4,'#eee')}else{dash(.1,.45,0,'#f4f0e0');dash(.6,.95,0,'#f4f0e0')}}}
+ // objects
+ const L=[];
+ for(const o of OBJ){const[r,fd]=camSpace(o.x,o.y);if(fd<1||fd>FAR||Math.abs(r)>fd*1.4+40)continue;L.push([fd,0,o])}
+ for(const it of ITEMS){if(it.r>0)continue;const[r,fd]=camSpace(it.x,it.y);if(fd<1||fd>260||Math.abs(r)>fd*1.3+5)continue;L.push([fd,1,it])}
+ for(const n of NPC){const[r,fd]=camSpace(n.x,n.y);if(fd<1.5||fd>FAR||Math.abs(r)>fd*1.3+5)continue;L.push([fd,2,n])}
+ for(const o of NET.others.values()){if(o.x==null)continue;const[r,fd]=camSpace(o.x,o.y);if(fd<1.5||fd>FAR||Math.abs(r)>fd*1.3+5)continue;L.push([fd,3,o])}
+ L.push([camSpace(st.x,st.y)[1],4,null]);
+ L.sort((a,b)=>b[0]-a[0]);
+ for(const[fd,k,o]of L){ctx.globalAlpha=1-fogT(fd)*.9;
+  if(k==0){if(o.t=='box')drawBox(o,fd);else drawBB(o.t,o.x,o.y,o.s,fd)}
+  else if(k==1)drawBB(o.t,o.x,o.y,1,fd,o.obs?0:.3+Math.sin(performance.now()/200)*.15);
+  else if(k==2)drawVeh(o.k=='bike'?'bike':'npc',o.k=='bike'?(o.v>3?'f':'m'):o.k,o.k=='bike'?o.v%4:0,o.x,o.y,o.h,0,o.v,fd,o.sp);
+  else if(k==3){drawVeh(o.v,o.ch,o.co,o.x,o.y,o.h,0,0,fd,o.s);tag(o.x,o.y,o.v,fd,o.n,o.emoT>0?o.emo:null)}
+  else{ctx.globalAlpha=1;drawVeh(prof.v,prof.ch,prof.co,st.x,st.y,st.h,st.steer,0,fd,st.sp,1);if(st.myEmoT>0){st.myEmoT-=1/60;tag(st.x,st.y,prof.v,fd,'',st.myEmo)}}}
+ ctx.globalAlpha=1;
+ if(st.inTunnel){const gr=ctx.createRadialGradient(W/2,H*.62,H*.05,W/2,H*.55,H*.7);gr.addColorStop(0,'rgba(0,0,0,.05)');gr.addColorStop(1,'rgba(0,0,0,.92)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(20,16,12,.9)';ctx.beginPath();ctx.rect(0,0,W,H);ctx.ellipse(W/2,HY+H*.1,W*.62,H*.55,0,0,7,true);ctx.fill()}
+ if(DARK>0){ctx.fillStyle='rgba(10,20,60,'+DARK+')';ctx.fillRect(0,0,W,H)}
+ if(tod>.7&&tod<.8){ctx.fillStyle='rgba(255,120,40,'+(.12*(1-Math.abs(tod-.75)/.05))+')';ctx.fillRect(0,0,W,H)}
+ if(st.cool>0&&Math.floor(st.cool*10)%2){ctx.fillStyle='rgba(255,0,0,.13)';ctx.fillRect(0,0,W,H)}
+ if(st.run||st.done)hud();
+ const ft=performance.now()-t0;frameMs=frameMs*.95+ft*.05;frameN++}
+function angd(a,b){let d=b-a;while(d>Math.PI)d-=6.283;while(d<-Math.PI)d+=6.283;return d}
+function mtnH(az,layer){// az world angle; north=PI/2
+ let h=0;const P=layer?[[Math.PI/2,.9,.5],[Math.PI,.5,.6],[0,1,.9],[.5,.8,.7],[-.6,.7,.5],[2.4,.5,.4]]:[[Math.PI/2+.1,.7,.25],[Math.PI+.25,.45,.3],[.2,.4,.35],[-1.6,.3,.5]];
+ for(const[c,a,w]of P){const d=angd(c,az);h=Math.max(h,a*Math.exp(-(d*d)/(w*w)))}return h+(layer?.08:.05)*(Math.sin(az*23)*.5+.5)+(layer?0:(Math.abs(Math.sin(az*61))*.05))}
+function mtn(layer,col,sc){const fogc=mix(col,FOG,.35);ctx.fillStyle=DARK>.3?shade(col,.5):fogc;ctx.beginPath();ctx.moveTo(0,HY+1);for(let x=0;x<=W;x+=6){const az=cam.h-Math.atan((x-W/2)/F);ctx.lineTo(x,HY-mtnH(az,layer)*H*sc*.35)}ctx.lineTo(W,HY+1);ctx.fill();
+ if(!layer){const d=angd(cam.h,Math.PI/2+.1);if(Math.abs(d)<.9){ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('火炎山',W/2+Math.tan(d)*F,HY-H*sc*.35*.75-4)}}}
+function drawBox(o,fd){const ca=Math.cos(o.a),sa=Math.sin(o.a),w=o.w/2,d=o.d/2;const C=[[-w,-d],[w,-d],[w,d],[-w,d]].map(([a,b])=>[o.x+a*ca-b*sa,o.y+a*sa+b*ca]);
+ for(const c of C){if(camSpace(c[0],c[1])[1]<NEAR)return}
+ const ft=fogT(fd);ctx.globalAlpha=1;const faces=[];
+ for(let i=0;i<4;i++){const a=C[i],b=C[(i+1)%4],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,nx=mx-o.x,ny=my-o.y;if(nx*(cam.x-mx)+ny*(cam.y-my)<=0)continue;faces.push([a,b,i])}
+ for(const[a,b,i]of faces){const p1=prj(a[0],a[1],0),p2=prj(b[0],b[1],0),p3=prj(b[0],b[1],o.h),p4=prj(a[0],a[1],o.h);ctx.fillStyle=mix(shade(o.c,i%2?.78:.95),FOG,ft);ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3[0],p3[1]);ctx.lineTo(p4[0],p4[1]);ctx.fill();
+  if(o.h>5&&fd<200&&o.w>8){ctx.fillStyle=mix('#5a7a9a',FOG,ft);for(let fl=1;fl<o.h/3.5;fl++){const z=fl*3.3;const q1=prj(a[0]+(b[0]-a[0])*.2,a[1]+(b[1]-a[1])*.2,z),q2=prj(a[0]+(b[0]-a[0])*.8,a[1]+(b[1]-a[1])*.8,z+1.3);ctx.fillRect(Math.min(q1[0],q2[0]),q2[1],Math.abs(q2[0]-q1[0]),q1[1]-q2[1])}}}
+ if(cam.z>o.h){ctx.fillStyle=mix(o.roof,FOG,ft);ctx.beginPath();C.forEach((c,i)=>{const p=prj(c[0],c[1],o.h);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.fill()}}
+function drawBB(t,x,y,s,fd,bob){const im=IMG[t];if(!im)return;const p=prj(x,y,(BBZ[t]||0)+(bob||0)),w=BBW[t]*s*F/fd,h=w*im.height/im.width;if(w<1)return;let ox=0;if(t=='train')ox=Math.sin(performance.now()/3000)*w*.3;ctx.drawImage(im,p[0]-w/2+ox,p[1]-h,w,h)}
+const VW={bike:2.0,scooter:2.0,car:2.5,npc:{moto:1.6,sedan:2.4,van:2.6}};
+function drawVeh(v,ch,co,x,y,h,steer,_,fd,sp,me){
+ const p=prj(x,y,0);if(!isFinite(p[0]))return;const rel=angd(cam.h,h);// facing relative to camera
+ const ww=(v=='npc'?VW.npc[ch]:VW[v])*F/fd;if(ww<1.5)return;
+ let frame=0;const ls=me?steer:Math.max(-1,Math.min(1,rel*2));if(ls<-.3)frame=1;else if(ls>.3)frame=2;
+ if(v=='bike'&&Math.abs(ls)<=.3&&Math.abs(sp)>.5)frame=3+Math.floor(performance.now()/125*(Math.abs(sp)/8+.4))%4;
+ const S=sprFor(v,ch,co,frame,_);
+ ctx.save();ctx.translate(p[0],p[1]);
+ const facing=Math.cos(rel)<0;// coming toward camera
+ if(S){const sc=ww/S.fw,ang=(v=='car'||v=='npc'?0:(me?steer:0)*.12);ctx.rotate(ang);ctx.drawImage(S.im,S.sx,0,S.fw,S.fh,-S.fw/2*sc,-(S.fh-8)*sc,S.fw*sc,S.fh*sc);
+  if(facing&&(v=='car'||v=='npc'||v=='scooter')){ctx.fillStyle='rgba(255,250,200,.8)';ctx.beginPath();ctx.arc(-ww*.28,-ww*.2,ww*.05,0,7);ctx.arc(ww*.28,-ww*.2,ww*.05,0,7);ctx.fill()}}
+ else{const u=ww/240;ctx.scale(u,u);if(v=='bike'||v=='scooter')riderFB(v,ch,COLORS[co]||'#888',sp,me?steer:0);else carFB(v=='npc'?(ch=='van'?'#ddd':['#c0c4c8','#c9b98f','#5f7480'][_||0]):COLORS[co],v=='npc'&&ch=='van',v=='npc'&&ch=='moto')}
+ ctx.restore()}
+function riderFB(v,ch,col,sp,lean){const T=ctx,ph=performance.now()/120*(Math.abs(sp)>.5?1:0);T.rotate(lean*.15);
+ if(v=='scooter'){T.fillStyle='#222';T.fillRect(-20,-70,40,70);T.fillStyle=shade(col,.8);T.fillRect(-55,-150,110,85);T.fillStyle='#f33';T.fillRect(-40,-110,80,14)}
+ else{T.fillStyle='#111';T.fillRect(-9,-120,18,120)}
+ const l=Math.sin(ph)*18*(v=='bike'?1:0);T.fillStyle='#3d3550';T.fillRect(-36,-200+l*.5,24,90-l*.5);T.fillRect(12,-200-l*.5,24,90+l*.5);
+ T.fillStyle=col;T.beginPath();T.moveTo(-50,-195);T.lineTo(50,-195);T.lineTo(44,-300);T.lineTo(-44,-300);T.fill();T.fillRect(-72,-292,22,70);T.fillRect(50,-292,22,70);
+ T.fillStyle='#bbb';T.fillRect(-90,-232,180,8);T.fillStyle='#f2c79a';T.fillRect(-11,-322,22,24);
+ T.fillStyle=ch=='f'?'#F07A1E':'#5A3A22';T.beginPath();T.arc(0,-340,34,0,7);T.fill();if(ch=='f'){T.fillRect(-10,-330,20,50)}
+ T.fillStyle=col;T.beginPath();T.ellipse(0,-352,40,26,0,Math.PI,0);T.fill()}
+function carFB(col,van,moto){const T=ctx;if(moto){riderFB('scooter','m','#7a8a6a',1,0);return}const hgt=van?200:140;T.fillStyle='#111';T.fillRect(-110,-34,40,34);T.fillRect(70,-34,40,34);T.fillStyle=col;T.fillRect(-120,-hgt,240,hgt-20);
+ T.fillStyle='#24303a';T.fillRect(-90,-hgt+10,180,van?70:50);T.fillStyle='#d33';T.fillRect(-118,-70,40,18);T.fillRect(78,-70,40,18);T.fillStyle='#eee';T.fillRect(-36,-56,72,20)}
+function tag(x,y,v,fd,name,emo){const p=prj(x,y,v=='car'?2.8:2.6);if(fd>220)return;ctx.textAlign='center';if(name){ctx.font='bold 12px sans-serif';const w=ctx.measureText(name).width+10;ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(p[0]-w/2,p[1]-16,w,16);ctx.fillStyle='#fff';ctx.fillText(name,p[0],p[1]-4)}
+ if(emo){ctx.font='26px sans-serif';ctx.fillText(emo=='bell'?(v=='bike'?'🔔':'📯'):emo,p[0],p[1]-22)}}
+// ---------- HUD ----------
+function mmRect(){const r=Math.min(62,W*.17);return{cx:W-r-10,cy:56+r+4,r}}
+function hud(){const V=VEH[prof.v];ctx.textAlign='left';ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,8,176,prof.v=='bike'?96:78);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';
+ ctx.fillText((mode=='mission'?'⏱ '+fmt(st.time):'🌿 自由騎'),16,28);ctx.fillText((prof.v=='bike'?'🚲 ':prof.v=='scooter'?'🛵 ':'🚗 ')+Math.round(Math.abs(st.sp)*3.6)+' km/h',16,48);
+ const lm=lmAt(st.x,st.y);ctx.font='13px sans-serif';ctx.fillText('📍'+(st.edge?(Math.hypot(lm.p[0]-st.x,lm.p[1]-st.y)<60?lm.n:st.edge.name):''),16,68);
+ if(mode=='mission'){ctx.fillText('✅ '+missionList().filter(l=>st.visited[l.k]).length+'/'+missionList().length,120,28)}
+ if(prof.v=='bike'){ctx.fillText('體力',16,92);ctx.fillStyle='#333';ctx.fillRect(52,82,124,11);ctx.fillStyle=st.stam>30?'#4cd964':'#ff3b30';ctx.fillRect(52,82,124*st.stam/100,11);if(st.stam<=0){ctx.fillStyle='#ff5b50';ctx.fillText('騎不動了…放開踩踏休息或吃冰棒！',12,122)}}
+ ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,H*0+(prof.v=='bike'?110:92)+(prof.v=='bike'&&st.stam<=0?18:0),176,20);ctx.fillStyle='#bfe';ctx.font='12px sans-serif';ctx.fillText(NET.state=='on'?'🟢 線上 '+NET.tot+' 人'+(NET.shard>1?'・分流'+NET.shard:''):NET.state=='connecting'?'🟡 連線中…（單人遊玩中）':'⚪ 離線單人',14,(prof.v=='bike'?124:106)+(prof.v=='bike'&&st.stam<=0?18:0));
+ minimap();compass();junctionHint()}
+function minimap(){const{cx,cy,r}=mmRect(),sc=r/520,rot=st.mapNorth?0:(st.ch-Math.PI/2);ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle='rgba(236,232,214,.9)';ctx.fill();ctx.clip();
+ const M=(x,y)=>{const dx=(x-st.x)*sc,dy=(y-st.y)*sc,c=Math.cos(-rot),s=Math.sin(-rot);return[cx+dx*c-dy*s,cy-(dx*s+dy*c)]};
+ ctx.strokeStyle='#6aaee0';ctx.lineWidth=RIVW*sc;ctx.beginPath();RIVER.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();
+ for(const e of EDGES){const E=e.E;ctx.strokeStyle=E.type=='road'?'#777':E.type=='tunnel'?'#333':E.type=='bridge'?'#c33':'#c8743d';ctx.lineWidth=E.type=='road'?2.5:2;ctx.beginPath();E.pts.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke()}
+ for(const l of LM){const q=M(l.p[0],l.p[1]);const inM=missionList().includes(l);ctx.fillStyle=st.visited[l.k]?'#e33':inM?'#fff':'#bbb';ctx.strokeStyle='#a22';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(q[0],q[1],3.5,0,7);ctx.fill();ctx.stroke()}
+ for(const o of NET.others.values()){if(o.x==null)continue;const q=M(o.x,o.y);ctx.fillStyle=COLORS[o.co]||'#0af';ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(q[0],q[1],3,0,7);ctx.fill();ctx.stroke()}
+ ctx.restore();ctx.save();ctx.translate(cx,cy);ctx.rotate(-(st.h-Math.PI/2)+rot);ctx.fillStyle=COLORS[prof.co];ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(5,6);ctx.lineTo(0,3);ctx.lineTo(-5,6);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+ // north marker
+ const na=-rot;ctx.fillStyle='#c22';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText('北',cx+Math.sin(na)*(r-8),cy-Math.cos(na)*(r-8)+4);
+ ctx.strokeStyle='#654';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.stroke();ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(cx-r,cy+r+3,r*2,15);ctx.fillStyle='#fff';ctx.font='10px sans-serif';ctx.fillText(st.mapNorth?'北方朝上（點地圖切換）':'隨車頭旋轉（點地圖切換）',cx,cy+r+14)}
+function compass(){if(mode!='mission')return;const left=missionList().filter(l=>!st.visited[l.k]);if(!left.length)return;let b=null,bd=1e9;for(const l of left){const d=Math.hypot(l.p[0]-st.x,l.p[1]-st.y);if(d<bd){bd=d;b=l}}
+ const a=angd(st.h,Math.atan2(b.p[1]-st.y,b.p[0]-st.x)),{cy,r}=mmRect();const x=W/2,y=Math.max(cy+r+40,H*.13);ctx.save();ctx.translate(x,y);ctx.fillStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.roundRect?ctx.roundRect(-90,-18,180,38,10):ctx.rect(-90,-18,180,38);ctx.fill();
+ ctx.save();ctx.translate(-70,1);ctx.rotate(-a);ctx.fillStyle='#ffd24a';ctx.beginPath();ctx.moveTo(0,-13);ctx.lineTo(9,9);ctx.lineTo(0,4);ctx.lineTo(-9,9);ctx.fill();ctx.restore();
+ ctx.fillStyle='#fff';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText(b.n,-52,-1);ctx.font='11px sans-serif';ctx.fillText(Math.round(bd)+' 公尺',-52,14);ctx.restore()}
+function junctionHint(){// upcoming intersection: list branches with arrows
+ let best=null,bd=1e9;for(const k in N){if(adj[k].length<2)continue;const[r,f]=(()=>{const dx=N[k][0]-st.x,dy=N[k][1]-st.y;return[dx*Math.sin(st.h)-dy*Math.cos(st.h),dx*Math.cos(st.h)+dy*Math.sin(st.h)]})();if(f>-4&&f<70&&Math.abs(r)<20&&f<bd){bd=f;best=k}}
+ if(!best)return;const opts=[];for(const a of adj[best]){const p=a.rev?a.e.pts[a.e.pts.length-3]||a.e.pts[0]:a.e.pts[2]||a.e.pts[a.e.pts.length-1];const da=angd(st.h,Math.atan2(p[1]-N[best][1],p[0]-N[best][0]));if(Math.abs(da)>2.6)continue;
+  const ok=allowed(a.e);const lm=LM.find(l=>Math.hypot(l.p[0]-N[a.to][0],l.p[1]-N[a.to][1])<60);opts.push({da,txt:(lm?lm.n:a.e.name)+(ok?'':'🚳'),ok})}
+ if(opts.length<2)return;opts.sort((a,b)=>b.da-a.da);const y=H*.3,w=Math.min(W-20,opts.length*112);ctx.fillStyle='rgba(20,60,40,.75)';ctx.fillRect(W/2-w/2,y,w,48);ctx.fillStyle='#ffd24a';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText('路口 '+Math.max(0,Math.round(bd))+'m',W/2,y-4);
+ opts.forEach((o,i)=>{const x=W/2-w/2+(i+.5)*w/opts.length;ctx.save();ctx.translate(x,y+16);ctx.rotate(-o.da);ctx.fillStyle=o.ok?'#fff':'#999';ctx.beginPath();ctx.moveTo(0,-11);ctx.lineTo(8,3);ctx.lineTo(3,3);ctx.lineTo(3,10);ctx.lineTo(-3,10);ctx.lineTo(-3,3);ctx.lineTo(-8,3);ctx.fill();ctx.restore();ctx.fillStyle=o.ok?'#fff':'#aaa';ctx.font='11px sans-serif';ctx.fillText(o.txt.slice(0,8),x,y+42)})}
+// title preview
+function drawPrev(){const c=$('prev'),g=c.getContext('2d');g.clearRect(0,0,240,240);const S=sprFor(prof.v,prof.ch,prof.co,0);
+ if(S){const sc=Math.min(220/S.fw,220/S.fh);g.drawImage(S.im,S.sx,0,S.fw,S.fh,120-S.fw*sc/2,232-S.fh*sc,S.fw*sc,S.fh*sc)}
+ else{const o=ctx;ctx=g;try{g.save();g.translate(120,232);g.scale(.6,.6);if(prof.v=='car')carFB(COLORS[prof.co]);else riderFB(prof.v,prof.ch,COLORS[prof.co],0,0);g.restore()}finally{ctx=o}}}
+// ================= LOOP =================
 let last=performance.now(),acc=0;
-function loop(now){const dt=Math.min(.1,(now-last)/1000)*TS;last=now;acc+=dt;let n=0;while(acc>=1/60&&n<20){update(1/60);acc-=1/60;n++}render();requestAnimationFrame(loop)}
-reset();showBest();requestAnimationFrame(loop);
-window.__hr={get st(){return st},ZONES,get zoneStart(){return zoneStart},get trackLen(){return trackLen},jump(zi){st.pos=zoneStart[zi]*SEG+SEG*15}};
+function loop(now){const dt=Math.min(.1,(now-last)/1000)*TS;last=now;acc+=dt;let n=0;while(acc>=1/60&&n<30){update(1/60);acc-=1/60;n++}if(acc>1)acc=0;render();requestAnimationFrame(loop)}
+addEventListener('resize',resize);buildGraph();buildImgs();resize();reset();showBest();drawPrev();netConnect();requestAnimationFrame(loop);
+window.__hr={get st(){return st},get net(){return NET},LM,N,get frameMs(){return frameMs},get assets(){return AS},prof,
+ tp(k,dir){const p=LM.find(l=>l.k==k)?.p||N[k];st.x=p[0];st.y=p[1]-(dir||25);st.h=st.ch=Math.PI/2;st.sp=0},set(o){Object.assign(st,o)},start};
 </script></body></html>

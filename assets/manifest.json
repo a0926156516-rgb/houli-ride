@@ -1,0 +1,247 @@
+{
+ "version": 1,
+ "facesAway": true,
+ "camera": "rear / 從後方",
+ "anchor": {
+  "x": "frameW/2",
+  "y": "frameH-8",
+  "desc": "rear wheel contact point, bottom-center 後輪著地點(底部中央)"
+ },
+ "colors": {
+  "red": "#e8483b",
+  "blue": "#2f8fe0",
+  "green": "#3fb85a",
+  "yellow": "#f2b630"
+ },
+ "categories": {
+  "bike": {
+   "frameW": 384,
+   "frameH": 384,
+   "cols": 7,
+   "rows": 1,
+   "layout": "single row",
+   "frames": {
+    "straight": [
+     0
+    ],
+    "lean_left": [
+     1
+    ],
+    "lean_right": [
+     2
+    ],
+    "pedal": [
+     3,
+     4,
+     5,
+     6
+    ]
+   },
+   "fps": {
+    "pedal": 8
+   },
+   "leanDeg": 20,
+   "sheets": {
+    "ayan_red": {
+     "file": "bike_ayan_red.png",
+     "width": 2688,
+     "height": 384
+    },
+    "ayan_blue": {
+     "file": "bike_ayan_blue.png",
+     "width": 2688,
+     "height": 384
+    },
+    "ayan_green": {
+     "file": "bike_ayan_green.png",
+     "width": 2688,
+     "height": 384
+    },
+    "ayan_yellow": {
+     "file": "bike_ayan_yellow.png",
+     "width": 2688,
+     "height": 384
+    },
+    "xiaopan_red": {
+     "file": "bike_xiaopan_red.png",
+     "width": 2688,
+     "height": 384
+    },
+    "xiaopan_blue": {
+     "file": "bike_xiaopan_blue.png",
+     "width": 2688,
+     "height": 384
+    },
+    "xiaopan_green": {
+     "file": "bike_xiaopan_green.png",
+     "width": 2688,
+     "height": 384
+    },
+    "xiaopan_yellow": {
+     "file": "bike_xiaopan_yellow.png",
+     "width": 2688,
+     "height": 384
+    }
+   },
+   "note": "pedal: 0=left foot down,1=left down (bob),2=right foot down (mirrored),3=right down (bob)"
+  },
+  "moto": {
+   "frameW": 384,
+   "frameH": 384,
+   "cols": 3,
+   "rows": 1,
+   "frames": {
+    "straight": [
+     0
+    ],
+    "lean_left": [
+     1
+    ],
+    "lean_right": [
+     2
+    ]
+   },
+   "fps": {},
+   "leanDeg": 20,
+   "sheets": {
+    "ayan_red": {
+     "file": "moto_ayan_red.png",
+     "width": 1152,
+     "height": 384
+    },
+    "ayan_blue": {
+     "file": "moto_ayan_blue.png",
+     "width": 1152,
+     "height": 384
+    },
+    "ayan_green": {
+     "file": "moto_ayan_green.png",
+     "width": 1152,
+     "height": 384
+    },
+    "ayan_yellow": {
+     "file": "moto_ayan_yellow.png",
+     "width": 1152,
+     "height": 384
+    },
+    "xiaopan_red": {
+     "file": "moto_xiaopan_red.png",
+     "width": 1152,
+     "height": 384
+    },
+    "xiaopan_blue": {
+     "file": "moto_xiaopan_blue.png",
+     "width": 1152,
+     "height": 384
+    },
+    "xiaopan_green": {
+     "file": "moto_xiaopan_green.png",
+     "width": 1152,
+     "height": 384
+    },
+    "xiaopan_yellow": {
+     "file": "moto_xiaopan_yellow.png",
+     "width": 1152,
+     "height": 384
+    }
+   }
+  },
+  "car": {
+   "frameW": 384,
+   "frameH": 288,
+   "cols": 3,
+   "rows": 1,
+   "frames": {
+    "straight": [
+     0
+    ],
+    "turn_left": [
+     1
+    ],
+    "turn_right": [
+     2
+    ]
+   },
+   "fps": {},
+   "turnDeg": 6,
+   "sheets": {
+    "red": {
+     "file": "car_red.png",
+     "width": 1152,
+     "height": 288
+    },
+    "blue": {
+     "file": "car_blue.png",
+     "width": 1152,
+     "height": 288
+    },
+    "green": {
+     "file": "car_green.png",
+     "width": 1152,
+     "height": 288
+    },
+    "yellow": {
+     "file": "car_yellow.png",
+     "width": 1152,
+     "height": 288
+    }
+   }
+  },
+  "npc": {
+   "layout": "one sheet per type; columns = color variants, 1 frame each",
+   "types": {
+    "moto": {
+     "frameW": 256,
+     "frameH": 320,
+     "cols": 3,
+     "rows": 1,
+     "variants": [
+      "original",
+      "#7a8a6a",
+      "#6c6a80"
+     ],
+     "file": "npc_moto.png",
+     "width": 768,
+     "height": 320
+    },
+    "sedan": {
+     "frameW": 320,
+     "frameH": 256,
+     "cols": 3,
+     "rows": 1,
+     "variants": [
+      "original",
+      "#c9b98f",
+      "#5f7480"
+     ],
+     "file": "npc_sedan.png",
+     "width": 960,
+     "height": 256
+    },
+    "van": {
+     "frameW": 320,
+     "frameH": 320,
+     "cols": 3,
+     "rows": 1,
+     "variants": [
+      "original",
+      "#b9a27a",
+      "#7f8b84"
+     ],
+     "file": "npc_van.png",
+     "width": 960,
+     "height": 320
+    }
+   }
+  }
+ },
+ "previews": [
+  "preview.png",
+  "preview_bike_lean_ayan_blue.gif",
+  "preview_bike_lean_xiaopan_red.gif",
+  "preview_bike_pedal_ayan_blue.gif",
+  "preview_bike_pedal_xiaopan_red.gif",
+  "preview_moto_lean_ayan_blue.gif",
+  "preview_moto_lean_xiaopan_red.gif"
+ ]
+}
