@@ -30,8 +30,10 @@ body.play #emo{display:flex}
 #emo button{width:40px;height:40px;border-radius:20px;border:0;background:rgba(0,0,0,.4);font-size:20px;padding:0}
 #toast{position:fixed;left:50%;top:24%;transform:translateX(-50%);z-index:8;background:rgba(120,40,20,.9);color:#fff;padding:9px 20px;border-radius:8px;border:3px solid #f3d38b;font-size:19px;font-weight:bold;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap;text-align:center}
 #toast small{display:block;font-size:13px;font-weight:normal}
-#enterB{position:fixed;z-index:9;right:12px;top:60%;display:none;padding:7px 12px;font-size:14px;border:0;border-radius:18px;background:#ffcf3fe8;color:#3a1d00;font-weight:bold;box-shadow:0 3px 0 #a5741a,0 0 0 2px #fff8;font-family:inherit;max-width:min(52vw,230px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#enterB{position:fixed;z-index:9;right:12px;top:60%;display:none;padding:7px 12px;font-size:14px;border:0;border-radius:18px;background:#ffcf3fe8;color:#3a1d00;font-weight:bold;box-shadow:0 3px 0 #a5741a,0 0 0 2px #fff8;font-family:inherit;max-width:min(40vw,150px);white-space:nowrap;overflow:hidden;text-align:center;line-height:1.15}#enterB small{display:block;font-size:10px;font-weight:normal;overflow:hidden;text-overflow:ellipsis;max-width:min(36vw,130px);opacity:.85;margin-bottom:1px}
 body:not(.play) #enterB{display:none!important}
+.flt{position:fixed;left:50%;top:49%;z-index:10;font-weight:bold;font-size:26px;white-space:nowrap;pointer-events:none;text-shadow:0 0 3px #000,0 2px 0 #5a2a00,0 0 10px rgba(0,0,0,.6);animation:flt 1.4s ease-out forwards}
+@keyframes flt{0%{opacity:0;transform:translate(-50%,12px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,-10px) scale(1)}100%{opacity:0;transform:translate(-50%,-80px)}}
 #shop,#bag{z-index:25}#shop h2,#bag h2{margin:6px 0 2px;font-size:24px}#bag h3{margin:12px 0 4px;font-size:16px;color:#ffd24a}
 .sub{font-size:12px!important;opacity:.85}.bal{font-size:17px!important}#shopMsg,#bagMsg{min-height:18px;color:#ffe08a;font-size:14px}
 .items{width:100%;max-width:440px}.it{display:flex;align-items:center;gap:10px;background:#ffffff14;border:1px solid #fff3;border-radius:12px;padding:8px 10px;margin:6px 0;text-align:left;width:100%;max-width:440px;box-sizing:border-box}
@@ -44,7 +46,7 @@ body:not(.play) #enterB{display:none!important}
 </style></head><body>
 <canvas id="c"></canvas>
 <button class="tb" id="pauseB" style="right:10px">❚❚</button>
-<button class="tb" id="muteB" style="right:56px">🔊</button><button class="tb" id="bagB" style="right:102px">🎒</button><button id="enterB">🏪 進入商店</button>
+<button class="tb" id="muteB" style="right:56px">🔊</button><button class="tb" id="bagB" style="right:102px">🎒</button><button id="enterB">🏪 進店</button>
 <div id="emo"><button data-e="bell">🔔</button><button data-e="👋">👋</button><button data-e="👍">👍</button><button data-e="😄">😄</button><button data-e="🌸">🌸</button></div>
 <button class="ctl" id="bL">◀</button><button class="ctl" id="bR">▶</button>
 <button class="ctl" id="bB">煞車</button><button class="ctl" id="bG">踩踏</button><button class="ctl" id="bU">↩︎迴轉</button>
@@ -113,7 +115,8 @@ function riverD(x,y){return polyD(RIVER,x,y)[0]}
 function railD(x,y){return polyD(RAILP,x,y)[0]}
 function inPoly(P,x,y){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 // ---------- world objects ----------
-let TUNPORT=[],ICEROUTE=null,OBJ=[],FIELDS=[],ITEMS=[],NPC=[],RESV=[],BG=new Map(),SIGNS=[],XINGS=[];
+function floatTxt(t,c){FLOATS.push({txt:t,t:0,c});const d=document.createElement('div');d.className='flt';d.textContent=t;d.style.color=c;document.body.appendChild(d);setTimeout(()=>d.remove(),1500)}
+let FLOATS=[],TUNPORT=[],ICEROUTE=null,OBJ=[],FIELDS=[],ITEMS=[],NPC=[],RESV=[],BG=new Map(),SIGNS=[],XINGS=[];
 function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function clearOf(x,y,m){const r=nearest(x,y,null,3);if(r.s&&r.d<r.s.E.hw+m)return false;if(riverD(x,y)<RIVW/2+6)return false;if(railD(x,y)<4+m*.3)return false;for(const c of RESV)if(Math.hypot(x-c[0],y-c[1])<c[2])return false;return true}
 function boxOK(x,y,w,d,a,m){const c=Math.cos(a||0),s=Math.sin(a||0),hw=w/2,hd=d/2;m=m==null?1.5:m;
@@ -196,6 +199,7 @@ function buildWorld(){
    const S=walkOut(nk,24);if(S){const nx=-Math.sin(S[2]),ny=Math.cos(S[2]),o=S[3]+2.4;bb('nomoto',S[0]+nx*o,S[1]+ny*o,1.5);bb('nomoto',S[0]-nx*o,S[1]-ny*o,1.5)}
    TUNPORT.push({portal:[px,py],gantry:[G[0],G[1]],side:S&&[S[0],S[1]]})}}
  bb('gate',LP.trail[0],LP.trail[1],1);{const f=roadFrame(LP.junc,E=>E.type!='road');const p=f.at(0,f.hw+6);bb('jsign',p[0],p[1],1)}
+ propClean();
  // ---- items
  for(const s of segs){if(r()<.05){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:r()<.5?'ice':'water',r:0})}
   if(r()<.03&&s.k>1){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:E.type=='road'?(r()<.6?'hole':'dog'):(r()<.5?'duck':'hole'),obs:1})}}
@@ -364,7 +368,7 @@ function update(dt){tod=(tod+dt/480)%1;
  // items
  for(const it of ITEMS){if(it.r>0){it.r-=dt;continue}if(Math.abs(it.x-st.x)>2||Math.abs(it.y-st.y)>2)continue;
   if(it.obs){if(st.cool<=0){st.cool=1.2;st.sp*=.35;st.hit++;if(prof.v=='bike')st.stam-=8;audio.hit();toast({hole:'哎呀！坑洞！',duck:'嘎嘎！小心鴨子！',dog:'汪汪！有狗！'}[it.t])}}
-  else{it.r=60;st.col++;if(prof.v=='bike')st.stam=Math.min(100,st.stam+(it.t=='ice'?30:15));audio.get();toast(it.t=='ice'?'🍡 冰棒！'+(prof.v=='bike'?'體力 +30':''):'💧 補水！'+(prof.v=='bike'?'體力 +15':''),1200)}}
+  else{it.r=60;st.col++;if(prof.v=='bike'){const s0=st.stam;st.stam=Math.min(100,st.stam+(it.t=='ice'?30:15));const g=Math.round(st.stam-s0);floatTxt((it.t=='ice'?'🍡 ':'💧 ')+(g>0?'+'+g+' 體力':'體力已滿'),g>0?'#ffe14a':'#e8e8e8');st.lastPick={t:it.t,gain:g,at:st.time}}else floatTxt(it.t=='ice'?'🍡 冰棒！':'💧 補水！','#fff');audio.get();toast((it.t=='ice'?'🍡 冰棒！':'💧 補水！')+(prof.v=='bike'?(st.lastPick.gain>0?'體力 +'+st.lastPick.gain:'體力已滿'):''),1200)}}
  for(const n of NPC){if(Math.abs(n.x-st.x)<2.2&&Math.abs(n.y-st.y)<2.2&&st.cool<=0){st.cool=1.4;st.sp*=.3;st.hit++;audio.hit();n.k=='bike'?audio.bell():audio.horn(n.k!='moto');toast(n.k=='bike'?'叮叮！撞到其他騎士':'叭叭！小心來車！');st.x+=(st.x-n.x)*.5;st.y+=(st.y-n.y)*.5}}
  v3Update(dt);
  // landmarks
@@ -387,6 +391,8 @@ function collide(dt){const cr=CR[prof.v],fl=FL[prof.v];let nx=0,ny=0,hit=0;
   if(v>4.5){if(into<-.8||st.sp<0){st.sp=-Math.sign(st.sp)*Math.min(5,v*.32)}else{const dn=hx*nx+hy*ny,rx=hx-2*dn*nx,ry=hy-2*dn*ny,tx=-ny,ty=nx,sg=(tx*hx+ty*hy)>=0?1:-1;let ox2=rx*.5+tx*sg*.5,oy2=ry*.5+ty*sg*.5;const rn=nearest(st.x,st.y,prof.v=='bike'?null:(E=>E.type=='road'),2);if(rn.s&&rn.d>rn.s.E.hw-.5){const q=rn.s,ax=q.a[0],ay=q.a[1],bx=q.b[0]-ax,by=q.b[1]-ay,t=Math.max(0,Math.min(1,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by||1)));let gx=ax+bx*t-st.x,gy=ay+by*t-st.y;const gl=Math.hypot(gx,gy)||1;ox2=ox2*.35+gx/gl*.65;oy2=oy2*.35+gy/gl*.65}st.h=Math.atan2(oy2,ox2);st.sp=v*.45}st.bump=.35;st.hit++;const tn=st.time;st.hitLog=(st.hitLog||[]).filter(h=>tn-h[0]<3.5);st.hitLog.push([tn,st.x,st.y]);if(st.hitLog.length>=3&&Math.hypot(st.hitLog[0][1]-st.x,st.hitLog[0][2]-st.y)<8){st.hitLog=[];rescue()}if(st.cool<=0){audio.hit();st.cool=.6}toast('💥 碰！撞到建築物了',900);st.x+=nx*.6;st.y+=ny*.6}
   else{// slide along wall: turn heading toward the wall tangent, keep some speed
    const tx=-ny,ty=nx,sg=(tx*hx+ty*hy)>=0?1:-1;let da=Math.atan2(ty*sg,tx*sg)-st.h;while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;if(st.sp>=0)st.h+=da*Math.min(1,dt*5);st.sp*=1-Math.min(.5,dt*2)}}}
+function propClean(){const KEEP=/^(box|gate|tgantry|tarch|ferris|corp_|train|smoke|stnsign|taisign|tlamp)/,VEG=/^(tree|pine|sakura|palm|bamboo|reed|windmill)$/;let rm=0;
+ OBJ=OBJ.filter(o=>{if(KEEP.test(o.t))return true;const n=nearest(o.x,o.y,null,3);const veg=VEG.test(o.t);if(n.s){const m=veg?1+(BBW[o.t]||7)*(o.s||1)*.3:.35;if(n.d<n.s.E.hw+m){rm++;return false}}if(veg&&riverD(o.x,o.y)<RIVW/2+2){rm++;return false}return true});window.__propRemoved=rm}
 function rescue(why){if(st.resc)return;st.resc={t:0,why};st.sp=0}
 function doRescue(why){let n={s:null,d:1e9};if(prof.v=='bike')n=nearest(st.x,st.y,null);else for(const sg of segs){if(sg.E.type!='road')continue;if(sg.nb==null){const m=[(sg.a[0]+sg.b[0])/2,(sg.a[1]+sg.b[1])/2],q=nearest(m[0],m[1],E=>E.type=='tunnel'||E.type=='bridge',1);sg.nb=q.s&&q.d<q.s.E.hw+9?1:0}if(sg.nb)continue;const d=segD(sg,st.x,st.y);if(d<n.d)n={s:sg,d}}if(!n.s)return;const s=n.s,ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,t=Math.max(.05,Math.min(.95,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by||1)));
  let h=Math.atan2(by,bx);if(Math.cos(h-st.h)<0)h+=Math.PI;st.x=ax+bx*t;st.y=ay+by*t;st.h=st.ch=h;st.sp=0;st.camD=null;st.stuckT=0;st.wallT=0;st.trk=[];st.inHold=0;st.rescues=(st.rescues||0)+1;toast(why||'🚧 卡住了嗎？已幫你拉回道路上',3200,1);warnUntil=performance.now()+3000}
@@ -396,7 +402,7 @@ function unstick(dt,up,dn,onRoad){const drive=up||dn;st.inHold=drive?(st.inHold|
  if(st.uturn||st.resc)return;const b3w=back(3);if(st.time-(st.lastWall||-9)<1.5&&b3w.span>=2.85&&b3w.d<1.5&&Math.abs(st.sp)<1.5)return rescue();if(!drive)return;
  const b15=back(1.5);if(st.inHold>=1.5&&Math.abs(st.sp)<1&&b15.span>=1.35&&b15.d<1.5)return rescue();
  const b25=back(2.5);if(st.inHold>=2.5&&b25.span>=2.35&&b25.d<3)return rescue()}
-function roadAssist(dt,nr,V){const off=()=>{st.laOn=0};if(!nr.s||st.sp<7||st.uturn||st.auto)return off();const E=nr.s.E;if(prof.v!='bike'&&E.type!='road')return off();const hi=st.sp>V.max*.45;
+function roadAssist(dt,nr,V){const off=()=>{st.laOn=0};if(prof.v=='bike'||!nr.s||st.sp<V.max*.45||st.uturn||st.auto)return off();const E=nr.s.E;if(E.type!='road')return off();const hi=true;
  for(const nk of[E.a,E.b])if(adj[nk].length>=3&&Math.hypot(N[nk][0]-st.x,N[nk][1]-st.y)<(hi?12:22))return off();
  const lat=nr.d-(E.hw-(hi?2.2:1));if(lat>16)return off();
  const s=nr.s,ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,t=Math.max(0,Math.min(1,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by||1))),cx=ax+bx*t,cy=ay+by*t;
@@ -490,13 +496,14 @@ function render(){const t0=performance.now();const V=VEH[prof.v];
  for(const o of NET.others.values()){if(o.x==null||o.ghost)continue;const[r,fd]=camSpace(o.x,o.y);if(fd<1.5||fd>FAR||Math.abs(r)>fd*1.3+5)continue;L.push([fd,3,o])}
  v3Push(L);L.push([camSpace(st.x,st.y)[1],4,null]);
  L.sort((a,b)=>b[0]-a[0]);
- for(const[fd,k,o]of L){ctx.globalAlpha=1-fogT(fd)*.9;
+ for(const[fd,k,o]of L){ctx.globalAlpha=1-fogT(fd)*.9;if(k==1||k==2||k==3||k==6||(k==0&&o.t!='box')){const na=(k==1||k==6)?Math.min(1,(fd-2.5)/2.5):k==0?Math.min(1,(fd-2.2)/2.8):Math.min(1,(fd-1.7)/1.8);if(na<=0)continue;ctx.globalAlpha*=na}
   if(k==0){if(o.t=='box')drawBox(o,fd);else drawBB(o.t,o.x,o.y,o.s,fd)}
   else if(k==1){if(o.big){const g=prj(o.x,o.y,0),gr=1.6*F/fd,pu=.75+Math.sin(performance.now()/180)*.25;if(gr>1){ctx.save();ctx.globalAlpha=.55*pu;const rg=ctx.createRadialGradient(g[0],g[1],0,g[0],g[1],gr);rg.addColorStop(0,'#fff6a0');rg.addColorStop(.6,'rgba(255,190,60,.6)');rg.addColorStop(1,'rgba(255,170,40,0)');ctx.fillStyle=rg;ctx.beginPath();ctx.ellipse(g[0],g[1],gr,gr*.35,0,0,7);ctx.fill();const top=prj(o.x,o.y,4.5);ctx.globalAlpha=.25*pu;ctx.fillStyle='#fff3b0';ctx.fillRect(g[0]-gr*.12,top[1],gr*.24,g[1]-top[1]);ctx.restore()}drawBB(o.t,o.x,o.y,2.3,fd,.5+Math.sin(performance.now()/200)*.25)}else drawBB(o.t,o.x,o.y,1,fd,o.obs?0:.3+Math.sin(performance.now()/200)*.15)}
   else if(k==2)drawVeh(o.k=='bike'?'bike':'npc',o.k=='bike'?(o.v>3?'f':'m'):o.k,o.k=='bike'?o.v%4:0,o.x,o.y,o.h,0,o.v,fd,o.sp);
   else if(k==5)drawShop(o,fd);else if(k==6)drawCoin(o,fd);else if(k==3){drawVeh(o.v,o.ch,o.co,o.x,o.y,o.h,0,0,fd,o.s,0,o.cos);tag(o.x,o.y,o.v,fd,o.n,o.emoT>0?o.emo:null)}
   else{ctx.globalAlpha=1;drawVeh(prof.v,prof.ch,prof.co,st.x,st.y,st.h,st.steer,0,fd,st.sp,1,cosParse(cosCode()));if(st.myEmoT>0){st.myEmoT-=1/60;tag(st.x,st.y,prof.v,fd,'',st.myEmo)}}}
  ctx.globalAlpha=1;
+ FLOATS=FLOATS.filter(f=>(f.t+=1/60)<1.4);
  if(st.inTunnel){const gr=ctx.createRadialGradient(W/2,H*.6,H*.08,W/2,H*.55,H*.75);gr.addColorStop(0,'rgba(255,200,120,.06)');gr.addColorStop(.6,'rgba(0,0,0,.18)');gr.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H)}
  if(DARK>0){ctx.fillStyle='rgba(10,20,60,'+DARK+')';ctx.fillRect(0,0,W,H)}
  if(tod>.7&&tod<.8){ctx.fillStyle='rgba(255,120,40,'+(.12*(1-Math.abs(tod-.75)/.05))+')';ctx.fillRect(0,0,W,H)}
@@ -540,7 +547,7 @@ function drawBox(o,fd){if(inBox(o,cam.x,cam.y,.6))return;if(o.mtn&&camTun)return
    if(i%2==0){L(.2,2.5,.1,.9,'#3a4652');L(2.6,3.3,0,1,o.sf);L(3.6,4.6,.15,.85,'#fbf3dc');for(let z=5.4;z<o.h-1;z+=3.2)L(z,z+1.6,.2,.8,'#6a8aaa')}}
   if(o.h>5&&fd<200&&o.w>8){ctx.fillStyle=mix('#5a7a9a',FOG,ft);for(let fl=1;fl<o.h/3.5;fl++){const z=fl*3.3;const q1=prj(a[0]+(b[0]-a[0])*.2,a[1]+(b[1]-a[1])*.2,z),q2=prj(a[0]+(b[0]-a[0])*.8,a[1]+(b[1]-a[1])*.8,z+1.3);ctx.fillRect(Math.min(q1[0],q2[0]),q2[1],Math.abs(q2[0]-q1[0]),q1[1]-q2[1])}}}
  if(cam.z>o.h){ctx.fillStyle=mix(o.roof,FOG,ft);ctx.beginPath();C.forEach((c,i)=>{const p=prj(c[0],c[1],o.h);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.fill()}}
-function drawBB(t,x,y,s,fd,bob){const im=IMG[t];if(!im)return;const p=prj(x,y,(BBZ[t]||0)+(bob||0)),w=BBW[t]*s*F/fd,h=w*im.height/im.width;if(w<1)return;let ox=0;if(t=='train')ox=Math.sin(performance.now()/3000)*w*.3;ctx.drawImage(im,p[0]-w/2+ox,p[1]-h,w,h)}
+function drawBB(t,x,y,s,fd,bob){const im=IMG[t];if(!im)return;const p=prj(x,y,(BBZ[t]||0)+(bob||0));let w=BBW[t]*s*F/fd,h=w*im.height/im.width;if(w<1)return;const cap=(BBW[t]*s<3?.3:1.1)*Math.min(W,H*.75);if(w>cap||h>H*1.3){const k=Math.min(cap/w,H*1.3/h);w*=k;h*=k}let ox=0;if(t=='train')ox=Math.sin(performance.now()/3000)*w*.3;ctx.drawImage(im,p[0]-w/2+ox,p[1]-h,w,h)}
 const VW={bike:2.0,scooter:2.0,car:2.5,npc:{moto:1.6,sedan:2.4,van:2.6}};
 function drawVeh(v,ch,co,x,y,h,steer,_,fd,sp,me,cs){
  const p=prj(x,y,0);if(!isFinite(p[0]))return;const rel=angd(cam.h,h);// facing relative to camera
@@ -697,7 +704,7 @@ function upOff(){return SAVE.up.tire?.8:.62}
 function v3Update(dt){st.boost=Math.max(0,(st.boost||0)-dt);const R=prof.v=='car'?2.7:2.1;
  for(const c of COINS){if(c.r>0){c.r-=dt;continue}if(Math.abs(c.x-st.x)<R&&Math.abs(c.y-st.y)<R){c.r=50;SAVE.coins+=c.v;st.coinsRun=(st.coinsRun||0)+c.v;audio.coin(c.v>1);st.coinFx=.4;save()}}
  nearShop=null;for(const s of SHOPS){if(Math.hypot(s.rx-st.x,s.ry-st.y)<13){nearShop=s;break}}
- const eb=$('enterB'),show=nearShop&&Math.abs(st.sp)<3.6;eb.style.display=show?'block':'none';if(show)eb.textContent='🏪 進入「'+nearShop.n+'」';
+ const eb=$('enterB'),show=nearShop&&Math.abs(st.sp)<3.6;eb.style.display=show?'block':'none';if(show&&eb.dataset.k!==nearShop.k){eb.dataset.k=nearShop.k;eb.innerHTML='<small></small>🏪 進店';eb.firstChild.textContent=nearShop.n;eb.title=nearShop.n}
  if(nearShop&&st.lastShop!==nearShop.k){st.lastShop=nearShop.k;toast(nearShop.ico+' '+nearShop.n+'<small>'+(nearShop.real?'后里在地店家':'遊戲虛構店家')+'・放慢速度即可進入商店</small>',2200)}else if(!nearShop)st.lastShop=null;
  for(const c of CORPS){const d=Math.hypot(c.x-st.x,c.y-st.y);if(d<c.sz[0]*.5+30){if(st.lastCorp!==c.k){st.lastCorp=c.k;let extra='';if(!SAVE.corp.includes(c.k)){SAVE.corp.push(c.k);SAVE.coins+=5;extra=' 🪙+5（企業巡禮 '+SAVE.corp.length+'/'+CORPS.length+'）';
      if(SAVE.corp.length==CORPS.length&&!SAVE.tour){SAVE.tour=1;SAVE.coins+=30;setTimeout(()=>toast('🏭 企業巡禮完成！<small>🪙 +30 獎勵</small>',3000),2600)}save()}
@@ -873,7 +880,7 @@ $('mClose').onclick=closeBig;$('mIn').onclick=()=>BM.z=Math.min(5,BM.z*1.4);$('m
 let last=performance.now(),acc=0;
 let fpsA=60,fpsLast=0;function loop(now){if(fpsLast){const iv=now-fpsLast;if(iv>0&&iv<1000)fpsA=fpsA*.95+(1000/iv)*.05}fpsLast=now;const dt=Math.min(.1,(now-last)/1000)*TS;last=now;acc+=dt;let n=0;while(acc>=1/60&&n<30){update(1/60);acc-=1/60;n++}if(acc>1)acc=0;render();requestAnimationFrame(loop)}
 addEventListener('resize',resize);buildGraph();buildImgs();v3Imgs();v4Imgs();resize();reset();showBest();drawPrev();netConnect();requestAnimationFrame(loop);
-window.__hr={get st(){return st},get TUNPORT(){return TUNPORT},addBox(x,y,w,d,h,a){return box(x,y,w,d,h||6,'#c9b79a',null,a||0,1)},get net(){return NET},LM,N,get frameMs(){return frameMs},get ICEROUTE(){return ICEROUTE},firstTarget,get ITEMS(){return ITEMS},get fps(){return fpsA},get assets(){return AS},prof,
+window.__hr={get st(){return st},get FLOATS(){return FLOATS},get TUNPORT(){return TUNPORT},addBox(x,y,w,d,h,a){return box(x,y,w,d,h||6,'#c9b79a',null,a||0,1)},get net(){return NET},LM,N,get frameMs(){return frameMs},get ICEROUTE(){return ICEROUTE},firstTarget,get ITEMS(){return ITEMS},get fps(){return fpsA},get assets(){return AS},prof,
  tp(k,dir){const p=LM.find(l=>l.k==k||l.n==k)?.p||N[k]||(CORPS.find(c=>c.k==k)&&[CORPS.find(c=>c.k==k).rx,CORPS.find(c=>c.k==k).ry]);if(!p)return 'unknown key; landmarks: '+LM.map(l=>l.k).join(',');const n=nearest(p[0],p[1],null,3);let h=Math.PI/2;if(n.s){h=Math.atan2(n.s.b[1]-n.s.a[1],n.s.b[0]-n.s.a[0])}st.x=p[0]-Math.cos(h)*(dir||0);st.y=p[1]-Math.sin(h)*(dir||0);st.h=st.ch=h;st.sp=0;st.camD=null},get LMS(){return LM},EDGES,PL,get MB(){return MB},BM,openBig,closeBig,nearest,riverD,boxAt,get OBJ(){return OBJ},spawnPose,route,routeFrom,nearestNode,get RIVW(){return RIVW},get FAR(){return FAR},set(o){Object.assign(st,o)},start,get save(){return SAVE},SHOPS,CORPS,get coins(){return COINS},openShop,openBag,closeUI,buy,
  tpShop(k){const s=typeof k=='number'?SHOPS[k]:SHOPS.find(x=>x.k==k||x.n==k);if(!s)return 'unknown shop; keys: '+SHOPS.map(x=>x.k).join(',');st.x=s.rx-Math.cos(s.e_h||0);st.y=s.ry;st.sp=0;const E=s.E,[,,h]=edgePoint(E,s.t*E.len);st.h=st.ch=h},addCoins(n){SAVE.coins+=n;save()}};
 </script></body></html>
