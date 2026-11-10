@@ -2,7 +2,7 @@
 <html lang="zh-Hant"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#1b3a2a">
-<title>后里騎跡 3 – 后里開放世界・店家與金幣</title>
+<title>后里騎跡 – 后里開放世界・店家與金幣</title>
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none;font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-touch-callout:none}
 canvas{display:block;position:fixed;left:0;top:0;width:100%;height:100%}
@@ -38,6 +38,8 @@ body:not(.play) #enterB{display:none!important}
 .it .ic{font-size:30px;width:40px;text-align:center}.it .tx{flex:1}.it small{display:block;font-size:12px;opacity:.8}
 .buy{border:0;border-radius:18px;padding:8px 14px;font-size:15px;font-weight:bold;background:#ffcf3f;color:#3a1d00;font-family:inherit;white-space:nowrap}.buy:disabled{background:#888;color:#eee}
 .grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:440px}.g{width:70px;padding:6px 2px;border-radius:10px;background:#ffffff10;font-size:26px;opacity:.5}.g.on{opacity:1;background:#ffd24a30}.g small{display:block;font-size:10px}
+#mapUI{position:fixed;z-index:9;left:0;right:0;bottom:calc(12px + env(safe-area-inset-bottom));display:none;justify-content:center;gap:8px;flex-wrap:wrap}body.bigmap #mapUI{display:flex}body.bigmap .ctl,body.bigmap #emo,body.bigmap .tb{display:none!important}
+#mapUI button{border:0;border-radius:20px;padding:10px 14px;font-size:15px;font-weight:bold;background:#fff;color:#222;box-shadow:0 2px 0 #888;font-family:inherit}#mapUI #mClose{background:#ffcf3f}
 #mlist{font-size:13px;text-align:left;line-height:1.7}
 </style></head><body>
 <canvas id="c"></canvas>
@@ -46,9 +48,9 @@ body:not(.play) #enterB{display:none!important}
 <div id="emo"><button data-e="bell">🔔</button><button data-e="👋">👋</button><button data-e="👍">👍</button><button data-e="😄">😄</button><button data-e="🌸">🌸</button></div>
 <button class="ctl" id="bL">◀</button><button class="ctl" id="bR">▶</button>
 <button class="ctl" id="bB">煞車</button><button class="ctl" id="bG">踩踏</button><button class="ctl" id="bU">↩︎迴轉</button>
-<div id="toast"></div>
+<div id="toast"></div><div id="mapUI"><button id="mRot">🧭</button><button id="mOut">－</button><button id="mIn">＋</button><button id="mMe">📍我</button><button id="mClose">✕ 關閉地圖</button></div>
 <div class="ov on" id="title">
- <h1>后里騎跡 3</h1><p style="font-size:15px">台中后里・開放世界單車／機車／汽車漫遊<br>🪙 沿路撿金幣・🏪 逛后里在地店家・🏭 中科企業巡禮</p>
+ <h1>后里騎跡</h1><p style="font-size:15px">台中后里・開放世界單車／機車／汽車漫遊<br>🪙 沿路撿金幣・🏪 逛后里在地店家・🏭 中科企業巡禮</p>
  <div id="net">🌐 連線中…</div>
  <canvas id="prev" width="240" height="240"></canvas>
  <div class="lab">暱稱</div><input id="nick" maxlength="10" placeholder="輸入暱稱">
@@ -58,7 +60,7 @@ body:not(.play) #enterB{display:none!important}
  <p id="vInfo" style="font-size:12px;opacity:.85"></p>
  <div class="lab">模式</div><div class="row" id="mR"><button class="opt" data-v="mission">🏁 景點任務</button><button class="opt" data-v="free">🌿 自由騎</button></div>
  <button class="btn" id="startB">出發！</button><p id="bestT"></p>
- <p style="font-size:12px;opacity:.75">◀▶ 轉向｜踩踏/油門 加速｜煞車（停住後按住可倒車）｜↩︎ 迴轉<br>鍵盤：←→ 轉向、↑/空白 加速、↓ 煞車、U 迴轉、M 地圖北向、P 暫停、H 喇叭<br>鐵馬道／綠廊／隧道／鋼橋僅限腳踏車；大甲溪只能走花梁鋼橋過。<br>所有玩家都在同一張后里地圖上，可以互相看見、按鈴打招呼！</p>
+ <p style="font-size:12px;opacity:.75">◀▶ 轉向｜踩踏/油門 加速｜煞車（停住後按住可倒車）｜↩︎ 迴轉<br>鍵盤：←→ 轉向、↑/空白 加速、↓ 煞車、U 迴轉、M 地圖北向、N 大地圖、P 暫停、H 喇叭<br>點右上小地圖可放大成全螢幕地圖（地圖資料 © OpenStreetMap）<br>鐵馬道／綠廊／隧道／鋼橋僅限腳踏車；大甲溪只能走花梁鋼橋過。<br>所有玩家都在同一張后里地圖上，可以互相看見、按鈴打招呼！</p>
 </div>
 <div class="ov" id="shop"></div><div class="ov" id="bag"></div>
 <div class="ov" id="pause"><h1>暫停</h1><div id="mlist"></div><button class="btn" id="resB">繼續</button><button class="btn s" id="quitB">回標題</button></div>
@@ -73,94 +75,136 @@ const $=id=>document.getElementById(id);
 const COLORS=['#e8483b','#2f8fe0','#3fb85a','#f2b630'],CNAME=['red','blue','green','yellow'];
 const VEH={bike:{name:'腳踏車',max:13,acc:3.6,brk:9,turn:1.9,camD:6.5,camZ:2.4,w:2.0},scooter:{name:'機車',max:24,acc:6.5,brk:12,turn:1.55,camD:7.5,camZ:2.6,w:2.0},car:{name:'汽車',max:31,acc:7.5,brk:14,turn:1.15,camD:10,camZ:3.6,w:2.3}};
 // ================= WORLD (meters; x east, y north; 后里車站 = origin) =================
-const N={ // nodes
- station:[0,0],jiahou:[-400,240],sugar:[-760,520],sanfeng:[-800,120],zhongshe:[-860,-300],west:[-420,-170],
- sishan:[200,-210],horse:[320,-420],trail:[150,-620],brN:[150,-830],brS:[150,-1090],tuN:[150,-1200],tuS:[150,-1470],junc:[150,-1650],green:[1000,-1660],
- forest:[460,80],fuxing:[520,460],taian:[1100,900]};
-const EDGES=[ // a,b,type(road|bike|bridge|tunnel),name,bend
- ['station','jiahou','road','甲后路',20],['jiahou','sugar','road','甲后路',-25],['sugar','sanfeng','road','三豐路',30],['sanfeng','zhongshe','road','三豐路',-20],
- ['jiahou','sanfeng','road','三豐路連絡道',10],['station','west','road','公安路',-15],['west','zhongshe','road','三豐路五段',25],
- ['station','sishan','road','寺山路',10],['sishan','horse','road','寺山路',-10],['horse','trail','bike','后豐鐵馬道',15],['trail','brN','bike','后豐鐵馬道',0],
- ['brN','brS','bridge','花梁鋼橋',0],['brS','tuN','bike','后豐鐵馬道',0],['tuN','tuS','tunnel','九號隧道',0],['tuS','junc','bike','后豐鐵馬道',8],['junc','green','bike','東豐自行車綠廊',-60],
- ['station','forest','road','大山路',-15],['forest','fuxing','road','福興路',20],['station','fuxing','road','甲后路一段',-30],['fuxing','taian','road','福興路',-40],['sishan','forest','road','寺山路',20]];
-const LM=[ // landmarks: key,name,sub,node/pos,bikeOnly
- {k:'trail',n:'后豐鐵馬道',s:'舊山線鐵道改建的自行車道',p:N.trail,b:1},{k:'bridge',n:'花梁鋼橋',s:'橫跨大甲溪的鋼桁架鐵橋',p:[150,-960],b:1},
- {k:'tunnel',n:'九號隧道',s:'舊鐵道隧道，裡面很暗喔',p:[150,-1335],b:1},{k:'junc',n:'東豐綠廊交會點',s:'后豐鐵馬道 × 東豐自行車綠廊',p:N.junc,b:1},
- {k:'station',n:'后里車站',s:'后里的門戶・台鐵山線',p:[0,25]},{k:'horse',n:'后里馬場',s:'日治時期至今的馬場',p:N.horse},
- {k:'sugar',n:'月眉糖廠',s:'冰棒補給站！還有糖廠小火車',p:N.sugar},{k:'zhongshe',n:'中社觀光花市',s:'四季花海・鬱金香',p:N.zhongshe},
- {k:'forest',n:'花博后里森林園區',s:'1500 多棵老樹的森林綠洲',p:N.forest},{k:'taian',n:'泰安舊火車站',s:'日式木造車站與櫻花',p:N.taian}];
-const RIVER=[[-1400,-900],[-700,-930],[0,-950],[150,-960],[600,-985],[1500,-1010]],RIVW=110;
-let segs=[],adj={};
+// Road network, river, railway and POI positions derived from OpenStreetMap (© OpenStreetMap contributors, ODbL),
+// Geofabrik taiwan-latest extract, projected around 后里車站 and scaled ×0.45 (proportions kept).
+const MAPD={"N":{"n0":[-2340,322],"n1":[-2330,321],"n2":[-114,-1054],"n3":[-452,-1063],"n4":[-2425,338],"n5":[-1999,635],"n6":[-1479,887],"n7":[567,-1338],"n8":[589,-1507],"n9":[590,-1524],"n10":[145,-978],"n11":[567,-1331],"n12":[273,748],"n13":[376,1015],"n14":[-891,-147],"n15":[-944,-256],"n16":[-898,-278],"n17":[-491,-306],"n18":[-108,-1057],"n19":[238,-1118],"n20":[-739,28],"n21":[-783,-134],"n22":[-627,-114],"n23":[-566,-66],"n24":[-517,-13],"n25":[-499,-240],"n26":[-108,-57],"n27":[-1064,-6],"n28":[-957,-50],"n29":[-866,-94],"n30":[-402,358],"n31":[-211,300],"n32":[138,480],"n33":[-626,7],"n34":[-464,100],"n35":[-52,-220],"n36":[-33,-406],"n37":[-966,-301],"n38":[-477,-1248],"n39":[-295,797],"n40":[-433,723],"n41":[716,963],"n42":[729,833],"n43":[422,1145],"n44":[-901,1071],"n45":[-960,1003],"n46":[854,733],"n47":[-1139,846],"n48":[-1364,678],"n49":[-1769,421],"n50":[-989,-233],"n51":[-1434,-28],"n52":[-1590,58],"n53":[-1880,427],"n54":[-974,-306],"n55":[-439,-557],"n56":[-46,-530],"n57":[111,-530],"n58":[-32,-534],"n59":[313,237],"n60":[1080,200],"n61":[-17,7],"n62":[74,229],"n63":[115,-422],"n64":[-31,-554],"n65":[-3,-908],"n66":[91,-227],"n67":[118,-59],"n68":[173,91],"n69":[283,210],"n70":[182,457],"n71":[291,339],"n72":[-362,604],"n73":[590,-1528],"n74":[-1428,751],"n75":[-1469,1254],"n76":[400,-1800],"n77":[421,-1793],"n78":[-32,-415],"n79":[-359,597],"n80":[275,359],"n81":[-1594,612],"n82":[-494,-16],"n83":[-454,140],"n84":[-926,62],"n85":[-1210,114],"n86":[-420,-635],"n87":[-513,-652],"n88":[-151,1133],"n89":[-121,1266],"n90":[-269,801],"n91":[-1310,134],"n92":[-225,827],"n93":[302,-524],"n94":[393,-635],"n95":[-1339,-560],"n96":[-1254,-676],"n97":[-1517,13],"n98":[-1034,-212],"n99":[-1518,169],"n100":[-1654,196],"n101":[-1340,144],"n102":[-117,-1060],"n103":[447,1254],"n104":[-435,-550],"n105":[17,-13],"n106":[-1857,209],"n107":[-1853,233],"n108":[-1488,-2],"n109":[-465,-426],"n110":[-982,-103],"n111":[-1061,-266],"n112":[-423,-721],"n113":[-121,9],"n114":[107,-560],"n115":[450,-1054],"n116":[-2168,291],"n117":[-1867,378],"n118":[-1806,430],"n119":[-1883,433],"n120":[-1776,418],"n121":[106,-957],"n122":[360,1018],"n123":[268,755],"n124":[-214,845],"n125":[406,1152],"n126":[-218,839],"n127":[315,-1865],"n128":[344,-1845],"n129":[468,-1779],"n130":[434,-1788],"n131":[-1802,437],"n132":[-94,1385],"n133":[-441,196],"n134":[-478,376],"n135":[-467,-415],"n136":[-635,422],"n137":[-1250,-682],"n138":[-1714,-911],"n139":[-1070,-1144],"n140":[-1233,22],"n141":[-103,238],"n142":[842,877],"n143":[-748,1226],"n144":[-1007,-366],"n145":[125,262],"n146":[475,-601],"n147":[999,-1648],"n148":[-1842,-90]},"E":[["n0","n1","road","甲后路二段",5.5,[]],["n2","n3","road","星科路",5,[]],["n4","n5","road","月眉西路",4.5,[[-2427,380],[-2422,430],[-2416,450],[-2400,465],[-2333,511],[-2301,528],[-2043,616]]],["n5","n6","road","月眉西路",4.5,[[-1972,647],[-1901,717],[-1871,734],[-1809,783],[-1749,818],[-1700,831],[-1609,874],[-1533,890],[-1491,885]]],["n7","n8","bridge","花梁鋼橋",3,[]],["n8","n9","bike","后豐鐵馬道",3,[]],["n10","n11","tunnel","九號隧道",3,[[215,-1010],[338,-1048],[388,-1074],[435,-1118],[488,-1198],[546,-1274]]],["n12","n13","road","福安路",4.5,[[344,946]]],["n14","n15","road","四村路",5.5,[]],["n16","n17","road","公安路一段",4.2,[[-795,-325],[-780,-328],[-680,-326],[-601,-319],[-541,-302]]],["n2","n18","road","寺山路隧道口巷",4.5,[]],["n18","n19","road","寺山路隧道口巷",4.5,[[14,-1058],[26,-1061],[70,-1057],[85,-1081],[91,-1084],[132,-1099],[196,-1100],[211,-1104]]],["n20","n21","road","民生路",5.5,[[-754,-72]]],["n21","n14","road","民生路",5.5,[[-799,-157],[-830,-166],[-844,-165]]],["n22","n23","road","復興街",4.5,[[-610,-101],[-598,-86],[-576,-78]]],["n24","n23","road","復興街",4.5,[[-532,-38]]],["n25","n26","road","大山路",4.5,[[-463,-213],[-311,-203],[-300,-171],[-277,-148]]],["n27","n28","road","文化路",4.5,[[-1010,-26]]],["n28","n29","road","文化路",4.5,[]],["n29","n21","road","文化路",4.5,[]],["n29","n14","road","四村路",4.5,[]],["n30","n31","road","后科南路",5,[[-266,312]]],["n32","n31","road","后科南路",5,[[100,374],[85,353],[65,337],[-41,305],[-158,299]]],["n33","n34","road","后里路",4.2,[[-618,25],[-590,28],[-584,33],[-584,73],[-576,101],[-559,111],[-536,108],[-506,111]]],["n35","n36","bike","花馬道",3,[]],["n37","n15","road","四村路",4.2,[]],["n38","n3","road","三豐路三段",6.5,[[-470,-1229]]],["n39","n40","road","三豐路四段",6.5,[[-390,837],[-408,839],[-421,835],[-438,818],[-442,801],[-440,741]]],["n41","n42","road","安眉路",5,[[700,921],[699,910]]],["n43","n41","road","重劃東路",5,[[613,1059],[659,1009]]],["n44","n45","road","安眉路",5,[[-926,1052]]],["n13","n42","road","安眉路",5,[[484,964],[716,844]]],["n42","n46","road","安眉路",5,[[740,818],[757,771]]],["n47","n48","road","安眉路",5,[]],["n48","n49","road","安眉路",5,[[-1503,588],[-1662,478]]],["n15","n50","road","公安路",5.5,[]],["n51","n52","road","公安路",5.5,[[-1469,11],[-1507,37],[-1557,58]]],["n1","n53","road","月眉東路一段",5,[[-2221,377],[-2145,408],[-2118,410],[-2040,408]]],["n37","n54","road","南村路",5,[[-973,-302]]],["n55","n56","road","馬場路",5,[[-136,-540]]],["n57","n58","road","馬場路",5,[]],["n58","n56","road","馬場路",5,[]],["n59","n60","road","圳寮路",5,[[325,238],[350,231],[366,231],[388,243],[409,237],[448,214],[524,178],[542,164],[572,148],[597,147],[607,143],[636,118],[667,123],[680,118],[700,130],[723,138],[775,108],[785,109],[811,118],[847,152],[869,155],[886,171],[904,176],[918,187],[937,192],[960,206],[984,211],[996,208],[1063,212]]],["n61","n62","road","圳寮路",5,[[-7,36],[10,71],[15,119],[4,119],[0,182],[35,174],[56,175]]],["n26","n35","road","內東路",5,[[-98,-222]]],["n63","n57","road","寺山路",5,[[125,-449],[115,-480]]],["n52","n51","road","公安路",5.5,[[-1545,52],[-1509,34],[-1471,8],[-1444,-22]]],["n64","n65","bike","后豐鐵馬道",3,[[-28,-628],[-33,-637],[-32,-672],[-29,-748],[-18,-809],[-17,-906],[-15,-909]]],["n56","n66","road","后科路（后里南橋）",5,[[-47,-424],[-45,-403],[-40,-389],[-25,-368],[64,-289],[75,-275],[90,-244]]],["n66","n67","road","后科路二段",5,[[94,-127],[101,-100]]],["n66","n56","road","后科路（后里南橋）",5,[[85,-238],[79,-262],[67,-279],[-28,-365],[-46,-391],[-52,-423]]],["n68","n67","road","后科路二段",5,[[154,20]]],["n18","n56","road","后科路一段",5,[[-39,-981],[-28,-959],[-24,-942],[-40,-543]]],["n68","n69","road","后科路二段",5,[[180,100],[193,145],[214,172],[266,197]]],["n70","n71","road","后科路（后里北橋）",5,[[251,377]]],["n70","n32","road","后科路二段",5,[[161,472]]],["n32","n72","road","后科路二段",5,[[-261,591],[-316,602]]],["n56","n2","road","后科路一段",5,[[-42,-725],[-35,-816],[-32,-942],[-36,-960],[-52,-987]]],["n73","n9","bike","河堤聯絡道",3,[[587,-1529],[590,-1540]]],["n48","n74","road","月眉北路",4.2,[[-1408,721]]],["n74","n6","road","月眉北路",4.2,[[-1451,793]]],["n6","n75","road","月眉北路",4.2,[[-1460,1083],[-1462,1165],[-1434,1185],[-1419,1206],[-1433,1228]]],["n76","n77","bike","后豐聯絡道",3,[]],["n36","n78","bike","后里火車站聯絡道",3,[]],["n78","n58","bike","花馬道",3,[[-31,-426],[-38,-428]]],["n58","n64","bike","花馬道",3,[]],["n79","n32","road","后科路二段",5,[[-282,591],[80,492]]],["n32","n70","road","后科路二段",5,[[158,466]]],["n80","n70","road","后科路（后里北橋）",5,[]],["n69","n68","road","后科路二段",5,[[234,189],[211,175],[197,159],[185,138]]],["n59","n80","road","后科路二段",5,[[323,246],[329,265],[329,287],[325,301],[310,326]]],["n71","n59","road","后科路二段",5,[[313,314],[324,281],[322,259]]],["n81","n74","road","月眉東路二段",4.2,[[-1589,631],[-1575,648]]],["n74","n47","road","月眉東路二段",4.2,[[-1402,763],[-1381,779],[-1358,817],[-1320,892],[-1310,904],[-1286,919],[-1258,921],[-1245,917]]],["n47","n74","road","月眉東路二段",4.2,[[-1148,856],[-1230,917],[-1258,927],[-1289,924],[-1314,909],[-1324,896],[-1379,790],[-1391,776]]],["n74","n81","road","月眉東路二段",4.2,[[-1577,652],[-1593,631],[-1596,622]]],["n82","n34","road","三豐路四段",6.5,[[-468,63]]],["n34","n83","road","三豐路四段",6.5,[]],["n82","n25","road","三豐路三段",6.5,[[-518,-144],[-510,-210]]],["n82","n24","road","甲后路一段",5.5,[]],["n20","n84","road","甲后路一段",5.5,[]],["n84","n85","road","甲后路一段",5.5,[]],["n86","n87","road","七星街",4.2,[]],["n28","n84","road","三光路",4.2,[[-944,-24]]],["n54","n37","road","南村路",5,[[-966,-307]]],["n88","n89","road","三豐路五段",6.5,[[-134,1193]]],["n90","n39","road","三豐路四段",6.5,[[-280,803]]],["n39","n90","road","三豐路四段",6.5,[]],["n85","n91","road","甲后路二段",5.5,[]],["n90","n92","road","三豐路四段",6.5,[[-234,815],[-228,819]]],["n92","n90","road","三豐路四段",6.5,[[-239,816]]],["n13","n43","road","福安路",4.5,[]],["n93","n94","road","內東路",4.2,[[307,-545],[317,-567],[345,-589],[371,-623]]],["n15","n16","road","公安路",4.2,[]],["n95","n96","road","舊社路",5,[]],["n97","n52","road","公安路",4.2,[[-1593,52]]],["n50","n98","road","公安路",5.5,[]],["n99","n100","road","甲后路二段",5.5,[[-1522,176],[-1640,197]]],["n100","n99","road","甲后路二段",5.5,[]],["n91","n101","road","甲后路二段",5.5,[]],["n101","n91","road","甲后路二段",5.5,[[-1329,137]]],["n2","n102","road","后科路一段",5,[]],["n43","n103","road","福安路",4.5,[[433,1175]]],["n56","n104","road","馬場路",5,[]],["n105","n35","bike","花馬道",3,[[15,-24],[3,-33],[-47,-156],[-50,-173]]],["n106","n107","road","公安路",5.5,[]],["n108","n51","road","公安路",4.2,[]],["n25","n82","road","三豐路三段",6.5,[[-514,-148],[-507,-100],[-492,-33]]],["n109","n104","road","三豐路三段",6.5,[[-442,-539]]],["n98","n110","road","三光路",4.5,[]],["n110","n28","road","三光路",4.5,[]],["n111","n98","road","三光路",4.5,[]],["n112","n3","road","三豐路三段",6.5,[[-438,-846],[-455,-1040]]],["n55","n104","road","三豐路三段",6.5,[]],["n104","n109","road","三豐路三段",6.5,[[-455,-448]]],["n30","n79","road","三豐路四段",6.5,[[-381,421],[-356,527],[-352,558]]],["n83","n34","road","三豐路四段",6.5,[]],["n34","n82","road","三豐路四段",6.5,[]],["n113","n82","road","甲后路一段",5.5,[]],["n57","n114","road","寺山路",5,[]],["n114","n115","road","寺山路",5,[[106,-697],[279,-698],[282,-706],[286,-797],[301,-818],[315,-832],[334,-880],[392,-948],[422,-1000],[441,-1024]]],["n1","n116","road","甲后路二段",5.5,[]],["n116","n107","road","甲后路二段",5.5,[]],["n107","n100","road","甲后路二段",5.5,[]],["n53","n117","road","月眉南路",4.5,[[-1871,412],[-1872,386]]],["n53","n118","road","月眉東路一段",5,[[-1831,432]]],["n119","n53","road","月眉南路",4.5,[]],["n119","n0","road","月眉東路一段",5,[[-2039,413],[-2117,416],[-2146,414],[-2178,404]]],["n120","n117","road","安眉路",5,[]],["n117","n116","road","安眉路",5,[[-1901,364],[-2021,326],[-2121,315],[-2161,299]]],["n49","n120","road","安眉路",5,[]],["n72","n79","road","三豐路四段",6.5,[]],["n79","n30","road","三豐路四段",6.5,[[-360,529]]],["n40","n39","road","三豐路四段",6.5,[[-437,755],[-438,801],[-434,817],[-419,832],[-408,835],[-391,833],[-311,801]]],["n3","n112","road","三豐路三段",6.5,[]],["n3","n102","road","星科路",5,[]],["n102","n18","road","星科路",5,[]],["n3","n38","road","三豐路三段",6.5,[[-469,-1160]]],["n67","n66","road","后科路二段",5,[[110,-64],[90,-127],[87,-147]]],["n67","n68","road","后科路二段",5,[[146,-11],[159,19],[169,54]]],["n31","n32","road","后科南路",5,[[-158,295],[-55,300],[-7,311],[66,335],[92,356],[102,372],[125,430]]],["n65","n121","bike","后豐鐵馬道",3,[[9,-908],[28,-924],[63,-936],[90,-959]]],["n122","n123","road","福安路",4.5,[]],["n121","n65","bike","后豐鐵馬道",3,[[69,-928],[36,-916],[20,-914],[10,-907]]],["n121","n10","bike","后豐鐵馬道",3,[]],["n88","n124","road","三豐路五段",6.5,[]],["n124","n88","road","三豐路五段",6.5,[[-167,1048]]],["n88","n122","road","安眉路",5,[[-39,1095],[22,1078],[121,1059],[179,1056],[226,1047],[274,1032]]],["n125","n122","road","福安路",4.5,[]],["n122","n13","road","安眉路",5,[]],["n103","n103","road","福安路",4.5,[]],["n92","n126","road","三豐路五段",6.5,[[-219,831]]],["n126","n92","road","三豐路五段",6.5,[]],["n123","n12","road","福興路",5,[]],["n114","n64","bike","后豐鐵馬道",3,[[28,-560]]],["n127","n128","bike","東豐自行車綠廊",3,[[322,-1862],[328,-1852],[343,-1848]]],["n129","n130","bike","東豐自行車綠廊",3,[]],["n128","n77","bike","東豐自行車綠廊",3,[[386,-1814]]],["n77","n130","bike","東豐自行車綠廊",3,[]],["n130","n129","bike","東豐自行車綠廊",3,[]],["n40","n72","road","三豐路四段",6.5,[[-433,715],[-426,698],[-370,611]]],["n79","n72","road","三豐路四段",6.5,[]],["n72","n40","road","三豐路四段",6.5,[[-423,700]]],["n104","n55","road","三豐路三段",6.5,[]],["n55","n86","road","三豐路三段",6.5,[]],["n86","n112","road","三豐路三段",6.5,[[-424,-650]]],["n131","n118","road","月眉東路二段",4.2,[]],["n89","n88","road","三豐路五段",6.5,[]],["n125","n43","road","重劃東路",5,[]],["n132","n125","road","重劃東路",5,[]],["n45","n47","road","安眉路",5,[[-1040,939],[-1080,897]]],["n118","n120","road","月眉東路一段",5,[]],["n112","n86","road","三豐路三段",6.5,[[-419,-668]]],["n86","n55","road","三豐路三段",6.5,[]],["n83","n133","road","三豐路四段",6.5,[]],["n133","n30","road","三豐路四段",6.5,[[-431,220],[-410,299]]],["n30","n134","road","后科南路",5,[]],["n37","n37","road","南村路",5,[]],["n134","n30","road","后科南路",5,[]],["n30","n133","road","三豐路四段",6.5,[]],["n133","n83","road","三豐路四段",6.5,[]],["n132","n89","road","三豐路五段",6.5,[]],["n89","n132","road","三豐路五段",6.5,[[-104,1326]]],["n31","n30","road","后科南路",5,[]],["n25","n17","road","三豐路三段",6.5,[[-502,-250]]],["n17","n135","road","三豐路三段",6.5,[]],["n135","n17","road","三豐路三段",6.5,[[-466,-404],[-484,-315],[-486,-308]]],["n17","n25","road","三豐路三段",6.5,[[-488,-301]]],["n113","n26","road","內東路",5,[]],["n136","n134","road","后科南路",5,[]],["n134","n136","road","后科南路",5,[[-513,389]]],["n96","n137","road","舊社路",4.5,[]],["n11","n7","bike","后豐鐵馬道",3,[]],["n118","n131","road","月眉東路二段",4.2,[]],["n138","n137","road","舊社路",4.2,[[-1708,-911],[-1705,-898],[-1505,-826],[-1443,-822],[-1404,-854],[-1385,-857],[-1385,-819],[-1381,-810],[-1363,-795],[-1345,-766],[-1330,-753],[-1314,-730]]],["n137","n139","road","舊社路",4.5,[[-1214,-722],[-1156,-765],[-1154,-770],[-1156,-790],[-1150,-799],[-1122,-803],[-1087,-819],[-1079,-825],[-1063,-852],[-1075,-1019],[-1087,-1057],[-1073,-1067],[-1070,-1093]]],["n61","n113","road","甲后路一段",5.5,[[-51,14]]],["n110","n140","road","民生路",4.2,[[-1110,-42],[-1161,-10]]],["n110","n14","road","民生路",4.2,[]],["n50","n54","road","南村路",5,[[-1015,-287]]],["n141","n133","road","泉州路",4.5,[[-141,247],[-144,219],[-168,214],[-185,204],[-222,208],[-265,218],[-286,157],[-292,153]]],["n142","n46","road","福興路",5,[[857,868],[914,859],[927,847],[938,845],[941,835]]],["n143","n88","road","安眉路",5,[[-731,1233],[-672,1218],[-643,1228],[-632,1228],[-600,1210],[-518,1182],[-484,1185],[-441,1200],[-404,1196],[-379,1187],[-340,1193],[-286,1191],[-265,1184],[-218,1156]]],["n96","n144","road","舊社路",5,[[-1203,-644],[-1126,-625],[-1076,-583],[-1070,-572],[-1045,-462],[-1038,-406],[-1021,-371]]],["n131","n49","road","月眉東路一段",5,[]],["n131","n119","road","月眉東路一段",5,[[-1846,439]]],["n59","n145","road","圳寮路",5,[[301,235],[273,222],[226,218],[179,207],[171,212],[160,242]]],["n35","n63","road","內東路",5,[[-43,-221],[-32,-230],[-1,-288],[55,-348],[82,-369],[105,-401]]],["n93","n146","road","內東路",5,[[329,-522],[372,-531],[405,-547],[422,-566]]],["n128","n76","bike","后豐鐵馬道",3,[[343,-1843]]],["n24","n33","road","甲后路一段",5.5,[]],["n51","n98","road","公安路",5.5,[[-1404,-46],[-1260,-104]]],["n144","n54","road","南村路",5,[[-1003,-347],[-1004,-328],[-988,-319]]],["n102","n18","road","后科路一段",5,[[-143,-1090],[-159,-1125],[-156,-1168],[-153,-1125],[-145,-1105]]],["n106","n52","road","公安路",5.5,[[-1699,109],[-1666,83],[-1606,60]]],["n119","n5","road","月眉南路",4.5,[]],["n45","n143","road","安眉路",5,[[-943,1002],[-897,973],[-873,1003],[-854,1043],[-853,1067],[-840,1084],[-841,1166],[-823,1186],[-816,1189],[-793,1189]]],["n91","n72","road","后科路三段",5,[[-1313,145],[-1309,197],[-1305,236],[-1296,269],[-1246,371],[-1228,396],[-1212,407],[-1003,507],[-679,654],[-637,658],[-453,610]]],["n147","n129","bike","東豐自行車綠廊",3,[[878,-1679],[823,-1689]]],["n76","n73","bike","后豐鐵馬道",3,[[508,-1719],[552,-1674],[571,-1640],[588,-1588],[592,-1552]]],["n123","n12","road","福安路",4.5,[[206,578],[213,576]]],["n12","n46","road","福興路",5,[[295,728],[342,708],[392,650],[434,646],[456,636],[469,637],[523,651],[590,653],[692,671],[799,702],[830,706]]],["n131","n81","road","月眉東路二段",4.2,[[-1802,447],[-1785,459],[-1625,558],[-1609,576]]],["n131","n81","road","月眉東路二段",4.2,[[-1797,445],[-1787,453],[-1621,556],[-1605,576]]],["n79","n91","road","后科路三段",5,[[-432,600],[-473,607],[-638,651],[-678,647],[-1196,410],[-1226,390],[-1234,378],[-1292,263],[-1300,232]]],["n22","n22","road","復興街",4.5,[]],["n23","n22","road","復興街",4.5,[[-594,-75],[-610,-89]]],["n33","n20","road","甲后路一段",5.5,[]],["n63","n93","road","內東路",5,[[135,-416],[159,-423],[174,-437],[196,-478],[231,-510]]],["n73","n9","bike","后豐鐵馬道",3,[]],["n103","n125","road","福安路",4.5,[]],["n143","n143","road","安眉路",5,[]],["n148","n106","road","三月路",4.5,[[-1861,-85],[-1861,-80],[-1897,-73],[-1918,-62],[-1926,-46],[-1918,-23],[-1965,9],[-1901,124],[-1881,154],[-1887,161],[-1888,168],[-1870,187]]],["n144","n112","road","南村路",5,[[-956,-386],[-937,-397],[-940,-486],[-926,-494],[-890,-506],[-848,-534],[-817,-562],[-765,-633],[-664,-664],[-617,-694],[-477,-702]]]],"river":[[-2869,-1081],[-2734,-1164],[-2666,-1198],[-2531,-1219],[-2464,-1204],[-2329,-1217],[-2261,-1282],[-2059,-1305],[-1991,-1299],[-1924,-1302],[-1856,-1320],[-1789,-1321],[-1721,-1317],[-1586,-1290],[-1519,-1316],[-1316,-1340],[-1181,-1320],[-1114,-1296],[-1046,-1263],[-844,-1362],[-641,-1384],[-506,-1392],[-371,-1349],[-304,-1339],[-236,-1353],[-169,-1361],[-34,-1337],[34,-1325],[101,-1286],[169,-1280],[236,-1279],[304,-1310],[371,-1411],[439,-1443],[709,-1464],[844,-1473],[979,-1464],[1114,-1475],[1249,-1482],[1316,-1498],[1384,-1495],[1451,-1457]],"rail":[[176,-2025],[201,-1971],[217,-1917],[224,-1863],[225,-1809],[220,-1755],[211,-1701],[79,-1269],[80,-1215],[25,-1053],[2,-945],[-6,-891],[-9,-837],[-23,-621],[-25,-567],[-33,-459],[-40,-405],[-50,-351],[-59,-297],[-64,-243],[-61,-189],[-47,-135],[-27,-81],[-5,-27],[4,27],[37,81],[46,135],[67,189],[89,243],[120,351],[196,567],[345,945],[356,999],[390,1053],[401,1107],[443,1215],[447,1269]],"polys":{"台中花博后里馬場園區":[[-23,-552],[-17,-552],[-14,-555],[31,-558],[68,-558],[75,-557],[104,-558],[104,-566],[-22,-562],[-23,-552]],"中部科學園區后里園區(七星基地)":[[-427,-562],[-354,-557],[-51,-542],[-49,-544],[-48,-547],[-47,-590],[-49,-609],[-43,-760],[-42,-804],[-33,-943],[-49,-980],[-114,-1047],[-449,-1056],[-414,-662],[-427,-562]],"麗寶樂園渡假村":[[-1994,633],[-2296,522],[-2413,450],[-2422,343],[-2155,413],[-2100,416],[-2002,419],[-1846,441],[-1737,492],[-1613,580],[-1592,642],[-1433,754],[-1390,783],[-1325,901],[-1300,923],[-1263,1026],[-1270,1052],[-1287,1070],[-1385,1080],[-1405,1074],[-1424,1052],[-1481,885],[-1533,889],[-1695,832],[-1791,792],[-1927,689],[-1994,633]],"中科后里園區(后里基地)":[[-671,350],[-541,313],[-480,299],[-462,318],[-437,321],[-424,367],[-389,357],[-271,321],[-222,309],[-209,306],[-165,302],[-146,301],[-63,305],[22,325],[70,345],[95,371],[131,470],[137,485],[-58,527],[-266,582],[-308,590],[-345,591],[-324,696],[-322,712],[-338,722],[-424,709],[-430,697],[-468,701],[-488,713],[-494,701],[-521,710],[-548,688],[-567,669],[-565,648],[-577,624],[-581,567],[-589,530],[-601,467],[-625,427],[-632,416],[-637,413],[-669,359],[-671,350]],"正隆后里廠":[[-440,-1072],[-181,-1069],[-130,-1073],[-127,-1070],[-128,-1136],[-196,-1137],[-180,-1165],[-183,-1202],[-277,-1211],[-416,-1256],[-442,-1269],[-462,-1253],[-460,-1149],[-447,-1072],[-440,-1072]]},"PL":{"station":[-0.1,-0.2],"forest":[-88.1,-181.6],"horse":[28.3,-557.0],"trail":[-30.8,-554.0],"tunnel":[434.6,-1118.4],"bridge":[588.8,-1507.4],"junc":[697.7,-1718.4],"sugar":[-1818.1,292.9],"zhongshe":[-127.9,1259.5],"taian":[729.4,673.8],"lihpao":[-1637.2,645.8],"micron":[-422.0,516.2],"hartford":[-506.7,340.8],"houliBase":[-373.8,487.8],"qixing":[-173.1,-717.7],"sax":[-1760.4,152.0],"qidian":[-29.8,19.4],"suidaokou":[120.4,-479.1],"zxc":[-768.7,-124.1],"zheng":[-510.7,-62.5],"market":[-907.6,-160.7],"niceday":[800.7,861.6],"nightmarket":[-406.6,-50.0],"fuxinggong":[472.9,627.7],"auoMuseum":[-379.6,-229.0],"outlet":[-1587.1,740.9],"horseGift":[177.9,-567.8]}};
+const N=MAPD.N,PL=MAPD.PL;
+const EDGES=MAPD.E;// [a,b,type(road|bike|bridge|tunnel),name,halfWidth,midPts]
+const LM=[ // landmarks: key,name,sub,pos,bikeOnly (snapped to an allowed path in buildGraph)
+ {k:'trail',n:'后豐鐵馬道',s:'舊山線鐵道改建的自行車道',p:PL.trail,b:1},{k:'tunnel',n:'九號隧道',s:'舊山線鐵道隧道，裡面很暗喔',p:PL.tunnel,b:1},
+ {k:'bridge',n:'花梁鋼橋',s:'橫跨大甲溪的舊鐵道鋼桁架橋',p:PL.bridge,b:1},{k:'junc',n:'東豐綠廊交會點',s:'后豐鐵馬道 × 東豐自行車綠廊',p:PL.junc,b:1},
+ {k:'station',n:'后里車站',s:'后里的門戶・台鐵臺中線',p:PL.station},{k:'horse',n:'后里馬場',s:'日治時期至今的馬場',p:PL.horse},
+ {k:'sugar',n:'月眉糖廠',s:'冰棒補給站！還有糖廠小火車',p:PL.sugar},{k:'zhongshe',n:'中社觀光花市',s:'四季花海・鬱金香',p:PL.zhongshe},
+ {k:'forest',n:'花博后里森林園區',s:'百年老樹的森林綠洲',p:PL.forest},{k:'taian',n:'泰安舊火車站',s:'日式木造車站與櫻花',p:PL.taian}];
+const RIVER=MAPD.river,RAILP=MAPD.rail;let RIVW=130;
+let segs=[],adj={},MB={x0:0,x1:0,y0:0,y1:0};
+const GC=50;let SG=new Map();const gk=(i,j)=>i*65536+j;
 function buildGraph(){
  segs=[];adj={};for(const k in N)adj[k]=[];
- EDGES.forEach((e,ei)=>{const A=N[e[0]],B=N[e[1]],dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;
-  const C=[(A[0]+B[0])/2+nx*e[4],(A[1]+B[1])/2+ny*e[4]];const n=Math.max(2,Math.ceil(L/22)),pts=[];
-  for(let i=0;i<=n;i++){const t=i/n,u=1-t;pts.push([u*u*A[0]+2*u*t*C[0]+t*t*B[0],u*u*A[1]+2*u*t*C[1]+t*t*B[1]])}
+ EDGES.forEach((e,ei)=>{const raw=[N[e[0]],...e[5],N[e[1]]],pts=[raw[0]];
+  for(let i=1;i<raw.length;i++){const a=raw[i-1],b=raw[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.max(1,Math.ceil(L/22));for(let j=1;j<=n;j++)pts.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n])}
   let len=0;const cum=[0];for(let i=1;i<pts.length;i++){len+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);cum.push(len)}
-  const E={i:ei,a:e[0],b:e[1],type:e[2],name:e[3],pts,cum,len,hw:e[2]=='road'?5.5:3};EDGES[ei].E=E;
+  const E={i:ei,a:e[0],b:e[1],type:e[2],name:e[3],pts,cum,len,hw:e[2]=='road'?e[4]:3};e.E=E;
   adj[e[0]].push({e:E,to:e[1],rev:false});adj[e[1]].push({e:E,to:e[0],rev:true});
   for(let i=0;i<pts.length-1;i++)segs.push({E,a:pts[i],b:pts[i+1],k:i});});
-}
+ SG=new Map();for(const s of segs){const i0=Math.floor((Math.min(s.a[0],s.b[0])-8)/GC),i1=Math.floor((Math.max(s.a[0],s.b[0])+8)/GC),j0=Math.floor((Math.min(s.a[1],s.b[1])-8)/GC),j1=Math.floor((Math.max(s.a[1],s.b[1])+8)/GC);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=gk(i,j);let c=SG.get(k);if(!c)SG.set(k,c=[]);c.push(s)}}
+ MB={x0:1e9,x1:-1e9,y0:1e9,y1:-1e9};for(const k in N){const p=N[k];MB.x0=Math.min(MB.x0,p[0]);MB.x1=Math.max(MB.x1,p[0]);MB.y0=Math.min(MB.y0,p[1]);MB.y1=Math.max(MB.y1,p[1])}
+ const bE=EDGES.find(e=>e[2]=='bridge');if(bE)RIVW=Math.max(80,Math.min(150,bE.E.len-30));{let md=1e9;for(const sg of segs){if(sg.E.type=='bridge')continue;for(const q of[sg.a,sg.b])md=Math.min(md,riverD(q[0],q[1])-sg.E.hw)}RIVW=Math.max(50,Math.min(RIVW,2*(md-3)));console.log('RIVW',RIVW.toFixed(1),'minRoadRiver',md.toFixed(1))}
+ for(const l of LM){const r=nearest(l.p[0],l.p[1],l.b?(E=>E.type!='road'):(E=>E.type=='road'));if(r.s){const q=segProj(r.s,l.p[0],l.p[1]);l.p=[q[0],q[1]]}}}
+function segProj(s,x,y){const ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,l2=bx*bx+by*by||1e-9;let t=((x-ax)*bx+(y-ay)*by)/l2;t=Math.max(0,Math.min(1,t));return[ax+bx*t,ay+by*t,t]}
+function segD(s,x,y){const q=segProj(s,x,y);return Math.hypot(x-q[0],y-q[1])}
 function edgePoint(E,d){d=Math.max(0,Math.min(E.len,d));let i=1;while(i<E.cum.length-1&&E.cum[i]<d)i++;const t=(d-E.cum[i-1])/(E.cum[i]-E.cum[i-1]||1),a=E.pts[i-1],b=E.pts[i];return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,Math.atan2(b[1]-a[1],b[0]-a[0])]}
-function nearest(x,y,filter){let best=null,bd=1e9;for(const s of segs){if(filter&&!filter(s.E))continue;const ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,l2=bx*bx+by*by;let t=((x-ax)*bx+(y-ay)*by)/l2;t=Math.max(0,Math.min(1,t));const d=Math.hypot(x-ax-bx*t,y-ay-by*t);if(d<bd){bd=d;best=s}}return{s:best,d:bd}}
-function riverY(x){for(let i=1;i<RIVER.length;i++)if(x<=RIVER[i][0]){const a=RIVER[i-1],b=RIVER[i],t=(x-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*t}return RIVER[RIVER.length-1][1]}
+function nearest(x,y,filter,maxR){const ci=Math.floor(x/GC),cj=Math.floor(y/GC),R=maxR==null?60:maxR;let best=null,bd=1e9;
+ for(let r=0;r<=R;r++){for(let i=ci-r;i<=ci+r;i++){const st=(i==ci-r||i==ci+r)?1:2*r;for(let j=cj-r;j<=cj+r;j+=st){const c=SG.get(gk(i,j));if(!c)continue;for(const s of c){if(filter&&!filter(s.E))continue;const d=segD(s,x,y);if(d<bd){bd=d;best=s}}}}if(best&&bd<=r*GC)break}
+ if(!best&&maxR==null){for(const s of segs){if(filter&&!filter(s.E))continue;const d=segD(s,x,y);if(d<bd){bd=d;best=s}}}return{s:best,d:bd}}
+function polyD(P,x,y){let bd=1e9,bi=0;for(let i=1;i<P.length;i++){const s={a:P[i-1],b:P[i]};const d=segD(s,x,y);if(d<bd){bd=d;bi=i}}return[bd,bi]}
+function riverD(x,y){return polyD(RIVER,x,y)[0]}
+function railD(x,y){return polyD(RAILP,x,y)[0]}
+function inPoly(P,x,y){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>y)!=(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 // ---------- world objects ----------
-let OBJ=[],FIELDS=[],ITEMS=[],NPC=[];
+let OBJ=[],FIELDS=[],ITEMS=[],NPC=[],RESV=[],BG=new Map(),SIGNS=[],XINGS=[];
 function mul(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function clearOf(x,y,m){const r=nearest(x,y);if(r.d<r.s.E.hw+m)return false;if(Math.abs(y-riverY(x))<RIVW/2+6)return false;return true}
-function box(x,y,w,d,h,c,roof,a){OBJ.push({t:'box',x,y,w,d,h,c,roof:roof||shade(c,.8),a:a||0})}
+function clearOf(x,y,m){const r=nearest(x,y,null,3);if(r.s&&r.d<r.s.E.hw+m)return false;if(riverD(x,y)<RIVW/2+6)return false;if(railD(x,y)<4+m*.3)return false;for(const c of RESV)if(Math.hypot(x-c[0],y-c[1])<c[2])return false;return true}
+function boxOK(x,y,w,d,a,m){const c=Math.cos(a||0),s=Math.sin(a||0),hw=w/2,hd=d/2;m=m==null?1.5:m;
+ for(const[u,v]of[[0,0],[-hw,-hd],[hw,-hd],[hw,hd],[-hw,hd],[0,-hd],[0,hd],[-hw,0],[hw,0]])if(!clearOf(x+u*c-v*s,y+u*s+v*c,m))return false;return true}
+function box(x,y,w,d,h,c,roof,a,force,sf){if(!force&&!boxOK(x,y,w,d,a))return null;const o={t:'box',x,y,w,d,h,c,roof:roof||shade(c,.8),a:a||0,sf};OBJ.push(o);
+ if(h>1){const R=Math.hypot(w,d)/2,i0=Math.floor((x-R)/30),i1=Math.floor((x+R)/30),j0=Math.floor((y-R)/30),j1=Math.floor((y+R)/30);for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=gk(i,j);let L=BG.get(k);if(!L)BG.set(k,L=[]);L.push(o)}}return o}
 function bb(t,x,y,s){OBJ.push({t,x,y,s:s||1})}
+function inBox(o,x,y,pad){const c=Math.cos(o.a),s=Math.sin(o.a),dx=x-o.x,dy=y-o.y,u=dx*c+dy*s,v=-dx*s+dy*c;return Math.abs(u)<o.w/2+pad&&Math.abs(v)<o.d/2+pad}
+function boxAt(x,y,pad,minH){const L=BG.get(gk(Math.floor(x/30),Math.floor(y/30)));if(!L)return null;for(const o of L)if(o.h>(minH||1)&&inBox(o,x,y,pad))return o;return null}
+function roadFrame(p,filter){const r=nearest(p[0],p[1],filter||(E=>E.type=='road'));const q=segProj(r.s,p[0],p[1]);const ang=Math.atan2(r.s.b[1]-r.s.a[1],r.s.b[0]-r.s.a[0]);let vx=-Math.sin(ang),vy=Math.cos(ang);if((p[0]-q[0])*vx+(p[1]-q[1])*vy<0){vx=-vx;vy=-vy}
+ return{o:[q[0],q[1]],ux:Math.cos(ang),uy:Math.sin(ang),vx,vy,hw:r.s.E.hw,E:r.s.E,ang,at(u,v){return[q[0]+Math.cos(ang)*u+vx*v,q[1]+Math.sin(ang)*u+vy*v]},a:Math.atan2(vy,vx)}}
+const TOWN=[[-450,-80,300],[-880,-150,250],[-120,-20,170],[-1800,250,130],[640,650,120],[-480,300,120]];
+function townK(x,y){let k=0;for(const t of TOWN){const d=Math.hypot(x-t[0],y-t[1]);if(d<t[2])k=Math.max(k,1-d/t[2])}return k}
+const PARKS=()=>[MAPD.polys['中科后里園區(后里基地)'],MAPD.polys['中部科學園區后里園區(七星基地)']].filter(Boolean);
 function buildWorld(){
- OBJ=[];FIELDS=[];ITEMS=[];RAILS=[];const r=mul(1105);
- // fields
- for(let i=0;i<260;i++){const x=-1300+r()*2700,y=-1800+r()*2900;if(Math.abs(y-riverY(x))<RIVW/2+20)continue;if(Math.hypot(x,y)<260)continue;
-  const fl=Math.hypot(x-N.zhongshe[0],y-N.zhongshe[1])<260;const col=fl?['#ff5f9a','#ffd23f','#ff8f3f','#b56cff','#fff3f3'][i%5]:['#6fae44','#88b84c','#5d9c3c','#a6b84a','#7aa84a','#c9b25a'][i%6];
+ OBJ=[];FIELDS=[];ITEMS=[];RAILS=[];RESV=[];BG=new Map();SIGNS=[];XINGS=[];const r=mul(1105);
+ v3Place();
+ const LP={};for(const l of LM)LP[l.k]=l.p;
+ // landmark reservations (keep generic houses away)
+ for(const k of['station','sugar','horse','zhongshe','taian','forest'])RESV.push([LP[k][0],LP[k][1],k=='station'?40:55]);
+ // ---- station (east of the road end, rail behind)
+ {const f=roadFrame(LP.station);const sv=LB(f,0,f.hw+14,40,14,11,'#efe8da','#4a6a8a');LB(f,0,sv+1,12,9,16,'#e0d8ca','#3a5a7a');const sg=f.at(0,f.hw+4);bb('stnsign',sg[0],sg[1],1)
+  for(let i=-3;i<=3;i++){if(!i)continue;const b=f.at(i*9,f.hw+2.5);bb('slamp',b[0],b[1],1)}}
+ // ---- rail line: ground strip chunks + level crossings
+ for(let i=1;i<RAILP.length;i++){const a=RAILP[i-1],b=RAILP[i],L=Math.hypot(b[0]-a[0],b[1]-a[1]),n=Math.ceil(L/30);for(let j=0;j<n;j++)RAILS.push([a[0]+(b[0]-a[0])*j/n,a[1]+(b[1]-a[1])*j/n,a[0]+(b[0]-a[0])*(j+1)/n,a[1]+(b[1]-a[1])*(j+1)/n])}
+ for(const s of segs){if(s.E.type!='road')continue;for(let i=1;i<RAILP.length;i++){const p=segX(s.a,s.b,RAILP[i-1],RAILP[i]);if(p){if(XINGS.some(x=>Math.hypot(x.x-p[0],x.y-p[1])<20))continue;const ra=Math.atan2(RAILP[i][1]-RAILP[i-1][1],RAILP[i][0]-RAILP[i-1][0]);XINGS.push({x:p[0],y:p[1],ra,E:s.E});
+   const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang);for(const sd of[-1,1]){const d=s.E.hw+1.5;bb('xing',p[0]+nx*d*sd-Math.cos(ang)*7*sd,p[1]+ny*d*sd-Math.sin(ang)*7*sd,1)}}}}
+ // ---- fields: flowers near 中社/麗寶, paddies elsewhere
+ for(let i=0;i<520;i++){const x=MB.x0-150+r()*(MB.x1-MB.x0+300),y=MB.y0-100+r()*(MB.y1-MB.y0+250);if(riverD(x,y)<RIVW/2+25||townK(x,y)>.05)continue;if(PARKS().some(P=>inPoly(P,x,y)))continue;
+  const fl=Math.hypot(x-LP.zhongshe[0],y-LP.zhongshe[1])<300||Math.hypot(x-PL.lihpao[0],y-PL.lihpao[1])<220;const col=fl?['#ff5f9a','#ffd23f','#ff8f3f','#b56cff','#fff3f3'][i%5]:['#6fae44','#88b84c','#5d9c3c','#a6b84a','#7aa84a','#c9b25a','#9cc65a'][i%7];
   FIELDS.push({x,y,w:40+r()*80,d:30+r()*70,a:r()*3,c:col,fl})}
- for(let i=0;i<14;i++){const x=N.zhongshe[0]-120+(i%7)*40,y=N.zhongshe[1]+30+Math.floor(i/7)*70;FIELDS.push({x,y,w:30,d:60,a:0,c:['#ff4f8f','#ffd23f','#ff8f3f','#b05fff','#ff7fb0','#fff','#ff3b3b'][i%7],fl:1})}
- // town houses
- for(let i=0;i<220;i++){const a=r()*6.28,rr=40+r()*320,x=Math.cos(a)*rr*1.2,y=Math.sin(a)*rr;if(!clearOf(x,y,7))continue;
-  const h=6+r()*12;box(x,y,10+r()*8,10+r()*8,h,['#e8dcc8','#d6cbb8','#efe2d2','#c8bcae','#dfe6e8','#e9d0b0'][i%6],['#a33','#556','#777','#6a4a3a'][i%4],r()*.3)}
- // roadside trees & bushes
- for(const s of segs){const E=s.E;if(s.k%1)continue;const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang);
-  for(const sd of[-1,1]){if(r()<(E.type=='road'?.35:.8)){const o=E.hw+4+r()*14,x=s.a[0]+nx*o*sd,y=s.a[1]+ny*o*sd;if(clearOf(x,y,3)&&Math.hypot(x,y)>200)bb(Math.hypot(x-N.taian[0],y-N.taian[1])<300?'sakura':E.type=='road'&&r()<.3?'palm':'tree',x,y,.8+r()*.5)}}}
- // forest park
- for(let i=0;i<120;i++){const x=N.forest[0]+(r()-.5)*260,y=N.forest[1]+40+(r()-.2)*220;if(clearOf(x,y,4))bb(r()<.5?'pine':'tree',x,y,1+r()*.6)}
- for(let i=0;i<8;i++)box(N.forest[0]-60+i*16,N.forest[1]+70,14,3,6,'#8a6a4a','#c9a46a');
- bb('sign',N.forest[0]+12,N.forest[1]+14,1);
- // station
- box(0,40,46,16,11,'#efe8da','#4a6a8a');box(0,40,14,10,16,'#e0d8ca','#3a5a7a');bb('stnsign',0,30,1);
- RAILS.push([-45,-900,1100]);// rail line
- // horse farm
- for(let i=0;i<36;i++){const a=i/36*6.283,x=N.horse[0]+60+Math.cos(a)*45,y=N.horse[1]-20+Math.sin(a)*30;box(x,y,8,.5,1.3,'#fff','#fff',a+1.57)}
- for(let i=0;i<7;i++)bb('horse',N.horse[0]+40+r()*45,N.horse[1]-40+r()*40,1);box(N.horse[0]-40,N.horse[1]-40,30,12,7,'#c86a3a','#5a3a2a');bb('sign',N.horse[0]+14,N.horse[1]+12,1);
- // sugar factory
- const S=N.sugar;box(S[0]-40,S[1]+40,50,30,14,'#c8b8a0','#7a5a4a');box(S[0]+20,S[1]+50,30,20,10,'#b8a890','#6a4a3a');box(S[0]-20,S[1]+70,5,5,46,'#a8432f','#802f20');
- bb('smoke',S[0]-20,S[1]+70,1);bb('icesign',S[0]+14,S[1]-10,1);bb('train',S[0]-10,S[1]+18,1);for(let x=-80;x<80;x+=20)box(S[0]+x,S[1]+18,20,1.4,.3,'#555','#666');
- for(let i=0;i<10;i++)bb('palm',S[0]-70+i*16,S[1]-14,1);
- // zhongshe
- for(let i=0;i<4;i++)box(N.zhongshe[0]-100+i*28,N.zhongshe[1]-60,22,40,5,'#dff2ff','#cfeaff');bb('windmill',N.zhongshe[0]+40,N.zhongshe[1]+60,1.4);bb('sign',N.zhongshe[0]+14,N.zhongshe[1]+10,1);
- // taian
- const T=N.taian;box(T[0]+10,T[1]+40,34,12,7,'#7a5a3a','#3a3a4a');box(T[0]+10,T[1]+40,38,15,9,'#5a4030','#2f2f3a');bb('taisign',T[0]+10,T[1]+31,1);
- for(let i=0;i<40;i++){const x=T[0]+(r()-.5)*240,y=T[1]+(r()-.5)*240;if(clearOf(x,y,4))bb('sakura',x,y,1+r()*.5)}
- RAILS.push([T[0]+40,T[1]-200,T[1]+300]);
- // bridge truss (red), tunnel walls/portals
- const bE=EDGES[11].E;for(let d=0;d<bE.len;d+=10){const[x,y]=edgePoint(bE,d);for(const sd of[-1,1]){box(x+sd*3.6,y,.6,.6,7,'#b03a2e','#7d2219');box(x+sd*3.6,y-5,.5,10,.5,'#b03a2e','#c04a3e')}box(x,y,8,.5,.5,'#a03028','#c04a3e')}
- for(let d=0;d<bE.len;d+=40){const[x,y]=edgePoint(bE,d);box(x,y,6,4,0,'#555','#555')}
- const tE=EDGES[13].E;for(let d=0;d<=tE.len;d+=10){const[x,y]=edgePoint(tE,d);box(x-4.5,y,2,10,6,'#3b342d','#4a5a3a');box(x+4.5,y,2,10,6,'#3b342d','#4a5a3a');if(d%30==0)bb('lamp',x-3.3,y,1)}
- for(const y of[tE.pts[0][1]+2,tE.pts[tE.pts.length-1][1]-2]){box(150,y,4,2,8,'#8a8070','#9a9080');box(150-5,y,3,2,8,'#8a8070');box(150+5,y,3,2,8,'#8a8070');box(150,y,13,2,1.5,'#8a8070','#9a9080')}
- for(let y=tE.pts[0][1];y>tE.pts[tE.pts.length-1][1];y-=20)for(const sd of[-1,1])box(150+sd*12,y,14,20,8,'#4f7a3a','#5a8a42');
- bb('gate',N.trail[0],N.trail[1]-4,1);bb('jsign',N.junc[0]+10,N.junc[1]+8,1);
- // mountains near (火炎山 north)
- // items
- for(const s of segs){if(r()<.12){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:r()<.5?'ice':'water',r:0})}
-  if(r()<.07&&s.k>1){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:E.type=='road'?(r()<.6?'hole':'dog'):(r()<.5?'duck':'hole'),obs:1})}}
- for(let i=0;i<8;i++)ITEMS.push({x:S[0]-30+i*8,y:S[1]-4,t:'ice',r:0});
+ {const f=roadFrame(LP.zhongshe);for(let i=0;i<14;i++){const p=f.at(-120+(i%7)*36,f.hw+26+Math.floor(i/7)*64);FIELDS.push({x:p[0],y:p[1],w:28,d:58,a:f.ang,c:['#ff4f8f','#ffd23f','#ff8f3f','#b05fff','#ff7fb0','#fff','#ff3b3b'][i%7],fl:1})}}
+ // ---- town: storefront rows facing the street, generic houses behind
+ const AW=['#c0392b','#2a7ad8','#e67e22','#16a085','#8e44ad','#d35400','#27ae60','#f1c40f'],WL=['#e8dcc8','#d6cbb8','#efe2d2','#c8bcae','#dfe6e8','#e9d0b0','#f2e6da'];
+ for(const s of segs){if(s.E.type!='road')continue;const mx=(s.a[0]+s.b[0])/2,my=(s.a[1]+s.b[1])/2,tk=townK(mx,my);if(tk<=0)continue;const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang),L=Math.hypot(s.b[0]-s.a[0],s.b[1]-s.a[1]);
+  for(const sd of[-1,1])for(let u=3;u<L-3;u+=6.4){if(r()>.35+tk*.6)continue;const w=5.6,d=11+r()*4,h=7+r()*7*(.5+tk),o=s.E.hw+1.6+d/2,x=s.a[0]+Math.cos(ang)*u+nx*o*sd,y=s.a[1]+Math.sin(ang)*u+ny*o*sd;box(x,y,w,d,h,WL[(u*7|0)%WL.length],['#a33','#556','#777','#6a4a3a'][(u|0)%4],ang,0,AW[(r()*AW.length)|0])}}
+ for(let i=0;i<700;i++){const t=TOWN[i%TOWN.length],a=r()*6.283,rr=Math.sqrt(r())*t[2],x=t[0]+Math.cos(a)*rr,y=t[1]+Math.sin(a)*rr;const w=9+r()*7,d=9+r()*7,an=r()*.4;box(x,y,w,d,5+r()*9,WL[i%WL.length],['#a33','#556','#777','#6a4a3a'][i%4],an)}
+ // ---- rural farmhouses (三合院-ish) along roads
+ for(const s of segs){if(s.E.type!='road'||r()>.05)continue;const mx=s.a[0],my=s.a[1];if(townK(mx,my)>0)continue;const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),sd=r()<.5?-1:1,nx=-Math.sin(ang)*sd,ny=Math.cos(ang)*sd,o=s.E.hw+14;
+  const x=mx+nx*o,y=my+ny*o;if(box(x,y,16,7,5,'#d9c3a5','#a8432f',ang)){box(x-Math.cos(ang)*9+nx*6,y-Math.sin(ang)*9+ny*6,6,10,4.4,'#d9c3a5','#a8432f',ang);box(x+Math.cos(ang)*9+nx*6,y+Math.sin(ang)*9+ny*6,6,10,4.4,'#d9c3a5','#a8432f',ang)}}
+ // ---- science park blocks (后里基地 / 七星基地)
+ for(const P of PARKS()){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const p of P){x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])}
+  for(let x=x0+30;x<x1-20;x+=58)for(let y=y0+25;y<y1-20;y+=46){if(!inPoly(P,x,y))continue;const w=34+r()*16,d=24+r()*12;box(x,y,w,d,12+r()*12,['#eef2f6','#e6ebee','#dfe6ea','#f2f4f6'][Math.abs(x+y|0)%4],'#9aa8b4',0)||box(x,y,w*.6,d*.6,10,'#e9eef2','#9aa8b4',0)}
+  for(const s of segs){if(s.E.type!='road'||s.k%2)continue;if(!inPoly(P,s.a[0],s.a[1]))continue;const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]);for(const sd of[-1,1]){const x=s.a[0]-Math.sin(ang)*(s.E.hw+1.2)*sd,y=s.a[1]+Math.cos(ang)*(s.E.hw+1.2)*sd;bb('slamp',x,y,1);const tx=s.a[0]-Math.sin(ang)*(s.E.hw+5)*sd+Math.cos(ang)*8,ty=s.a[1]+Math.cos(ang)*(s.E.hw+5)*sd+Math.sin(ang)*8;if(clearOf(tx,ty,2))bb('tree',tx,ty,.8)}}}
+ // ---- street lamps in town, roadside trees & bushes in the country
+ for(const s of segs){const E=s.E,ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang),tk=townK(s.a[0],s.a[1]);
+  if(E.type=='road'&&tk>0&&s.k%2==0){const sd=s.k%4?1:-1;bb('slamp',s.a[0]+nx*(E.hw+.9)*sd,s.a[1]+ny*(E.hw+.9)*sd,1)}
+  if(tk>.2)continue;for(const sd of[-1,1]){if(r()<(E.type=='road'?.22:.6)){const o=E.hw+4+r()*14,x=s.a[0]+nx*o*sd,y=s.a[1]+ny*o*sd;if(clearOf(x,y,3))bb(Math.hypot(x-LP.taian[0],y-LP.taian[1])<260?'sakura':E.type=='road'&&r()<.25?'palm':r()<.15?'bamboo':'tree',x,y,.8+r()*.5)}}}
+ // ---- riverbank: levee trees and reeds
+ for(let i=1;i<RIVER.length;i++){const a=RIVER[i-1],b=RIVER[i],ang=Math.atan2(b[1]-a[1],b[0]-a[0]),nx=-Math.sin(ang),ny=Math.cos(ang),L=Math.hypot(b[0]-a[0],b[1]-a[1]);for(let u=0;u<L;u+=18)for(const sd of[-1,1]){const o=RIVW/2+14+r()*12,x=a[0]+(b[0]-a[0])*u/L+nx*o*sd,y=a[1]+(b[1]-a[1])*u/L+ny*o*sd;if(r()<.55&&clearOf(x,y,2))bb(r()<.5?'reed':'tree',x,y,.7+r()*.4)}}
+ // ---- intersection road-name signs
+ let ns=0;for(const k in N){const A=adj[k].filter(a=>a.e.type=='road');if(A.length<3)continue;const names=[...new Set(A.map(a=>a.e.name))];if(names.length<2)continue;
+  const p=N[k],a0=A[0],q=a0.rev?a0.e.pts[a0.e.pts.length-2]:a0.e.pts[1],ang=Math.atan2(q[1]-p[1],q[0]-p[0]),hw=Math.max(...A.map(a=>a.e.hw));
+  for(const sd of[1,-1]){const x=p[0]+Math.cos(ang)*(hw+5)-Math.sin(ang)*(hw+2.5)*sd,y=p[1]+Math.sin(ang)*(hw+5)+Math.cos(ang)*(hw+2.5)*sd;if(clearOf(x,y,1)){const id='rs'+ns++;SIGNS.push({id,names:names.slice(0,3)});bb(id,x,y,1);break}}}
+ // ---- forest park
+ {const f=roadFrame(LP.forest);for(let i=0;i<150;i++){const p=f.at((r()-.5)*240,f.hw+8+r()*200);if(clearOf(p[0],p[1],4))bb(r()<.5?'pine':'tree',p[0],p[1],1+r()*.6)}
+  for(let i=0;i<6;i++)LB(f,-45+i*16,f.hw+40,14,3,6,'#8a6a4a','#c9a46a');const sg=f.at(10,f.hw+4);bb('sign',sg[0],sg[1],1)}
+ // ---- horse farm
+ {const f=roadFrame(LP.horse);const c=f.at(40,f.hw+55);for(let i=0;i<36;i++){const a=i/36*6.283,x=c[0]+Math.cos(a)*45,y=c[1]+Math.sin(a)*30;box(x,y,8,.5,1.3,'#fff','#fff',a+1.57)}
+  for(let i=0;i<7;i++)bb('horse',c[0]-25+r()*50,c[1]-15+r()*30,1);LB(f,-35,f.hw+22,28,12,7,'#c86a3a','#5a3a2a');const sg=f.at(14,f.hw+4);bb('sign',sg[0],sg[1],1)}
+ // ---- sugar factory (月眉糖廠)
+ {const f=roadFrame(LP.sugar);LB(f,-30,f.hw+40,48,28,14,'#c8b8a0','#7a5a4a');LB(f,30,f.hw+48,28,20,10,'#b8a890','#6a4a3a');const cv0=LB(f,-5,f.hw+70,5,5,46,'#a8432f','#802f20'),C=f.at(-5,cv0);
+  bb('smoke',C[0],C[1],1);const is=f.at(16,f.hw+4);bb('icesign',is[0],is[1],1);const tr=f.at(0,f.hw+20);bb('train',tr[0],tr[1],1);for(let u=-80;u<80;u+=20){const p=f.at(u,f.hw+20);box(p[0],p[1],20,1.4,.3,'#555','#666',f.ang)}
+  for(let i=0;i<10;i++){const p=f.at(-70+i*16,f.hw+10);bb('palm',p[0],p[1],1)}}
+ // ---- 中社 greenhouses & windmill
+ {const f=roadFrame(LP.zhongshe);for(let i=0;i<4;i++)LB(f,-100+i*28,f.hw+120,22,36,5,'#dff2ff','#cfeaff');const w=f.at(40,f.hw+70);bb('windmill',w[0],w[1],1.4);const sg=f.at(14,f.hw+4);bb('sign',sg[0],sg[1],1)}
+ // ---- 泰安舊站
+ {const T=LP.taian,f=roadFrame(T);const tv=LB(f,0,f.hw+16,38,15,9,'#5a4030','#2f2f3a');const sg=f.at(0,f.hw+6);bb('taisign',sg[0],sg[1],1);
+  for(let i=0;i<50;i++){const x=T[0]+(r()-.5)*240,y=T[1]+(r()-.5)*240;if(clearOf(x,y,4))bb('sakura',x,y,1+r()*.5)}}
+ // ---- bridge truss (red), tunnel walls/portals — oriented along their edges
+ const bEd=EDGES.find(e=>e[2]=='bridge'),bE=bEd&&bEd.E;if(bE){for(let d=0;d<bE.len;d+=10){const[x,y,h]=edgePoint(bE,d),nx=-Math.sin(h),ny=Math.cos(h);for(const sd of[-1,1]){box(x+nx*3.6*sd,y+ny*3.6*sd,.6,.6,7,'#b03a2e','#7d2219',h,1);const m=edgePoint(bE,d+5);box(m[0]+nx*3.6*sd,m[1]+ny*3.6*sd,10,.5,.5,'#b03a2e','#c04a3e',h,1)}box(x,y,.5,8,.5,'#a03028','#c04a3e',h,1)}
+  for(let d=0;d<bE.len;d+=40){const[x,y,h]=edgePoint(bE,d);box(x,y,4,6,0,'#555','#555',h,1)}}
+ const tEd=EDGES.find(e=>e[2]=='tunnel'),tE=tEd&&tEd.E;if(tE){for(let d=0;d<=tE.len;d+=10){const[x,y,h]=edgePoint(tE,d),nx=-Math.sin(h),ny=Math.cos(h);for(const sd of[-1,1]){box(x+nx*4.5*sd,y+ny*4.5*sd,10.5,2,6,'#3b342d','#4a5a3a',h,1)}if(d%30==0)bb('lamp',x+nx*3.3,y+ny*3.3,1)}
+  for(const d of[1.5,tE.len-1.5]){const[x,y,h]=edgePoint(tE,d),nx=-Math.sin(h),ny=Math.cos(h);box(x+nx*5.5,y+ny*5.5,2,3,8,'#8a8070','#9a9080',h,1);box(x-nx*5.5,y-ny*5.5,2,3,8,'#8a8070','#9a9080',h,1);}
+  for(let d=10;d<tE.len-10;d+=20){const[x,y,h]=edgePoint(tE,d),nx=-Math.sin(h),ny=Math.cos(h);for(const sd of[-1,1])box(x+nx*12.5*sd,y+ny*12.5*sd,20,14,8,'#4f7a3a','#5a8a42',h)}}
+ bb('gate',LP.trail[0],LP.trail[1],1);{const f=roadFrame(LP.junc,E=>E.type!='road');const p=f.at(0,f.hw+6);bb('jsign',p[0],p[1],1)}
+ // ---- items
+ for(const s of segs){if(r()<.05){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:r()<.5?'ice':'water',r:0})}
+  if(r()<.03&&s.k>1){const E=s.E;ITEMS.push({x:s.a[0]+(r()-.5)*E.hw,y:s.a[1]+(r()-.5)*E.hw,t:E.type=='road'?(r()<.6?'hole':'dog'):(r()<.5?'duck':'hole'),obs:1})}}
+ {const f=roadFrame(LP.sugar);for(let i=0;i<8;i++){const p=f.at(-30+i*8,0);ITEMS.push({x:p[0],y:p[1],t:'ice',r:0})}}
  v3Build();
+ for(const S of SIGNS)if(!IMG[S.id])mkSign(S);
  // NPC traffic
- NPC=[];const roads=EDGES.map(e=>e.E).filter(E=>E.type=='road'),bikes=EDGES.map(e=>e.E).filter(E=>E.type!='road');
- for(let i=0;i<36;i++){const E=roads[i%roads.length];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:7+r()*9,k:['moto','moto','sedan','van'][i%4],v:i%3,x:0,y:0,h:0})}
- for(let i=0;i<12;i++){const E=bikes[i%bikes.length];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:4+r()*3,k:'bike',v:i%8,x:0,y:0,h:0})}
+ NPC=[];const roads=EDGES.map(e=>e.E).filter(E=>E.type=='road'&&E.len>60),bikes=EDGES.map(e=>e.E).filter(E=>E.type!='road');
+ for(let i=0;i<44;i++){const E=roads[(r()*roads.length)|0];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:7+r()*9,k:['moto','moto','sedan','van'][i%4],v:i%3,x:0,y:0,h:0})}
+ for(let i=0;i<14;i++){const E=bikes[i%bikes.length];NPC.push({E,d:r()*E.len,dir:r()<.5?1:-1,sp:4+r()*3,k:'bike',v:i%8,x:0,y:0,h:0})}
 }
+function LB(f,u,v,w,d,h,c,roof){for(let k=0;k<6;k++){const p=f.at(u,v+k*6);if(box(p[0],p[1],w,d,h,c,roof,f.ang))return v+k*6}return v}
+function segX(p1,p2,p3,p4){const d=(p2[0]-p1[0])*(p4[1]-p3[1])-(p2[1]-p1[1])*(p4[0]-p3[0]);if(Math.abs(d)<1e-9)return null;const t=((p3[0]-p1[0])*(p4[1]-p3[1])-(p3[1]-p1[1])*(p4[0]-p3[0]))/d,u=((p3[0]-p1[0])*(p2[1]-p1[1])-(p3[1]-p1[1])*(p2[0]-p1[0]))/d;return t>=0&&t<=1&&u>=0&&u<=1?[p1[0]+(p2[0]-p1[0])*t,p1[1]+(p2[1]-p1[1])*t]:null}
+function mkSign(S){mkImg(S.id,300,170,(g)=>{g.fillStyle='#666';g.fillRect(145,70,10,100);g.fillStyle='#1d5fa8';g.fillRect(0,0,300,22+S.names.length*24);g.strokeStyle='#fff';g.lineWidth=3;g.strokeRect(4,4,292,14+S.names.length*24);g.fillStyle='#fff';g.textAlign='center';g.textBaseline='middle';
+ S.names.forEach((n,i)=>{let px=22;g.font='bold '+px+'px sans-serif';while(g.measureText(n).width>270&&px>12){px-=2;g.font='bold '+px+'px sans-serif'}g.fillText(n,150,23+i*24)})});BBW[S.id]=4.2;BBZ[S.id]=0}
 // ================= ASSETS =================
 const AS={m:null,img:{},ok:false};
 fetch('assets/manifest.json').then(r=>r.ok?r.json():null).then(m=>{if(m&&m.categories){AS.m=m;AS.ok=true;drawPrev()}}).catch(()=>{});
@@ -172,11 +216,12 @@ function sprFor(veh,ch,co,frame,npcVar){if(!AS.ok)return null;const C=AS.m.categ
  const sh=c.sheets[key];if(!sh)return null;const im=sheet(sh.file);return im&&{im,sx:frame*c.frameW,fw:c.frameW,fh:c.frameH}}catch(e){return null}}
 // ================= STATE =================
 let st={},mode='mission',prof={n:localStorage.getItem('houliNick')||'',ch:localStorage.getItem('houliCh')||'m',co:+(localStorage.getItem('houliCo')||0),v:localStorage.getItem('houliV')||'bike'};
-function reset(){const v=VEH[prof.v];st={x:N.station[0]+8,y:N.station[1]-30,h:-Math.PI/2,ch:-Math.PI/2,sp:0,steer:0,stam:100,time:0,run:false,done:false,visited:{},hit:0,col:0,cool:0,uturn:0,ped:0,inTunnel:0,mapNorth:false,lastLM:null,auto:!!Q.get('auto'),autoT:null,warn:0};
- if(prof.v!='bike'){st.x=-10;st.y=-15;st.h=Math.PI;st.ch=st.h}buildWorld();}
+function spawnPose(){const nk=nearestNode(PL.station[0],PL.station[1]);let best=null;for(const a of adj[nk]){if(a.e.type!='road')continue;if(!best||a.e.len>best.e.len)best=a}const E=best.e,d=best.rev?E.len-16:16;const[x,y,h]=edgePoint(E,d);const hh=best.rev?h+Math.PI:h;return[x+Math.sin(hh)*1.8,y-Math.cos(hh)*1.8,hh]}
+function reset(){const v=VEH[prof.v];const SP=spawnPose();st={x:SP[0],y:SP[1],h:SP[2],ch:SP[2],sp:0,steer:0,stam:100,time:0,run:false,done:false,visited:{},hit:0,col:0,cool:0,uturn:0,ped:0,inTunnel:0,mapNorth:false,lastLM:null,auto:!!Q.get('auto'),autoT:null,warn:0};
+ buildWorld();}
 function missionList(){return LM.filter(l=>prof.v=='bike'||!l.b)}
 // ================= INPUT =================
-const key={};addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;key[e.code]=1;if(e.code=='KeyP')togglePause();if(e.code=='KeyU')doUturn();if(e.code=='KeyM')st.mapNorth=!st.mapNorth;if(e.code=='KeyH')emote('bell');if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault();audio.init()});
+const key={};addEventListener('keydown',e=>{if(e.target.tagName=='INPUT')return;key[e.code]=1;if(e.code=='KeyP')togglePause();if(e.code=='KeyU')doUturn();if(e.code=='KeyM')st.mapNorth=!st.mapNorth;if(e.code=='KeyN'){BM.on?closeBig():openBig()}if(e.code=='Escape'&&BM.on)closeBig();if(e.code=='KeyH')emote('bell');if(e.code.startsWith('Arrow')||e.code=='Space')e.preventDefault();audio.init()});
 addEventListener('keyup',e=>key[e.code]=0);
 const tc={L:0,R:0,B:0,G:0};
 for(const[id,k]of[['bL','L'],['bR','R'],['bB','B'],['bG','G']]){const b=$(id);
@@ -184,7 +229,6 @@ for(const[id,k]of[['bL','L'],['bR','R'],['bB','B'],['bG','G']]){const b=$(id);
  b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);b.addEventListener('contextmenu',e=>e.preventDefault())}
 $('bU').addEventListener('pointerdown',e=>{e.preventDefault();doUturn()});
 document.querySelectorAll('#emo button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();emote(b.dataset.e)}));
-cv.addEventListener('pointerdown',e=>{const m=mmRect();if(Math.hypot(e.clientX-m.cx,e.clientY-m.cy)<m.r)st.mapNorth=!st.mapNorth});
 function layoutCtl(){const s=Math.max(64,Math.min(W,H)*.2),m=12,sb=18,bot=H-s-m-sb;const P=(id,x,y,w,h,f)=>{const b=$(id);Object.assign(b.style,{left:x+'px',top:y+'px',width:w+'px',height:h+'px',fontSize:f+'px'})};
  P('bL',m,bot,s,s,s*.35);P('bR',m+s+10,bot,s,s,s*.35);P('bB',W-m-s*2-10,bot+s*.2,s,s*.8,s*.24);P('bG',W-m-s,bot-s*.3,s,s*1.3,s*.26);P('bU',W-m-s*1.1,bot-s*.3-s*.62,s*1.1,s*.5,s*.2)}
 function doUturn(){if(st.run&&!st.uturn&&st.sp<VEH[prof.v].max*.7){st.uturn=1;st.uturnLeft=Math.PI}}
@@ -246,9 +290,18 @@ function nearestNode(x,y){let b=null,bd=1e9;for(const k in N){const d=Math.hypot
 function route(from,toPos){const tgt=nearestNode(toPos[0],toPos[1]),dist={},prev={},Qs=new Set(Object.keys(N));for(const k in N)dist[k]=1e9;dist[from]=0;
  while(Qs.size){let u=null;for(const k of Qs)if(u==null||dist[k]<dist[u])u=k;Qs.delete(u);if(u==tgt)break;for(const a of adj[u]){if(!allowed(a.e))continue;const nd=dist[u]+a.e.len;if(nd<dist[a.to]){dist[a.to]=nd;prev[a.to]={u,a}}}}
  const pts=[];let k=tgt;const chain=[];while(prev[k]){chain.unshift(prev[k].a);k=prev[k].u}for(const a of chain){const p=a.e.pts.slice();if(a.rev)p.reverse();pts.push(...p)}pts.push(toPos);return pts}
+function subPts(E,d1,d2){const out=[];const[x1,y1]=edgePoint(E,d1);out.push([x1,y1]);if(d2>d1){for(let i=0;i<E.pts.length;i++)if(E.cum[i]>d1&&E.cum[i]<d2)out.push(E.pts[i])}else{for(let i=E.pts.length-1;i>=0;i--)if(E.cum[i]<d1&&E.cum[i]>d2)out.push(E.pts[i])}const[x2,y2]=edgePoint(E,d2);out.push([x2,y2]);return out}
+function edgeAt(x,y){const r=nearest(x,y,allowed);const q=segProj(r.s,x,y);return{E:r.s.E,d:r.s.E.cum[r.s.k]+Math.hypot(q[0]-r.s.a[0],q[1]-r.s.a[1])}}
+function routeFrom(x,y,toPos){const A=edgeAt(x,y),B=edgeAt(toPos[0],toPos[1]);if(A.E===B.E)return[...subPts(A.E,A.d,B.d),toPos];
+ const dist={},prev={},Qs=new Set(Object.keys(N));for(const k in N)dist[k]=1e9;dist[A.E.a]=A.d;dist[A.E.b]=Math.min(dist[A.E.b],A.E.len-A.d);
+ const goal=k=>k==B.E.a?B.d:k==B.E.b?B.E.len-B.d:null;let bestK=null,bestC=1e18;
+ while(Qs.size){let u=null;for(const k of Qs)if(u==null||dist[k]<dist[u])u=k;if(dist[u]>=bestC||dist[u]>=1e9)break;Qs.delete(u);const g=goal(u);if(g!=null&&dist[u]+g<bestC){bestC=dist[u]+g;bestK=u}
+  for(const a of adj[u]){if(!allowed(a.e)||a.e===A.E&&!prev[u]&&false)continue;const nd=dist[u]+a.e.len;if(nd<dist[a.to]){dist[a.to]=nd;prev[a.to]={u,a}}}}
+ if(bestK==null)return[toPos];const chain=[];let k=bestK;while(prev[k]){chain.unshift(prev[k].a);k=prev[k].u}
+ const pts=subPts(A.E,A.d,k==A.E.a?0:A.E.len);for(const a of chain){const p=a.e.pts.slice();if(a.rev)p.reverse();pts.push(...p)}pts.push(...subPts(B.E,bestK==B.E.a?0:B.E.len,B.d));pts.push(toPos);return pts}
 function autoSteer(){if(!st.autoT){const left=missionList().filter(l=>!st.visited[l.k]);if(!left.length)return 0;let best=null,bd=1e9;for(const l of left){const d=Math.hypot(l.p[0]-st.x,l.p[1]-st.y);if(d<bd){bd=d;best=l}}
-  st.autoT=best;st.autoP=route(nearestNode(st.x,st.y),best.p);st.autoI=0}
- const P=st.autoP;while(st.autoI<P.length-1&&Math.hypot(P[st.autoI][0]-st.x,P[st.autoI][1]-st.y)<10)st.autoI++;const p=P[st.autoI];let da=Math.atan2(p[1]-st.y,p[0]-st.x)-st.h;while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;st.autoDA=da;return -Math.max(-1,Math.min(1,da*2.5))}
+  st.autoT=best;st.autoP=routeFrom(st.x,st.y,best.p);st.autoI=0}
+ const P=st.autoP;while(st.autoI<P.length-1&&Math.hypot(P[st.autoI][0]-st.x,P[st.autoI][1]-st.y)<10)st.autoI++;const p=P[st.autoI];let da=Math.atan2(p[1]-st.y,p[0]-st.x)-st.h;while(da>Math.PI)da-=6.283;while(da<-Math.PI)da+=6.283;st.autoDA=da;{const q=P[Math.min(st.autoI+2,P.length-1)];let d2=Math.atan2(q[1]-st.y,q[0]-st.x)-st.h;while(d2>Math.PI)d2-=6.283;while(d2<-Math.PI)d2+=6.283;st.autoTurn=Math.abs(d2)}return -Math.max(-1,Math.min(1,da*2.5))}
 // ================= UPDATE =================
 let tod=.32;
 function update(dt){tod=(tod+dt/480)%1;
@@ -258,11 +311,11 @@ function update(dt){tod=(tod+dt/480)%1;
  for(const o of NET.others.values()){const p=interp(o);if(p)Object.assign(o,p);o.emoT=Math.max(0,o.emoT-dt)}
  if(!st.run||paused||uiOpen)return;st.time+=dt;const V=VEH[prof.v];
  let up=key.ArrowUp||key.Space||key.KeyW||tc.G,dn=key.ArrowDown||key.KeyS||tc.B,L=key.ArrowLeft||key.KeyA||tc.L,R=key.ArrowRight||key.KeyD||tc.R,steer=(R?1:0)-(L?1:0);
- if(st.auto){up=1;dn=0;steer=autoSteer();if(Math.abs(st.autoDA||0)>.9&&st.sp>V.max*.35)up=0,dn=1}
+ if(st.auto){up=1;dn=0;steer=autoSteer();if((Math.abs(st.autoDA||0)>.9&&st.sp>V.max*.35)||(st.autoTurn>.55&&st.sp>10))up=0,dn=1}
  st.steer+=(steer-st.steer)*Math.min(1,dt*10);
  // surface
  const nr=nearest(st.x,st.y),onRoad=nr.d<nr.s.E.hw+.8,E=nr.s.E;st.edge=E;st.inTunnel=onRoad&&E.type=='tunnel'?1:0;st.onBridge=onRoad&&E.type=='bridge';
- let top=V.max*upMax()*(onRoad?1:upOff());const tired=prof.v=='bike'&&st.stam<=0;if(tired)top*=.4;if(st.cool>0)top*=.6;
+ let top=V.max*upMax()*(onRoad?1:upOff());const tired=prof.v=='bike'&&st.stam<=0;if(tired)top*=.4;if(st.cool>0)top*=.6;if(st.auto&&st.autoTurn>.35)top*=.55;
  if(st.uturn){st.sp=Math.max(0,st.sp-V.brk*dt);const dh=Math.min(st.uturnLeft,dt*3.2);st.h+=dh;st.uturnLeft-=dh;if(st.uturnLeft<=0)st.uturn=0}
  else{if(up){st.sp+=V.acc*upAcc()*dt*(st.sp<top?1:0);if(prof.v=='bike'){st.stam-=dt*2.4*(SAVE.up.ebike?.5:1);st.ped+=dt*(1+st.sp/3);}}
   else st.sp-=(prof.v=='bike'?.6:1.4)*dt*Math.sign(st.sp);
@@ -274,12 +327,13 @@ function update(dt){tod=(tod+dt/480)%1;
  if(audio.amb)audio.amb.gain.value=.04+Math.abs(st.sp)/V.max*.2;
  const ox=st.x,oy=st.y;st.x+=Math.cos(st.h)*st.sp*dt;st.y+=Math.sin(st.h)*st.sp*dt;
  // constraints: river & bike-only
- const ry=riverY(st.x);const nb=nearest(st.x,st.y,E=>E.type=='bridge');
- if(Math.abs(st.y-ry)<RIVW/2&&!(nb.d<3.3)){st.x=ox;st.y=oy;st.sp*=-.2;warn('🌊 大甲溪！請走花梁鋼橋過河（僅限腳踏車）')}
- else if(prof.v!='bike'){const bk=nearest(st.x,st.y,E=>E.type!='road'),rd=nearest(st.x,st.y,E=>E.type=='road');if(bk.d<bk.s.E.hw+4&&rd.d>rd.s.E.hw+3){st.x=ox;st.y=oy;st.sp*=-.2;warn('🚳 '+bk.s.E.name+' 僅限腳踏車通行')}}
- if(st.inTunnel){const p=nearest(st.x,st.y,E=>E.type=='tunnel');if(p.d>2.6){const s=p.s,ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,t=Math.max(0,Math.min(1,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by))),cx=ax+bx*t,cy=ay+by*t;st.x=cx+(st.x-cx)*2.6/p.d;st.y=cy+(st.y-cy)*2.6/p.d;st.sp*=.97}}
- if(st.onBridge){const p=nearest(st.x,st.y,E=>E.type=='bridge');if(p.d>3){st.x=ox;st.y=oy;st.sp*=.5}}
- st.x=Math.max(-1500,Math.min(1600,st.x));st.y=Math.max(-1900,Math.min(1300,st.y));
+ const rvd=riverD(st.x,st.y);const nb=rvd<RIVW/2+25?nearest(st.x,st.y,E=>E.type=='bridge',4):{d:1e9};
+ if(rvd<RIVW/2&&!(nb.d<3.3)){st.x=ox;st.y=oy;st.sp*=-.2;warn(prof.v=='bike'?'🌊 大甲溪！腳踏車請走花梁鋼橋過河':'🌊 大甲溪！只有腳踏車能走花梁鋼橋過河')}
+ else if(prof.v!='bike'){const bk=nearest(st.x,st.y,E=>E.type!='road',2),rd=nearest(st.x,st.y,E=>E.type=='road',2);if(bk.s&&bk.d<bk.s.E.hw+4&&!(rd.s&&rd.d<rd.s.E.hw+3)){const tn=nearest(st.x,st.y,E=>E.type=='tunnel',1);const nm=tn.s&&tn.d<45?tn.s.E.name:bk.s.E.name;st.x=ox;st.y=oy;st.sp*=-.2;warn('🚳 '+nm+' 僅限腳踏車通行')}}
+ if(!st.inTunnel&&!st.onBridge)for(let k=0;k<3;k++){const hb=boxAt(st.x,st.y,.7,1.2);if(!hb)break;pushOut(hb,.72);if(Math.abs(st.sp)>4&&st.cool<=0){audio.hit();st.hit++;st.cool=.6;toast('碰！小心建築物',900)}st.sp*=.9}
+ if(st.inTunnel){const p=nearest(st.x,st.y,E=>E.type=='tunnel',3);if(p.d>2.6){const s=p.s,ax=s.a[0],ay=s.a[1],bx=s.b[0]-ax,by=s.b[1]-ay,t=Math.max(0,Math.min(1,((st.x-ax)*bx+(st.y-ay)*by)/(bx*bx+by*by))),cx=ax+bx*t,cy=ay+by*t;st.x=cx+(st.x-cx)*2.6/p.d;st.y=cy+(st.y-cy)*2.6/p.d;st.sp*=.97}}
+ if(st.onBridge){const p=nearest(st.x,st.y,E=>E.type=='bridge',3);if(p.d>3){st.x=ox;st.y=oy;st.sp*=.5}}
+ st.x=Math.max(MB.x0-150,Math.min(MB.x1+150,st.x));st.y=Math.max(MB.y0-150,Math.min(MB.y1+150,st.y));
  st.warn=Math.max(0,st.warn-dt);st.cool=Math.max(0,st.cool-dt);
  // items
  for(const it of ITEMS){if(it.r>0){it.r-=dt;continue}if(Math.abs(it.x-st.x)>2||Math.abs(it.y-st.y)>2)continue;
@@ -295,6 +349,7 @@ function update(dt){tod=(tod+dt/480)%1;
  if(mode=='mission'&&missionList().every(l=>st.visited[l.k]))finish();
  const now=performance.now();if(now-NET.lastSend>100){NET.lastSend=now;netSend({t:'s',x:+st.x.toFixed(1),y:+st.y.toFixed(1),h:+st.h.toFixed(2),s:+st.sp.toFixed(1)})}
 }
+function pushOut(o,pad){const c=Math.cos(o.a),s=Math.sin(o.a),dx=st.x-o.x,dy=st.y-o.y;let u=dx*c+dy*s,v=-dx*s+dy*c;const hu=o.w/2+pad,hv=o.d/2+pad;if(hu-Math.abs(u)<hv-Math.abs(v))u=Math.sign(u||1)*hu;else v=Math.sign(v||1)*hv;st.x=o.x+u*c-v*s;st.y=o.y+u*s+v*c}
 function warn(m){if(st.warn<=0){toast(m);st.warn=2.5;audio.hit()}}
 // ================= RENDER =================
 function hex(c){c=c.replace('#','');if(c.length==3)c=c.split('').map(x=>x+x).join('');const n=parseInt(c,16);return[n>>16&255,n>>8&255,n&255]}
@@ -303,7 +358,7 @@ function mix(c,f,t){const a=rgb(c);return'rgb('+(a[0]+(f[0]-a[0])*t|0)+','+(a[1]
 function shade(c,k){const a=rgb(c);return'#'+a.map(v=>Math.max(0,Math.min(255,v*k|0)).toString(16).padStart(2,'0')).join('')}
 const SKY=[[0,'#1a2550','#3a4a7a'],[.22,'#f0a070','#ffd9a8'],[.32,'#5fb4ec','#cfeaff'],[.6,'#4aa8ea','#d8f0ff'],[.75,'#f08a50','#ffd08a'],[.82,'#3a3a70','#c07a6a'],[1,'#1a2550','#3a4a7a']];
 function skyAt(t){let i=1;while(SKY[i][0]<t)i++;const a=SKY[i-1],b=SKY[i],k=(t-a[0])/(b[0]-a[0]);const m=(x,y)=>{const A=rgb(x),B=rgb(y);return A.map((v,j)=>v+(B[j]-v)*k|0)};return[m(a[1],b[1]),m(a[2],b[2])]}
-const FAR=650;let cam={},F,HY,FOG,DARK=0;
+let FAR=650;let cam={},F,HY,FOG,DARK=0;
 function prj(x,y,z){const dx=x-cam.x,dy=y-cam.y,f=dx*cam.c+dy*cam.s,r=dx*cam.s-dy*cam.c;return[W/2+r*F/f,HY+(cam.z-z)*F/f,f]}
 function camSpace(x,y){const dx=x-cam.x,dy=y-cam.y;return[dx*cam.s-dy*cam.c,dx*cam.c+dy*cam.s]}// r,f
 const NEAR=.6;
@@ -341,7 +396,8 @@ let frameMs=0,frameN=0;
 function render(){const t0=performance.now();const V=VEH[prof.v];
  // camera
  let dh=st.h-st.ch;while(dh>Math.PI)dh-=6.283;while(dh<-Math.PI)dh+=6.283;st.ch+=dh*Math.min(1,1/60*5);
- const cd=V.camD,ca=st.ch;cam={x:st.x-Math.cos(ca)*cd,y:st.y-Math.sin(ca)*cd,z:st.inTunnel?1.9:V.camZ,c:Math.cos(ca),s:Math.sin(ca),h:ca};
+ let cdT=V.camD;for(let k=0;k<8;k++){let hit=0;for(const f of[1,.6]){const px=st.x-Math.cos(st.ch)*cdT*f,py=st.y-Math.sin(st.ch)*cdT*f;if(boxAt(px,py,.8,Math.min(2,V.camZ*.6)))hit=1}if(!hit)break;cdT*=.72}cdT=Math.max(2.4,cdT);st.camD=st.camD==null||cdT<st.camD?cdT:st.camD+(cdT-st.camD)*.04;
+ const cd=st.camD,ca=st.ch;cam={x:st.x-Math.cos(ca)*cd,y:st.y-Math.sin(ca)*cd,z:st.inTunnel?1.9:V.camZ,c:Math.cos(ca),s:Math.sin(ca),h:ca};
  F=Math.max(W,H*.75)*.85;HY=H*.42;
  const[s0,s1]=skyAt(tod);FOG=s1.map((v,i)=>v*.75+[180,200,190][i]*.25|0);const night=tod<.2||tod>.8?1:tod<.26?(.26-tod)/.06:tod>.76?(tod-.76)/.04:0;DARK=Math.min(.55,night*.55);
  const g=ctx.createLinearGradient(0,0,0,HY);g.addColorStop(0,'rgb('+s0+')');g.addColorStop(1,'rgb('+s1+')');ctx.fillStyle=g;ctx.fillRect(0,0,W,HY+1);
@@ -356,10 +412,8 @@ function render(){const t0=performance.now();const V=VEH[prof.v];
  // fields
  for(const f of FIELDS){const[r,fd]=camSpace(f.x,f.y);if(fd<-80||fd>FAR||Math.abs(r)>fd*1.3+120)continue;const c=Math.cos(f.a),s=Math.sin(f.a),w=f.w/2,d=f.d/2;
   drawGroundPoly([[f.x-c*w+s*d,f.y-s*w-c*d],[f.x+c*w+s*d,f.y+s*w-c*d],[f.x+c*w-s*d,f.y+s*w+c*d],[f.x-c*w-s*d,f.y-s*w+c*d]],mix(f.c,FOG,fogT(Math.max(0,fd))))}
- // river
- for(let x=-1400;x<1500;x+=40){const[r,fd]=camSpace(x+20,riverY(x+20));if(fd<-60||fd>FAR+60||Math.abs(r)>fd*1.3+80)continue;const y1=riverY(x),y2=riverY(x+40);
-  drawGroundPoly([[x,y1-RIVW/2-8],[x+41,y2-RIVW/2-8],[x+41,y2+RIVW/2+8],[x,y1+RIVW/2+8]],mix('#c9c0a8',FOG,fogT(Math.max(0,fd))));
-  drawGroundPoly([[x,y1-RIVW/2+10],[x+41,y2-RIVW/2+10],[x+41,y2+RIVW/2-14],[x,y1+RIVW/2-14]],mix(((x/40|0)%2)?'#4a8fc0':'#4d95c8',FOG,fogT(Math.max(0,fd))),-1)}
+ // river (大甲溪 bed, channel, levees)
+ v4River();
  // roads
  for(const s of segs){const mx=(s.a[0]+s.b[0])/2,my=(s.a[1]+s.b[1])/2,[r,fd]=camSpace(mx,my);if(fd<-30||fd>FAR||Math.abs(r)>fd*1.3+40)continue;const E=s.E,hw=E.hw;
   const ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang)*hw,ny=Math.cos(ang)*hw,ex=Math.cos(ang)*.6,ey=Math.sin(ang)*.6;const ft=fogT(Math.max(0,fd));
@@ -372,7 +426,7 @@ function render(){const t0=performance.now();const V=VEH[prof.v];
  v3Ground();
  // objects
  const L=[];
- for(const o of OBJ){const[r,fd]=camSpace(o.x,o.y);if(fd<1||fd>FAR||Math.abs(r)>fd*1.4+40)continue;L.push([fd,0,o])}
+ for(const o of OBJ){const[r,fd]=camSpace(o.x,o.y);if(fd<1||fd>FAR||Math.abs(r)>fd*1.4+60)continue;if(o.t!='box'&&fd>FAR*.72&&(BBW[o.t]||7)<8)continue;L.push([fd,0,o])}
  for(const it of ITEMS){if(it.r>0)continue;const[r,fd]=camSpace(it.x,it.y);if(fd<1||fd>260||Math.abs(r)>fd*1.3+5)continue;L.push([fd,1,it])}
  for(const n of NPC){const[r,fd]=camSpace(n.x,n.y);if(fd<1.5||fd>FAR||Math.abs(r)>fd*1.3+5)continue;L.push([fd,2,n])}
  for(const o of NET.others.values()){if(o.x==null)continue;const[r,fd]=camSpace(o.x,o.y);if(fd<1.5||fd>FAR||Math.abs(r)>fd*1.3+5)continue;L.push([fd,3,o])}
@@ -391,18 +445,21 @@ function render(){const t0=performance.now();const V=VEH[prof.v];
  if(tod>.7&&tod<.8){ctx.fillStyle='rgba(255,120,40,'+(.12*(1-Math.abs(tod-.75)/.05))+')';ctx.fillRect(0,0,W,H)}
  if(st.cool>0&&Math.floor(st.cool*10)%2){ctx.fillStyle='rgba(255,0,0,.13)';ctx.fillRect(0,0,W,H)}
  if(st.run||st.done)hud();
- const ft=performance.now()-t0;frameMs=frameMs*.95+ft*.05;frameN++}
+ if(BM.on)bigMap();
+ const ft=performance.now()-t0;frameMs=frameMs*.95+ft*.05;frameN++;if(frameN>120){if(frameMs>13&&FAR>440)FAR-=2;else if(frameMs<7&&FAR<650)FAR+=1}}
 function angd(a,b){let d=b-a;while(d>Math.PI)d-=6.283;while(d<-Math.PI)d+=6.283;return d}
 function mtnH(az,layer){// az world angle; north=PI/2
  let h=0;const P=layer?[[Math.PI/2,.9,.5],[Math.PI,.5,.6],[0,1,.9],[.5,.8,.7],[-.6,.7,.5],[2.4,.5,.4]]:[[Math.PI/2+.1,.7,.25],[Math.PI+.25,.45,.3],[.2,.4,.35],[-1.6,.3,.5]];
  for(const[c,a,w]of P){const d=angd(c,az);h=Math.max(h,a*Math.exp(-(d*d)/(w*w)))}return h+(layer?.08:.05)*(Math.sin(az*23)*.5+.5)+(layer?0:(Math.abs(Math.sin(az*61))*.05))}
 function mtn(layer,col,sc){const fogc=mix(col,FOG,.35);ctx.fillStyle=DARK>.3?shade(col,.5):fogc;ctx.beginPath();ctx.moveTo(0,HY+1);for(let x=0;x<=W;x+=6){const az=cam.h-Math.atan((x-W/2)/F);ctx.lineTo(x,HY-mtnH(az,layer)*H*sc*.35)}ctx.lineTo(W,HY+1);ctx.fill();
  if(!layer){const d=angd(cam.h,Math.PI/2+.1);if(Math.abs(d)<.9){ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='11px sans-serif';ctx.textAlign='center';ctx.fillText('火炎山',W/2+Math.tan(d)*F,HY-H*sc*.35*.75-4)}}}
-function drawBox(o,fd){const ca=Math.cos(o.a),sa=Math.sin(o.a),w=o.w/2,d=o.d/2;const C=[[-w,-d],[w,-d],[w,d],[-w,d]].map(([a,b])=>[o.x+a*ca-b*sa,o.y+a*sa+b*ca]);
+function drawBox(o,fd){if(inBox(o,cam.x,cam.y,.6))return;const ca=Math.cos(o.a),sa=Math.sin(o.a),w=o.w/2,d=o.d/2;const C=[[-w,-d],[w,-d],[w,d],[-w,d]].map(([a,b])=>[o.x+a*ca-b*sa,o.y+a*sa+b*ca]);
  for(const c of C){if(camSpace(c[0],c[1])[1]<NEAR)return}
- const ft=fogT(fd);ctx.globalAlpha=1;const faces=[];
+ const ft=fogT(fd);ctx.globalAlpha=fd<7&&o.h>cam.z?.45:1;const faces=[];
  for(let i=0;i<4;i++){const a=C[i],b=C[(i+1)%4],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,nx=mx-o.x,ny=my-o.y;if(nx*(cam.x-mx)+ny*(cam.y-my)<=0)continue;faces.push([a,b,i])}
  for(const[a,b,i]of faces){const p1=prj(a[0],a[1],0),p2=prj(b[0],b[1],0),p3=prj(b[0],b[1],o.h),p4=prj(a[0],a[1],o.h);ctx.fillStyle=mix(shade(o.c,i%2?.78:.95),FOG,ft);ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3[0],p3[1]);ctx.lineTo(p4[0],p4[1]);ctx.fill();
+  if(o.sf&&fd<170){const L=(z0,z1,u0,u1,col)=>{const q1=prj(a[0]+(b[0]-a[0])*u0,a[1]+(b[1]-a[1])*u0,z0),q2=prj(a[0]+(b[0]-a[0])*u1,a[1]+(b[1]-a[1])*u1,z0),q3=prj(a[0]+(b[0]-a[0])*u1,a[1]+(b[1]-a[1])*u1,z1),q4=prj(a[0]+(b[0]-a[0])*u0,a[1]+(b[1]-a[1])*u0,z1);ctx.fillStyle=mix(col,FOG,ft);ctx.beginPath();ctx.moveTo(q1[0],q1[1]);ctx.lineTo(q2[0],q2[1]);ctx.lineTo(q3[0],q3[1]);ctx.lineTo(q4[0],q4[1]);ctx.fill()};
+   if(i%2==0){L(.2,2.5,.1,.9,'#3a4652');L(2.6,3.3,0,1,o.sf);L(3.6,4.6,.15,.85,'#fbf3dc');for(let z=5.4;z<o.h-1;z+=3.2)L(z,z+1.6,.2,.8,'#6a8aaa')}}
   if(o.h>5&&fd<200&&o.w>8){ctx.fillStyle=mix('#5a7a9a',FOG,ft);for(let fl=1;fl<o.h/3.5;fl++){const z=fl*3.3;const q1=prj(a[0]+(b[0]-a[0])*.2,a[1]+(b[1]-a[1])*.2,z),q2=prj(a[0]+(b[0]-a[0])*.8,a[1]+(b[1]-a[1])*.8,z+1.3);ctx.fillRect(Math.min(q1[0],q2[0]),q2[1],Math.abs(q2[0]-q1[0]),q1[1]-q2[1])}}}
  if(cam.z>o.h){ctx.fillStyle=mix(o.roof,FOG,ft);ctx.beginPath();C.forEach((c,i)=>{const p=prj(c[0],c[1],o.h);i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.fill()}}
 function drawBB(t,x,y,s,fd,bob){const im=IMG[t];if(!im)return;const p=prj(x,y,(BBZ[t]||0)+(bob||0)),w=BBW[t]*s*F/fd,h=w*im.height/im.width;if(w<1)return;let ox=0;if(t=='train')ox=Math.sin(performance.now()/3000)*w*.3;ctx.drawImage(im,p[0]-w/2+ox,p[1]-h,w,h)}
@@ -433,7 +490,7 @@ function carFB(col,van,moto){const T=ctx;if(moto){riderFB('scooter','m','#7a8a6a
 function tag(x,y,v,fd,name,emo){const p=prj(x,y,v=='car'?2.8:2.6);if(fd>220)return;ctx.textAlign='center';if(name){ctx.font='bold 12px sans-serif';const w=ctx.measureText(name).width+10;ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(p[0]-w/2,p[1]-16,w,16);ctx.fillStyle='#fff';ctx.fillText(name,p[0],p[1]-4)}
  if(emo){ctx.font='26px sans-serif';ctx.fillText(emo=='bell'?(v=='bike'?'🔔':'📯'):emo,p[0],p[1]-22)}}
 // ---------- HUD ----------
-function mmRect(){const r=Math.min(62,W*.17);return{cx:W-r-10,cy:56+r+4,r}}
+function mmRect(){const r=Math.max(64,Math.min(96,W*.22,H*.15));return{cx:W-r-10,cy:56+r+4,r}}
 function hud(){const V=VEH[prof.v];ctx.textAlign='left';ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,8,176,prof.v=='bike'?96:78);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';
  ctx.fillText((mode=='mission'?'⏱ '+fmt(st.time):'🌿 自由騎'),16,28);ctx.fillText((prof.v=='bike'?'🚲 ':prof.v=='scooter'?'🛵 ':'🚗 ')+Math.round(Math.abs(st.sp)*3.6)+' km/h',16,48);ctx.fillStyle=st.coinFx>0?'#fff27a':'#ffd23f';if(st.coinFx>0)st.coinFx-=1/60;ctx.fillText('🪙 '+SAVE.coins,112,48);if(st.boost>0){ctx.fillStyle='#7ff';ctx.fillText('⚡'+Math.ceil(st.boost)+'s',112,68)}ctx.fillStyle='#fff';
  const lm=lmAt(st.x,st.y);ctx.font='13px sans-serif';ctx.fillText('📍'+(st.edge?(Math.hypot(lm.p[0]-st.x,lm.p[1]-st.y)<60?lm.n:st.edge.name):''),16,68);
@@ -441,17 +498,18 @@ function hud(){const V=VEH[prof.v];ctx.textAlign='left';ctx.fillStyle='rgba(0,0,
  if(prof.v=='bike'){ctx.fillText('體力',16,92);ctx.fillStyle='#333';ctx.fillRect(52,82,124,11);ctx.fillStyle=st.stam>30?'#4cd964':'#ff3b30';ctx.fillRect(52,82,124*st.stam/100,11);if(st.stam<=0){ctx.fillStyle='#ff5b50';ctx.fillText('騎不動了…放開踩踏休息或吃冰棒！',12,122)}}
  ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(8,H*0+(prof.v=='bike'?110:92)+(prof.v=='bike'&&st.stam<=0?18:0),176,20);ctx.fillStyle='#bfe';ctx.font='12px sans-serif';ctx.fillText(NET.state=='on'?'🟢 線上 '+NET.tot+' 人'+(NET.shard>1?'・分流'+NET.shard:''):NET.state=='connecting'?'🟡 連線中…（單人遊玩中）':'⚪ 離線單人',14,(prof.v=='bike'?124:106)+(prof.v=='bike'&&st.stam<=0?18:0));
  minimap();compass();junctionHint()}
-function minimap(){const{cx,cy,r}=mmRect(),sc=r/520,rot=st.mapNorth?0:(st.ch-Math.PI/2);ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle='rgba(236,232,214,.9)';ctx.fill();ctx.clip();
+function minimap(){const{cx,cy,r}=mmRect(),sc=r/430,rot=st.mapNorth?0:(st.ch-Math.PI/2);ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle='rgba(236,232,214,.9)';ctx.fill();ctx.clip();
  const M=(x,y)=>{const dx=(x-st.x)*sc,dy=(y-st.y)*sc,c=Math.cos(-rot),s=Math.sin(-rot);return[cx+dx*c-dy*s,cy-(dx*s+dy*c)]};
  ctx.strokeStyle='#6aaee0';ctx.lineWidth=RIVW*sc;ctx.beginPath();RIVER.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();
- for(const e of EDGES){const E=e.E;ctx.strokeStyle=E.type=='road'?'#777':E.type=='tunnel'?'#333':E.type=='bridge'?'#c33':'#c8743d';ctx.lineWidth=E.type=='road'?2.5:2;ctx.beginPath();E.pts.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke()}
+ for(const e of EDGES){const E=e.E;ctx.strokeStyle=E.type=='road'?'#777':E.type=='tunnel'?'#333':E.type=='bridge'?'#c33':'#c8743d';ctx.lineWidth=E.type=='road'?Math.max(2.2,E.hw*2*sc):2;ctx.beginPath();E.pts.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke()}
  for(const l of LM){const q=M(l.p[0],l.p[1]);const inM=missionList().includes(l);ctx.fillStyle=st.visited[l.k]?'#e33':inM?'#fff':'#bbb';ctx.strokeStyle='#a22';ctx.lineWidth=1.2;ctx.beginPath();ctx.arc(q[0],q[1],3.5,0,7);ctx.fill();ctx.stroke()}
  for(const o of NET.others.values()){if(o.x==null)continue;const q=M(o.x,o.y);ctx.fillStyle=COLORS[o.co]||'#0af';ctx.strokeStyle='#fff';ctx.beginPath();ctx.arc(q[0],q[1],3,0,7);ctx.fill();ctx.stroke()}
+ {const T=missionTarget();if(T){const q=M(T.p[0],T.p[1]);ctx.strokeStyle='#ff2a2a';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(q[0],q[1],7+Math.sin(performance.now()/200)*2,0,7);ctx.stroke()}}
  v3Mini(M);
  ctx.restore();ctx.save();ctx.translate(cx,cy);ctx.rotate(-(st.h-Math.PI/2)+rot);ctx.fillStyle=COLORS[prof.co];ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(5,6);ctx.lineTo(0,3);ctx.lineTo(-5,6);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
  // north marker
  const na=-rot;ctx.fillStyle='#c22';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText('北',cx+Math.sin(na)*(r-8),cy-Math.cos(na)*(r-8)+4);
- ctx.strokeStyle='#654';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.stroke();ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(cx-r,cy+r+3,r*2,15);ctx.fillStyle='#fff';ctx.font='10px sans-serif';ctx.fillText(st.mapNorth?'北方朝上（點地圖切換）':'隨車頭旋轉（點地圖切換）',cx,cy+r+14)}
+ ctx.strokeStyle='#654';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.stroke();ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(cx-r,cy+r+3,r*2,15);ctx.fillStyle='#fff';ctx.font='10px sans-serif';ctx.fillText((st.mapNorth?'北方朝上':'隨車頭旋轉')+'・點地圖放大',cx,cy+r+14)}
 function compass(){if(mode!='mission')return;const left=missionList().filter(l=>!st.visited[l.k]);if(!left.length)return;let b=null,bd=1e9;for(const l of left){const d=Math.hypot(l.p[0]-st.x,l.p[1]-st.y);if(d<bd){bd=d;b=l}}
  const a=angd(st.h,Math.atan2(b.p[1]-st.y,b.p[0]-st.x)),{cy,r}=mmRect();const x=W/2,y=Math.max(cy+r+40,H*.13);ctx.save();ctx.translate(x,y);ctx.fillStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.roundRect?ctx.roundRect(-90,-18,180,38,10):ctx.rect(-90,-18,180,38);ctx.fill();
  ctx.save();ctx.translate(-70,1);ctx.rotate(-a);ctx.fillStyle='#ffd24a';ctx.beginPath();ctx.moveTo(0,-13);ctx.lineTo(9,9);ctx.lineTo(0,4);ctx.lineTo(-9,9);ctx.fill();ctx.restore();
@@ -522,22 +580,31 @@ function save(){localStorage.setItem('houli3Save',JSON.stringify(SAVE))}
 loadSave();
 function cosCode(){const e=SAVE.eq;return 'c:'+e.h+e.m+e.f+e.b}
 function cosParse(k){const d=k.slice(2);return{h:+d[0]||0,m:+d[1]||0,f:+d[2]||0,b:+d[3]||0}}
-function offEdge(ei,t,side,off){const E=EDGES[ei].E,[x,y,h]=edgePoint(E,t*E.len),nx=-Math.sin(h)*side,ny=Math.cos(h)*side;return{rx:x,ry:y,x:x+nx*(E.hw+off),y:y+ny*(E.hw+off),ax:nx,ay:ny,E}}
-function v3Build(){const r=mul(4242);
- for(const s of SHOPS){const o=offEdge(s.e,s.t,s.side,8);Object.assign(s,o);s.tx=s.ay;s.ty=-s.ax;// t = viewer's right when facing shop
-  s.box={t:'box',x:s.x+s.ax*3.6,y:s.y+s.ay*3.6,w:10,d:7,h:7.6,c:s.wall,roof:shade(s.awn,.7),a:Math.atan2(s.ty,s.tx)}}
- for(const c of CORPS){const o=offEdge(c.e,c.t,c.side,12+c.sz[1]/2);Object.assign(c,o);const a=Math.atan2(c.ay,c.ax)+Math.PI/2;
-  box(c.x,c.y,c.sz[0],c.sz[1],c.sz[2],c.c,shade(c.acc,.9),a);if(!c.ferris){box(c.x+c.ax*(c.sz[1]/2+8)+Math.cos(a)*c.sz[0]*.3,c.y+c.ay*(c.sz[1]/2+8)+Math.sin(a)*c.sz[0]*.3,c.sz[0]*.35,12,c.sz[2]*.6,shade(c.c,.95),c.acc,a);
-   for(let i=-2;i<=2;i++)box(c.x-c.ax*(c.sz[1]/2+1)+Math.cos(a)*i*c.sz[0]*.18,c.y-c.ay*(c.sz[1]/2+1)+Math.sin(a)*i*c.sz[0]*.18,c.sz[0]*.12,.4,c.sz[2]*.7,c.acc,c.acc,a)}
+const SPOS={sugarice:[PL.sugar,0],banyan:[PL.sugar,26,1],zxc:[PL.zxc],amah:[[-640,-90],0,0,'甲后路一段'],zhaguo:[PL.market,12],dunzai:[PL.market,-16,1],zheng:[PL.zheng],yuelihua:[[-470,40],0,0,'三豐路四段'],douhua:[[-300,-40],0,0,'甲后路一段'],shandong:[[-1080,-190],0,0,'甲后路一段'],banana:[[-560,-90],0,0,'復興街'],
+ qidian:[PL.qidian],tiemage:[PL.trail,-24],suidaokou:[PL.suidaokou],sax:[PL.sax],huashi:[PL.zhongshe,24],niceday:[PL.niceday],horseshop:[PL.horseGift],motor:[[-480,-320],0,0,'三豐路三段'],taianstall:[PL.taian,26],greenrest:[PL.junc,34,0,null,1]};
+const CPOS={micron:PL.micron,cfsp:[PL.houliBase[0]+70,PL.houliBase[1]-50],foxlink:[PL.houliBase[0]-40,PL.houliBase[1]+90],hartford:PL.hartford,auo:PL.qixing,lihpao:PL.lihpao};
+function placeAt(p,filter,off,shift,flip){const r=nearest(p[0],p[1],filter);const E=r.s.E,q=segProj(r.s,p[0],p[1]);let d=E.cum[r.s.k]+Math.hypot(q[0]-r.s.a[0],q[1]-r.s.a[1])+(shift||0);d=Math.max(Math.min(8,E.len/2),Math.min(E.len-Math.min(8,E.len/2),d));
+ const[x,y,h]=edgePoint(E,d);let side=((p[0]-x)*-Math.sin(h)+(p[1]-y)*Math.cos(h))>=0?1:-1;if(flip)side=-side;const nx=-Math.sin(h)*side,ny=Math.cos(h)*side;return{rx:x,ry:y,x:x+nx*(E.hw+off),y:y+ny*(E.hw+off),ax:nx,ay:ny,E,t:d/E.len,side,h}}
+function regBox(o){const R=Math.hypot(o.w,o.d)/2,i0=Math.floor((o.x-R)/30),i1=Math.floor((o.x+R)/30),j0=Math.floor((o.y-R)/30),j1=Math.floor((o.y+R)/30);for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const k=gk(i,j);let L=BG.get(k);if(!L)BG.set(k,L=[]);L.push(o)}}
+function v3Place(){
+ for(const s of SHOPS){const sp=SPOS[s.k]||[[0,0]],filt=sp[4]?(E=>E.type!='road'):sp[3]?(E=>E.type=='road'&&E.name==sp[3]):(E=>E.type=='road');let ok=null;
+  outer:for(const fl of[0,1])for(const sh of[0,16,-16,32,-32,48,-48,64,-64]){const o=placeAt(sp[0],filt,8,(sp[1]||0)+sh,(sp[2]?1:0)^fl);const bx=o.x+o.ax*3.6,by=o.y+o.ay*3.6,a=Math.atan2(-o.ax,o.ay);
+   if(boxOK(bx,by,10,7,a,1.2)&&clearOf(o.x-o.ax*1.5,o.y-o.ay*1.5,.5)){ok=o;break outer}}
+  if(!ok)ok=placeAt(sp[0],filt,8,sp[1]||0,sp[2]);Object.assign(s,ok);s.tx=s.ay;s.ty=-s.ax;
+  s.box={t:'box',x:s.x+s.ax*3.6,y:s.y+s.ay*3.6,w:10,d:7,h:7.6,c:s.wall,roof:shade(s.awn,.7),a:Math.atan2(s.ty,s.tx)};regBox(s.box);RESV.push([s.box.x,s.box.y,8.5])}
+ for(const c of CORPS){const p=CPOS[c.k]||[0,0];let o=null,a=0;
+  outer:for(const fl of[0,1])for(let k=0;k<7;k++){const q=placeAt(p,E=>E.type=='road',12+c.sz[1]/2+k*10,0,fl);a=Math.atan2(q.ay,q.ax)+Math.PI/2;if(boxOK(q.x,q.y,c.sz[0],c.sz[1],a,1.5)){o=q;break outer}}
+  if(!o){o=placeAt(p,E=>E.type=='road',12+c.sz[1]/2,0,0);a=Math.atan2(o.ay,o.ax)+Math.PI/2;c.sz=[c.sz[0]*.5,c.sz[1]*.5,c.sz[2]]}
+  Object.assign(c,o);box(c.x,c.y,c.sz[0],c.sz[1],c.sz[2],c.c,shade(c.acc,.9),a,1);RESV.push([c.x,c.y,Math.hypot(c.sz[0],c.sz[1])/2+3]);
+  if(!c.ferris){box(c.x+c.ax*(c.sz[1]/2+8)+Math.cos(a)*c.sz[0]*.3,c.y+c.ay*(c.sz[1]/2+8)+Math.sin(a)*c.sz[0]*.3,c.sz[0]*.35,12,c.sz[2]*.6,shade(c.c,.95),c.acc,a);
+   for(let i=-2;i<=2;i++)box(c.x-c.ax*(c.sz[1]/2+1)+Math.cos(a)*i*c.sz[0]*.18,c.y-c.ay*(c.sz[1]/2+1)+Math.sin(a)*i*c.sz[0]*.18,c.sz[0]*.12,.4,c.sz[2]*.7,c.acc,c.acc,a,1)}
   else bb('ferris',c.x+c.ax*30,c.y+c.ay*30,1);
-  bb('corp_'+c.k,c.x-c.ax*(c.sz[1]/2+4),c.y-c.ay*(c.sz[1]/2+4),1)}
- // clear clutter around shops/corps
- OBJ=OBJ.filter(o=>{for(const s of SHOPS)if(Math.hypot(o.x-s.x,o.y-s.y)<11)return false;for(const c of CORPS)if(o.t!='box'&&!String(o.t).startsWith('corp')&&o.t!='ferris'&&Math.hypot(o.x-c.x,o.y-c.y)<c.sz[0]*.6)return false;return true});
- // coins
- COINS=[];for(const s of segs){const E=s.E;const nearLM=LM.some(l=>Math.hypot(l.p[0]-s.a[0],l.p[1]-s.a[1])<150);const p=(E.type=='road'?(E.name.includes('甲后路一段')||E.name=='甲后路'?.18:.3):.5)+(nearLM?.35:0);
-  if(r()>p*.75)continue;const lo=(r()-.5)*E.hw*1.1,ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang),L=Math.hypot(s.b[0]-s.a[0],s.b[1]-s.a[1]);
+  const sx=c.x-c.ax*(c.sz[1]/2+4),sy=c.y-c.ay*(c.sz[1]/2+4);bb('corp_'+c.k,sx,sy,1)}}
+function v3Build(){const r=mul(4242);
+ COINS=[];for(const s of segs){const E=s.E;const nearLM=LM.some(l=>Math.abs(l.p[0]-s.a[0])<150&&Math.abs(l.p[1]-s.a[1])<150);const p=(E.type=='road'?(E.hw>=6?.07:.11):.3)+(nearLM?.25:0);
+  if(r()>p)continue;const lo=(r()-.5)*E.hw*1.1,ang=Math.atan2(s.b[1]-s.a[1],s.b[0]-s.a[0]),nx=-Math.sin(ang),ny=Math.cos(ang),L=Math.hypot(s.b[0]-s.a[0],s.b[1]-s.a[1]);
   for(let i=0;i<2;i++){const d=L*.3+i*5;COINS.push({x:s.a[0]+Math.cos(ang)*d+nx*lo,y:s.a[1]+Math.sin(ang)*d+ny*lo,v:1,r:0,ph:r()*6})}}
- for(const l of LM)for(let i=0;i<2;i++){const nr=nearest(l.p[0]+i*12,l.p[1]+i*6);const ang=Math.atan2(nr.s.b[1]-nr.s.a[1],nr.s.b[0]-nr.s.a[0]);COINS.push({x:nr.s.a[0]+Math.cos(ang)*6,y:nr.s.a[1]+Math.sin(ang)*6,v:5,r:0,ph:0})}}
+ for(const l of LM){const nr=nearest(l.p[0],l.p[1]);for(let i=0;i<2;i++){const E=nr.s.E,q=segProj(nr.s,l.p[0],l.p[1]),d=E.cum[nr.s.k]+Math.hypot(q[0]-nr.s.a[0],q[1]-nr.s.a[1])+(i?-10:10);const[x,y]=edgePoint(E,d);COINS.push({x,y,v:5,r:0,ph:0})}}}
 function upMax(){const b=prof.v=='bike';return(b&&SAVE.up.gear?1.15:1)*(!b&&SAVE.up.engine?1.12:1)*(st.boost>0?1.25:1)}
 function upAcc(){return(prof.v!='bike'&&SAVE.up.engine?1.2:1)*(st.boost>0?1.3:1)}
 function upTurn(){return SAVE.up.tire?1.15:1}
@@ -599,9 +666,25 @@ function v3Imgs(){
   // counter
   g.fillStyle='#8b5a2b';g.fillRect(20,330,472,80);g.fillStyle='#a87040';g.fillRect(14,322,484,14);g.font='40px sans-serif';for(let i=0;i<gs.length*2&&i<6;i++)g.fillText(gs[i%gs.length],70+i*74,306);
   g.fillStyle='#fff';g.font='bold 20px sans-serif';g.fillText(s.real?'后里在地店家':'遊戲虛構店家',256,376);g.strokeStyle='#2b1d12';g.lineWidth=8;g.strokeRect(4,4,504,402)})}
-function v3Ground(){for(const R of RAILS){for(let y=R[1];y<R[2];y+=40){const[r,fd]=camSpace(R[0],y+20);if(fd<-50||fd>FAR||Math.abs(r)>fd*1.3+50)continue;const ft=fogT(Math.max(0,fd));
-  drawGroundPoly([[R[0]-1.5,y],[R[0]+1.5,y],[R[0]+1.5,y+40.5],[R[0]-1.5,y+40.5]],mix('#9a9080',FOG,ft),.01);
-  for(const o of[-.75,.75])drawGroundPoly([[R[0]+o-.08,y],[R[0]+o+.08,y],[R[0]+o+.08,y+40.5],[R[0]+o-.08,y+40.5]],mix('#5a5a60',FOG,ft),.03)}}}
+function riverPolys(){if(riverPolys.c)return riverPolys.c;const P=RIVER,out=[];const nrm=i=>{const a=P[Math.max(0,i-1)],b=P[Math.min(P.length-1,i+1)],ang=Math.atan2(b[1]-a[1],b[0]-a[0]);return[-Math.sin(ang),Math.cos(ang)]};
+ for(let i=1;i<P.length;i++){const a=P[i-1],b=P[i],na=nrm(i-1),nb=nrm(i);const q=(o1,o2)=>[[a[0]+na[0]*o1,a[1]+na[1]*o1],[b[0]+nb[0]*o1,b[1]+nb[1]*o1],[b[0]+nb[0]*o2,b[1]+nb[1]*o2],[a[0]+na[0]*o2,a[1]+na[1]*o2]];
+  const w=RIVW/2,m1=Math.sin(i*.9)*w*.35,m2=Math.sin(i*.9+.9)*w*.35;out.push({c:[(a[0]+b[0])/2,(a[1]+b[1])/2],levL:q(w+8,w+16),levR:q(-w-8,-w-16),bed:q(w+8,-w-8),
+   wat:[[a[0]+na[0]*(m1+w*.22),a[1]+na[1]*(m1+w*.22)],[b[0]+nb[0]*(m2+w*.22),b[1]+nb[1]*(m2+w*.22)],[b[0]+nb[0]*(m2-w*.22),b[1]+nb[1]*(m2-w*.22)],[a[0]+na[0]*(m1-w*.22),a[1]+na[1]*(m1-w*.22)]],i})}
+ return riverPolys.c=out}
+function v4River(){for(const R of riverPolys()){const[r,fd]=camSpace(R.c[0],R.c[1]);if(fd<-200||fd>FAR+150||Math.abs(r)>fd*1.3+220)continue;const ft=fogT(Math.max(0,fd));
+ drawGroundPoly(R.levL,mix('#7fa65a',FOG,ft),.01);drawGroundPoly(R.levR,mix('#7fa65a',FOG,ft),.01);drawGroundPoly(R.bed,mix('#c9c0a8',FOG,ft));drawGroundPoly(R.wat,mix(R.i%2?'#4a8fc0':'#4d95c8',FOG,ft),.02)}}
+function v3Ground(){
+ for(const R of RAILS){const mx=(R[0]+R[2])/2,my=(R[1]+R[3])/2,[r,fd]=camSpace(mx,my);if(fd<-40||fd>FAR*.8||Math.abs(r)>fd*1.3+40)continue;const ft=fogT(Math.max(0,fd)),ang=Math.atan2(R[3]-R[1],R[2]-R[0]),nx=-Math.sin(ang),ny=Math.cos(ang),ex=Math.cos(ang)*.3,ey=Math.sin(ang)*.3;
+  const strip=(o1,o2,c,z)=>drawGroundPoly([[R[0]+nx*o1-ex,R[1]+ny*o1-ey],[R[2]+nx*o1+ex,R[3]+ny*o1+ey],[R[2]+nx*o2+ex,R[3]+ny*o2+ey],[R[0]+nx*o2-ex,R[1]+ny*o2-ey]],mix(c,FOG,ft),z);
+  strip(-1.8,1.8,'#9a9080',.01);if(fd<220){strip(-.83,-.67,'#5a5a60',.03);strip(.67,.83,'#5a5a60',.03)}}
+ for(const X of XINGS){const[r,fd]=camSpace(X.x,X.y);if(fd<-20||fd>260||Math.abs(r)>fd*1.3+20)continue;const ft=fogT(Math.max(0,fd)),c=Math.cos(X.ra),s=Math.sin(X.ra),nx=-s,ny=c,w=X.E.hw+.5;
+  for(let k=-3;k<3;k++){const u0=k*1.2,u1=u0+.6;drawGroundPoly([[X.x+c*-2+nx*u0*w/3.6,X.y+s*-2+ny*u0*w/3.6],[X.x+c*2+nx*u0*w/3.6,X.y+s*2+ny*u0*w/3.6],[X.x+c*2+nx*u1*w/3.6,X.y+s*2+ny*u1*w/3.6],[X.x+c*-2+nx*u1*w/3.6,X.y+s*-2+ny*u1*w/3.6]],mix(k%2?'#f2d23a':'#222',FOG,ft),.035)}}}
+function v4Imgs(){
+ mkImg('slamp',60,300,(g)=>{g.fillStyle='#6b7178';g.fillRect(27,40,6,260);g.fillRect(27,36,26,5);g.fillStyle='#fff6c8';g.beginPath();g.ellipse(50,44,10,5,0,0,7);g.fill()});BBW.slamp=.9;
+ mkImg('xing',120,300,(g)=>{g.fillStyle='#555';g.fillRect(56,60,8,240);g.save();g.translate(60,50);for(const a of[.6,-.6]){g.save();g.rotate(a);g.fillStyle='#fff';g.fillRect(-50,-8,100,16);g.fillStyle='#d62828';for(let i=-50;i<50;i+=25)g.fillRect(i,-8,12,16);g.restore()}g.restore();g.fillStyle='#111';g.beginPath();g.arc(40,110,12,0,7);g.arc(80,110,12,0,7);g.fill();g.fillStyle='#ff3b30';g.beginPath();g.arc(40,110,8,0,7);g.fill();g.fillStyle='#f2d23a';g.fillRect(48,150,24,26);g.fillStyle='#111';g.font='bold 16px sans-serif';g.textAlign='center';g.fillText('停',60,169)});BBW.xing=1.6;
+ mkImg('reed',80,90,(g)=>{for(let i=0;i<14;i++){g.strokeStyle=i%2?'#b9a86a':'#8fa050';g.lineWidth=3;g.beginPath();g.moveTo(10+i*4.5,90);g.quadraticCurveTo(8+i*4.5,40,14+i*4.5+(i%3-1)*8,8+(i%4)*6);g.stroke()}g.fillStyle='#e8dcb0';for(let i=0;i<5;i++){g.beginPath();g.ellipse(18+i*12,12+(i%2)*8,4,10,.3,0,7);g.fill()}});BBW.reed=2.4;
+ mkImg('bamboo',120,260,(g)=>{for(let i=0;i<7;i++){g.strokeStyle=['#5f8f3a','#6fa040','#4f7f30'][i%3];g.lineWidth=6;g.beginPath();g.moveTo(30+i*10,260);g.quadraticCurveTo(28+i*10,120,20+i*14,10);g.stroke()}g.fillStyle='#4f8a34';for(let i=0;i<22;i++){g.beginPath();g.ellipse(20+(i*37)%90,20+(i*53)%150,16,5,(i%5)-2,0,7);g.fill()}});BBW.bamboo=5}
+
 function v3Mini(M){ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='10px sans-serif';for(const s of SHOPS){const q=M(s.x,s.y);ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.arc(q[0],q[1],6,0,7);ctx.fill();ctx.fillStyle='#000';ctx.fillText(s.ico,q[0],q[1]+.5)}
  for(const c of CORPS){const q=M(c.x,c.y);ctx.fillText(c.ferris?'🎡':'🏭',q[0],q[1])}ctx.textBaseline='alphabetic'}
 // ---------- shop & bag UI ----------
@@ -630,11 +713,54 @@ function openBag(){uiSet(1);const el=$('bag');const ids=Object.keys(ITEM);const 
 function closeUI(){$('shop').classList.remove('on');$('bag').classList.remove('on');uiSet(0)}
 $('enterB').onclick=()=>openShop(nearShop);$('bagB').onclick=()=>{if($('bag').classList.contains('on'))closeUI();else openBag()};
 
+// ================= V4: FULL-SCREEN MAP =================
+const BM={on:0,z:1,px:0,py:0,drag:null,route:null,tgt:null};
+function missionTarget(){if(mode!='mission')return null;const left=missionList().filter(l=>!st.visited[l.k]);let b=null,bd=1e9;for(const l of left){const d=Math.hypot(l.p[0]-st.x,l.p[1]-st.y);if(d<bd){bd=d;b=l}}return b}
+function openBig(){if(!st.run||uiOpen)return;BM.on=1;BM.z=1;BM.px=st.x;BM.py=st.y;BM.tgt=missionTarget();BM.route=BM.tgt?routeFrom(st.x,st.y,BM.tgt.p):null;uiSet(1);document.body.classList.add('bigmap');mapBtn()}
+function closeBig(){BM.on=0;document.body.classList.remove('bigmap');uiSet(0)}
+function mapBtn(){$('mRot').textContent=st.mapNorth?'🧭 北方朝上':'🧭 隨車頭旋轉'}
+function bmRot(){return st.mapNorth?0:(st.h-Math.PI/2)}
+function bmScale(){return Math.min(W,H)/1500*BM.z}
+const ROADNAMES=()=>{if(ROADNAMES.c)return ROADNAMES.c;const best={};for(const e of EDGES){const E=e.E;if(!best[E.name]||E.len>best[E.name].len)best[E.name]=E}return ROADNAMES.c=Object.values(best)};
+function bigMap(){const sc=bmScale(),rot=bmRot(),c=Math.cos(-rot),s=Math.sin(-rot);const M=(x,y)=>{const dx=(x-BM.px)*sc,dy=(y-BM.py)*sc;return[W/2+dx*c-dy*s,H/2-(dx*s+dy*c)]};
+ ctx.fillStyle='#dfe9cf';ctx.fillRect(0,0,W,H);
+ const poly=(P,fill)=>{ctx.fillStyle=fill;ctx.beginPath();P.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath();ctx.fill()};
+ for(const t of TOWN){const q=M(t[0],t[1]);ctx.fillStyle='rgba(233,214,190,.8)';ctx.beginPath();ctx.arc(q[0],q[1],t[2]*sc,0,7);ctx.fill()}
+ for(const P of PARKS())poly(P,'rgba(176,190,224,.75)');
+ for(const R of riverPolys()){poly(R.bed,'#cfc6ae');poly(R.wat,'#5aa0d8')}
+ ctx.strokeStyle='#555';ctx.lineWidth=3;ctx.setLineDash([]);ctx.beginPath();RAILP.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.setLineDash([6,6]);ctx.stroke();ctx.setLineDash([]);
+ for(const pass of[0,1])for(const e of EDGES){const E=e.E;const col=E.type=='road'?(pass?(E.hw>=6?'#ffd77a':'#ffffff'):'#8a8a8a'):E.type=='tunnel'?'#333':E.type=='bridge'?'#c33':(pass?'#e8874a':'#9a4a2a');
+  ctx.strokeStyle=col;ctx.lineWidth=Math.max(E.type=='road'?2.2:1.6,E.hw*2*sc)+(pass?0:2);ctx.lineCap='round';ctx.lineJoin='round';if(E.type=='tunnel'&&pass)ctx.setLineDash([5,4]);ctx.beginPath();E.pts.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();ctx.setLineDash([])}
+ if(BM.route){ctx.strokeStyle='rgba(255,60,60,.85)';ctx.lineWidth=4;ctx.setLineDash([10,7]);ctx.beginPath();BM.route.forEach((p,i)=>{const q=M(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();ctx.setLineDash([])}
+ // road names
+ ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ for(const E of ROADNAMES()){const i=Math.floor(E.pts.length/2),a=E.pts[Math.max(0,i-1)],b=E.pts[Math.min(E.pts.length-1,i+1)],p=M((a[0]+b[0])/2,(a[1]+b[1])/2),q1=M(a[0],a[1]),q2=M(b[0],b[1]);if(p[0]<-50||p[0]>W+50||p[1]<-20||p[1]>H+20)continue;
+  if(E.len*sc<ctx.measureText(E.name).width*.9)continue;let ang=Math.atan2(q2[1]-q1[1],q2[0]-q1[0]);if(ang>Math.PI/2)ang-=Math.PI;if(ang<-Math.PI/2)ang+=Math.PI;ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(ang);ctx.lineWidth=3.5;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeText(E.name,0,-8);ctx.fillStyle=E.type=='road'?'#333':'#a0441a';ctx.fillText(E.name,0,-8);ctx.restore()}
+ // companies, shops, landmarks
+ const icon=(x,y,ic,label,col,sz)=>{const q=M(x,y);if(q[0]<-30||q[0]>W+30||q[1]<-30||q[1]>H+30)return;ctx.fillStyle='rgba(255,255,255,.95)';ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],sz,0,7);ctx.fill();ctx.stroke();ctx.font=(sz*1.15|0)+'px sans-serif';ctx.fillStyle='#000';ctx.fillText(ic,q[0],q[1]+1);
+  if(label){ctx.font='bold 11px sans-serif';ctx.lineWidth=3;ctx.strokeStyle='rgba(255,255,255,.95)';ctx.strokeText(label,q[0],q[1]+sz+8);ctx.fillStyle=col;ctx.fillText(label,q[0],q[1]+sz+8)}};
+ for(const C of CORPS)icon(C.x,C.y,C.ferris?'🎡':'🏭',C.n.replace(' 中科分公司',''),'#2a4a8a',10);
+ for(const S of SHOPS)icon(S.x,S.y,S.ico,BM.z>=1.6?S.n:'',S.real?'#b0302a':'#2e86c1',8);
+ for(const l of LM){const inM=missionList().includes(l);icon(l.p[0],l.p[1],st.visited[l.k]?'✅':'📍',l.n,inM?'#8a1a1a':'#777',11)}
+ if(BM.tgt){const q=M(BM.tgt.p[0],BM.tgt.p[1]),k=(performance.now()/600)%1;ctx.strokeStyle='rgba(255,40,40,'+(1-k)+')';ctx.lineWidth=3;ctx.beginPath();ctx.arc(q[0],q[1],14+k*18,0,7);ctx.stroke();ctx.font='18px sans-serif';ctx.fillText('🎯',q[0]+16,q[1]-16)}
+ for(const o of NET.others.values()){if(o.x==null)continue;const q=M(o.x,o.y);ctx.fillStyle=COLORS[o.co]||'#0af';ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(q[0],q[1],6,0,7);ctx.fill();ctx.stroke();ctx.font='bold 11px sans-serif';ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText(o.n||'騎士',q[0],q[1]-12);ctx.fillStyle='#fff';ctx.fillText(o.n||'騎士',q[0],q[1]-12)}
+ {const q=M(st.x,st.y);ctx.save();ctx.translate(q[0],q[1]);ctx.rotate(-(st.h-Math.PI/2)+rot);ctx.fillStyle=COLORS[prof.co];ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-13);ctx.lineTo(9,10);ctx.lineTo(0,5);ctx.lineTo(-9,10);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();ctx.font='bold 11px sans-serif';ctx.lineWidth=3;ctx.strokeStyle='#000';ctx.strokeText('我',q[0],q[1]+20);ctx.fillStyle='#fff';ctx.fillText('我',q[0],q[1]+20)}
+ // north arrow + legend + scale
+ ctx.save();ctx.translate(36,90);ctx.rotate(rot);ctx.fillStyle='#c22';ctx.beginPath();ctx.moveTo(0,-18);ctx.lineTo(8,6);ctx.lineTo(0,1);ctx.lineTo(-8,6);ctx.fill();ctx.fillStyle='#000';ctx.font='bold 12px sans-serif';ctx.fillText('北',0,-26);ctx.restore();
+ ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,0,W,40);ctx.fillStyle='#fff';ctx.font='bold 15px sans-serif';ctx.fillText('🗺️ 后里地圖'+(BM.tgt?'・🎯 '+BM.tgt.n+' '+Math.round(Math.hypot(BM.tgt.p[0]-st.x,BM.tgt.p[1]-st.y))+' 公尺':''),W/2,20);
+ const L=200*sc;ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillRect(10,H-118,L+16,22);ctx.fillStyle='#000';ctx.fillRect(18,H-104,L,4);ctx.font='10px sans-serif';ctx.fillText('約 '+Math.round(200/.45)+' 公尺（實際）',18+L/2,H-111);
+ ctx.font='11px sans-serif';ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,H-88,W,20);ctx.fillStyle='#fff';ctx.fillText('📍景點 🏪店家 🏭企業 🎯任務目標 ●其他玩家・拖曳移動地圖・地圖資料 © OpenStreetMap',W/2,H-78);ctx.textBaseline='alphabetic'}
+cv.addEventListener('pointerdown',e=>{if(BM.on){BM.drag=[e.clientX,e.clientY,BM.px,BM.py];return}const m=mmRect();if(Math.hypot(e.clientX-m.cx,e.clientY-m.cy)<m.r)openBig()});
+cv.addEventListener('pointermove',e=>{if(!BM.on||!BM.drag)return;const sc=bmScale(),rot=bmRot(),dx=(e.clientX-BM.drag[0])/sc,dy=-(e.clientY-BM.drag[1])/sc,c=Math.cos(rot),s=Math.sin(rot);BM.px=BM.drag[2]-(dx*c-dy*s);BM.py=BM.drag[3]-(dx*s+dy*c)});
+addEventListener('pointerup',()=>BM.drag=null);
+cv.addEventListener('wheel',e=>{if(BM.on){BM.z=Math.max(.6,Math.min(5,BM.z*(e.deltaY<0?1.15:.87)));e.preventDefault()}},{passive:false});
+$('mClose').onclick=closeBig;$('mIn').onclick=()=>BM.z=Math.min(5,BM.z*1.4);$('mOut').onclick=()=>BM.z=Math.max(.6,BM.z/1.4);$('mMe').onclick=()=>{BM.px=st.x;BM.py=st.y};$('mRot').onclick=()=>{st.mapNorth=!st.mapNorth;mapBtn()};
+
 // ================= LOOP =================
 let last=performance.now(),acc=0;
 function loop(now){const dt=Math.min(.1,(now-last)/1000)*TS;last=now;acc+=dt;let n=0;while(acc>=1/60&&n<30){update(1/60);acc-=1/60;n++}if(acc>1)acc=0;render();requestAnimationFrame(loop)}
-addEventListener('resize',resize);buildGraph();buildImgs();v3Imgs();resize();reset();showBest();drawPrev();netConnect();requestAnimationFrame(loop);
+addEventListener('resize',resize);buildGraph();buildImgs();v3Imgs();v4Imgs();resize();reset();showBest();drawPrev();netConnect();requestAnimationFrame(loop);
 window.__hr={get st(){return st},get net(){return NET},LM,N,get frameMs(){return frameMs},get assets(){return AS},prof,
- tp(k,dir){const p=LM.find(l=>l.k==k)?.p||N[k];st.x=p[0];st.y=p[1]-(dir||25);st.h=st.ch=Math.PI/2;st.sp=0},set(o){Object.assign(st,o)},start,get save(){return SAVE},SHOPS,CORPS,get coins(){return COINS},openShop,openBag,closeUI,buy,
+ tp(k,dir){const p=LM.find(l=>l.k==k)?.p||N[k];st.x=p[0];st.y=p[1]-(dir||25);st.h=st.ch=Math.PI/2;st.sp=0},get LMS(){return LM},EDGES,PL,get MB(){return MB},BM,openBig,closeBig,nearest,riverD,boxAt,get OBJ(){return OBJ},spawnPose,route,routeFrom,nearestNode,get RIVW(){return RIVW},get FAR(){return FAR},set(o){Object.assign(st,o)},start,get save(){return SAVE},SHOPS,CORPS,get coins(){return COINS},openShop,openBag,closeUI,buy,
  tpShop(k){const s=SHOPS.find(x=>x.k==k);st.x=s.rx-Math.cos(s.e_h||0);st.y=s.ry;st.sp=0;const E=s.E,[,,h]=edgePoint(E,s.t*E.len);st.h=st.ch=h},addCoins(n){SAVE.coins+=n;save()}};
 </script></body></html>
